@@ -1,49 +1,41 @@
 module.exports = {
-  // The test environment that will be used for testing
   testEnvironment: 'node',
-  
-  // The root directory that Jest should scan for tests
-  rootDir: './',
-  
-  // The glob patterns Jest uses to detect test files
+  roots: ['<rootDir>/tests'],
   testMatch: [
-    '**/tests/**/*.test.js',
+    // Match test files in /tests directory (including subdirectories)
+    '<rootDir>/tests/**/*.test.js',
+    '<rootDir>/tests/**/*.test.jsx',
+    
+    // Additional pattern to match your server test files
+    '<rootDir>/server/**/*.test.js' 
   ],
-  
-  // An array of regexp pattern strings that are matched against all test paths
-  // Tests that match these patterns will be skipped
-  testPathIgnorePatterns: [
-    '/node_modules/',
-    '/client/'
+  moduleFileExtensions: ['js', 'json', 'jsx', 'node'],
+  moduleDirectories: [
+    'node_modules',
+    '<rootDir>/server',       // For server modules
+    '<rootDir>/client'        // If needing client modules
   ],
-  
-  // An array of regexp pattern strings that are matched against all source file paths
-  // If the file path matches any of the patterns, coverage information will be skipped
+  moduleNameMapper: {
+    // Map @/ to root directory for absolute imports
+    '^@/(.*)$': '<rootDir>/$1',
+    // Add specific mappings for server config
+    '^@config/(.*)$': '<rootDir>/server/config/$1'
+  },
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  testTimeout: 30000,
+  collectCoverage: true,
+  coverageDirectory: 'coverage',
   coveragePathIgnorePatterns: [
     '/node_modules/',
-    '/client/'
+    '/server/config/',
+    '/server/utils/',
+    '/tests/'
   ],
-  
-  // Indicates whether each individual test should be reported during the run
-  verbose: true,
-  
-  // Automatically clear mock calls and instances between every test
-  clearMocks: true,
-  
-  // Indicates whether the coverage information should be collected while executing the test
-  collectCoverage: false,
-  
-  // The directory where Jest should output its coverage files
-  coverageDirectory: 'coverage',
-  
-  // Setup files that will be run before each test
-  setupFilesAfterEnv: ['<rootDir>/tests/setup.js'],
-  
-  // A map from regular expressions to module names that allow to stub out resources
-  moduleNameMapper: {
-    '^@server/(.*)$': '<rootDir>/server/$1',
-    '^@tests/(.*)$': '<rootDir>/tests/$1',
-    '^@mocks/(.*)$': '<rootDir>/tests/__mocks__/$1',
-    '^../config/db$': '<rootDir>/tests/__mocks__/db.js'
-  }
+  collectCoverageFrom: [
+    'server/**/*.{js,jsx}',
+    '!**/node_modules/**',
+    '!server/index.js'
+  ],
+  coverageReporters: ['text', 'lcov'],
+  reporters: ['default', 'jest-junit']
 };
