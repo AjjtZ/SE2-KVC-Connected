@@ -79,6 +79,10 @@ app.use("/pets", petRoutes);
 app.use("/vax", vaccineRoutes);
 app.use("/recs", recordRoutes);
 
+//FILE UPLOADS
+const path = require("path");
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 app.use((req, res, next) => {
     console.log(`Unhandled request: ${req.method} ${req.originalUrl}`);
     res.status(404).json({ error: "Not Found" });

@@ -1,5 +1,6 @@
 const dayjs = require("dayjs");
 const PetModel = require("../models/petModel");
+const db = require("../config/db");
 
 // Update pet profile (only for clinicians and doctors)
 exports.updatePetProfile = async (req, res) => {
@@ -213,34 +214,30 @@ exports.addPetForOwner = async (req, res) => {
 
 // Function to get all pets of an owner
 exports.getPetsByOwner = async (req, res) => {
+    const userId = req.user.userId; // Extract user ID from the authenticated token
+
     try {
-        const ownerId = parseInt(req.params.user_id); // Ensure it's an integer
+        const [pets] = await db.query(
+            `
+            SELECT 
+                pet_info.pet_id,
+                pet_info.pet_name,
+                pet_info.pet_breed,
+                pet_info.pet_gender,
+                pet_info.pet_birthday,
+                pet_species.spec_description AS species
+            FROM pet_info
+            JOIN match_pet_species ON pet_info.pet_id = match_pet_species.pet_id
+            JOIN pet_species ON match_pet_species.spec_id = pet_species.spec_id
+            WHERE pet_info.user_id = ?
+            `,
+            [userId]
+        );
 
-
-        console.log("Authenticated User:", req.user); // Debugging log
-        console.log("Owner ID from Params:", ownerId); // Debugging log
-        console.log("User ID from req.user:", req.user.userId); // Debugging log
-
-
-        // Validate the authenticated user
-        if (req.user.userId !== ownerId) {
-            return res.status(403).json({ error: "❌ Forbidden: You can only view your own pets." });
-        }
-
-
-        // Fetch pets using the PetModel
-        const pets = await PetModel.findByOwnerId(ownerId);
-
-
-        if (pets.length === 0) {
-            return res.status(404).json({ message: "No pets found for this owner." });
-        }
-
-
-        res.status(200).json({ pets });
+        res.json(pets);
     } catch (error) {
-        console.error("❌ Error retrieving pets:", error);
-        res.status(500).json({ error: "Internal Server Error" });
+        console.error("Error fetching pets for owner:", error);
+        res.status(500).json({ error: "Failed to fetch pets for owner" });
     }
 };
 

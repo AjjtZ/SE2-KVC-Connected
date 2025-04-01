@@ -1,16 +1,25 @@
 "use client";
 
 import { useState } from "react";
+<<<<<<< HEAD
+=======
+import { useNavigate } from "react-router-dom"; // Import useNavigate
+>>>>>>> origin/iahs-railway
 import "../css/AddNewPet.css";
 
 export default function AddNewPet() {
   const [petData, setPetData] = useState({
     name: "",
-    species: "",
+    speciesDescription: "",
     gender: "male",
     breed: "",
     birthday: "",
   });
+<<<<<<< HEAD
+=======
+
+  const navigate = useNavigate(); // Initialize navigate
+>>>>>>> origin/iahs-railway
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -43,6 +52,12 @@ export default function AddNewPet() {
       const result = await response.json();
       console.log("Pet added successfully:", result);
       alert("Pet added successfully!");
+<<<<<<< HEAD
+=======
+
+      // Redirect to MyPets page
+      navigate("/MyPets");
+>>>>>>> origin/iahs-railway
     } catch (error) {
       console.error("Error submitting form:", error);
       alert("An error occurred while adding the pet.");
@@ -85,8 +100,16 @@ export default function AddNewPet() {
                 <option value="Dog (Standard)">Dog</option>
                 <option value="Cat (Standard)">Cat</option>
                 <option value="Snake (Exotic)">Snake</option>
+<<<<<<< HEAD
                 <option value="RabbitTurtles (Exotic)">Turtles</option>
                 <option value="Birds (Exotic)">Birds</option>
+=======
+                <option value="Turtles (Exotic)">Turtles</option>
+                <option value="Birds (Exotic)">Birds</option>
+                <option value="Rabbit (Exotic)">Rabbit</option>
+                <option value="Lab Rat (Exotic)">Lab Rat</option>
+                <option value="Others">Others</option>
+>>>>>>> origin/iahs-railway
               </select>
             </div>
           </div>
@@ -141,7 +164,6 @@ export default function AddNewPet() {
                 />
               </div>
             </div>
-            {/*  */}
             <div className="form-field empty-field"></div>
           </div>
 

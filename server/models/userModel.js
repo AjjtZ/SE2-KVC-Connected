@@ -38,11 +38,19 @@ class UserModel {
             [fname, lname, email, contact, password, "owner"]
         );
         const userId = result.insertId;
+<<<<<<< HEAD
         
+=======
+
+>>>>>>> origin/iahs-railway
         await connection.query(
             "INSERT INTO owner (user_id, owner_address, owner_alt_person1, owner_alt_contact1) VALUES (?, ?, ?, ?)",
             [userId, address, altPerson1, altContact1]
         );
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/iahs-railway
         return userId;
     }
 
@@ -63,15 +71,15 @@ class UserModel {
         return this.getUserById(userId);
     }
 
-    static async updateOwnerProfile(userId, firstname, lastname, email, contact, address, altperson, altcontact) {
+    static async updateOwnerProfile(userId, firstname, lastname, email, contact, address, altperson, altcontact, altperson2, altcontact2) {
         await db.execute(
             "UPDATE users SET user_firstname = ?, user_lastname = ?, user_email = ?, user_contact = ? WHERE user_id = ?",
             [firstname, lastname, email, contact, userId]
         );
 
         await db.execute(
-            "UPDATE owner SET owner_address = ?, owner_alt_person1 = ?, owner_alt_contact1 = ? WHERE user_id = ?",
-            [address, altperson, altcontact, userId]
+            "UPDATE owner SET owner_address = ?, owner_alt_person1 = ?, owner_alt_contact1 = ?, owner_alt_person2 = ?, owner_alt_contact2 = ? WHERE user_id = ?",
+            [address, altperson, altcontact, altperson2, altcontact2, userId]
         );
     }
 }

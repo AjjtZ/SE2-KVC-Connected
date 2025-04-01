@@ -6,8 +6,8 @@ import { createContext, useContext, useState } from "react"
 export const ROLES = {
   DOCTOR: "doctor",
   CLINICIAN: "clinician",
-  FRONT_DESK: "frontdesk",
-  PET_OWNER: "petowner",
+  FRONT_DESK: "staff",
+  PET_OWNER: "owner",
 }
 
 // permissions for each role

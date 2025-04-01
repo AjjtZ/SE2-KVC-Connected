@@ -61,6 +61,7 @@ error: "Invalid email or password",
 
         res.json({
             message: "✅ Login successful!",
+            role: user.user_role,
             redirectUrl: "/patients",
         });
     } catch (error) {
@@ -189,7 +190,11 @@ speciesId,
         req.session.petOwnerData = null;
         req.session.step1Completed = null;
 
+<<<<<<< HEAD
         res.status(201).json({ message: "✅ Pet Owner account created successfully!" });
+=======
+        res.status(201).json({ message: "✅ Pet Owner account created successfully!", role: "owner", redirectUrl: "/patients" });
+>>>>>>> origin/iahs-railway
     } catch (error) {
 // Rollback transaction if anything fails
             await connection.rollback();
@@ -225,16 +230,26 @@ exports.signupEmployeeRequest = async (req, res) => {
     const { fname, lname, contact, email, role, password, confirmPassword, captchaInput } = req.body;
 
     if (!req.session.captcha || captchaInput !== req.session.captcha) {
+<<<<<<< HEAD
         const newCaptchaText = generateCaptcha();
+=======
+const newCaptchaText = generateCaptcha();
+>>>>>>> origin/iahs-railway
         const newCaptchaImage = generateCaptchaImage(newCaptchaText);
         req.session.captcha = newCaptchaText;
 
         console.log("New CAPTCHA generated:", newCaptchaText); // Debug log
 
         return res.status(400).json({
+<<<<<<< HEAD
             error: "❌ Incorrect CAPTCHA!",
             newCaptcha: { image: newCaptchaImage },
         });
+=======
+error: "❌ Incorrect CAPTCHA!",
+            newCaptcha: { image: newCaptchaImage },
+});
+>>>>>>> origin/iahs-railway
     }
     req.session.captcha = null;
 
@@ -307,6 +322,7 @@ exports.signupEmployeeComplete = async (req, res) => {
 
         res.json({
             message: "✅ Signup successful! You can now log in.",
+            role: role,
             redirectUrl: "/patients",
         });
     } catch (error) {

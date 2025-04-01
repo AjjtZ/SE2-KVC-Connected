@@ -1,19 +1,52 @@
-import React from 'react';
-import "../css/MedicalRecordForm.css";
+"use client"
+
+
+import { useEffect } from "react"
+import "../css/MedicalRecordForm.css"
+
+
+// Helper function to format dates as MM/DD/YYYY
+const formatDateForDisplay = (dateString) => {
+  if (!dateString) return ""
+
+
+  try {
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return dateString // Return original if invalid
+
+
+    const month = String(date.getMonth() + 1).padStart(2, "0")
+    const day = String(date.getDate()).padStart(2, "0")
+    const year = date.getFullYear()
+
+
+    return `${month}/${day}/${year}`
+  } catch (error) {
+    console.error("Error formatting date:", error)
+    return dateString
+  }
+}
+
 
 const MedicalRecordForm = ({
-    formData,
-    isEditing,
-    isDiagnosisLocked,
-    onInputChange,
-    onUnlockDiagnosis,
-    isAddRecord,
-    errors,
-  }) => {
-  
+  formData,
+  isEditing,
+  isDiagnosisLocked,
+  onInputChange,
+  onUnlockDiagnosis,
+  isAddRecord,
+  errors,
+}) => {
+  // Debug log to check formData
+  useEffect(() => {
+    console.log("MedicalRecordForm formData:", formData)
+  }, [formData])
+
+
   const renderField = (label, name, type = "text", options = {}) => {
     const value = formData[name]
     const { isFullWidth, isRequired, selectOptions } = options
+
 
     let input
     if (type === "select") {
@@ -21,7 +54,7 @@ const MedicalRecordForm = ({
         <select
           id={name}
           name={name}
-          value={value}
+          value={value || ""}
           onChange={onInputChange}
           disabled={!isEditing}
           className={isEditing ? "editable-value" : ""}
@@ -64,24 +97,57 @@ const MedicalRecordForm = ({
         </div>
       )
     } else if (type === "file") {
-      input = isEditing ? (
-        <input type="file" id={name} name={name} onChange={onInputChange} className="file-input" />
-      ) : (
-        value && (
-          <button className="view-file-btn">
-            View File
-            <span className="file-name">{value.name}</span>
-          </button>
-        )
-      )
-    } else if (type === "date") {
+      input = (
+          <div>
+              {isEditing && (
+                  <input
+                      type="file"
+                      id={name}
+                      name={name}
+                      onChange={onInputChange}
+                      className="file-input"
+                  />
+              )}
+               {/* Show previous file if it exists */}
+              {value instanceof File ? (
+                  <div>
+                      <p className="file-name">{formData.laboratories} - {value.name}</p>
+                      <img
+                          src={URL.createObjectURL(value)} // ✅ Fix: Show file preview
+                          alt={`${name} uploaded`}
+                          style={{ maxWidth: "100%", maxHeight: "200px" }}
+                      />
+                      <a href={URL.createObjectURL(value)} target="_blank" rel="noopener noreferrer">
+                          View File
+                      </a>
+                  </div>
+              ) : typeof value === "string" && value.trim() !== "" ? (
+                  <div>
+                      <p className="file-name">{formData.laboratories} - {value.split('/').pop()}</p>
+                      <img
+                          src={value}
+                          alt={`${name} uploaded`}
+                          style={{ maxWidth: "100%", maxHeight: "200px" }}
+                      />
+                      <a href={value} target="_blank" rel="noopener noreferrer">
+                          View File
+                      </a>
+                  </div>
+              ) : (
+                  <span>No file available</span>
+              )}
+          </div>
+      );
+  }
+  else if (type === "date") {
+      const displayValue = isEditing ? value : formatDateForDisplay(value)
       input = (
         <div className="date-input">
           <input
             type="date"
             id={name}
             name={name}
-            value={value}
+            value={value || ""}
             onChange={onInputChange}
             disabled={!isEditing}
             className={isEditing ? "editable-value" : ""}
@@ -93,7 +159,7 @@ const MedicalRecordForm = ({
         <textarea
           id={name}
           name={name}
-          value={value}
+          value={value || ""}
           onChange={onInputChange}
           rows={3}
           disabled={!isEditing || (name === "latestDiagnosis" && isDiagnosisLocked)}
@@ -106,7 +172,7 @@ const MedicalRecordForm = ({
           type={type}
           id={name}
           name={name}
-          value={value}
+          value={value || ""}
           onChange={onInputChange}
           disabled={!isEditing}
           className={isEditing ? "editable-value" : ""}
@@ -114,23 +180,25 @@ const MedicalRecordForm = ({
       )
     }
 
+
     return (
-        <div className={`form-field ${isFullWidth ? "full-width" : ""}`}>
-          <label htmlFor={name}>
-            {label}
-            {isRequired && <span className="required">*</span>}
-          </label>
-          {isEditing || type === "radio" ? input : <span className="value-text">{value}</span>}
-          {errors && errors[name] && <span className="error-message">{errors[name]}</span>} {/* Show error */}
-          {name === "latestDiagnosis" && isDiagnosisLocked && isEditing && !isAddRecord && (
-            <button type="button" className="unlock-diagnosis-btn" onClick={onUnlockDiagnosis}>
-              Unlock Diagnosis
-            </button>
-          )}
-        </div>
-      )
-      
+      <div className={`form-field ${isFullWidth ? "full-width" : ""}`}>
+        <label htmlFor={name}>
+          {label}
+          {isRequired && <span className="required">*</span>}
+        </label>
+        {isEditing || type === "radio" || type === "file" ? input : <span className="value-text">{value}</span>}
+        {errors && errors[name] && <span className="error-message">{errors[name]}</span>}
+        {name === "latestDiagnosis" && isDiagnosisLocked && isEditing && !isAddRecord && (
+          <button type="button" className="unlock-diagnosis-btn" onClick={onUnlockDiagnosis}>
+            Unlock Diagnosis
+          </button>
+        )}
+      </div>
+    ); 
+ 
   }
+
 
   return (
     <div className="medical-record-form">
@@ -146,7 +214,7 @@ const MedicalRecordForm = ({
         </div>
         <div className="form-row">
           {renderField("Laboratories", "laboratories", "select", {
-            selectOptions: ["CBC", "Ultrasound", "ECG", "X-ray", "Blood Chem", "Microscopy","Progesterone Test"],
+            selectOptions: ["CBC", "Ultrasound", "ECG", "X-ray", "Blood Chem", "Microscopy", "Progesterone Test"],
           })}
           {renderField("File", "file", "file")}
         </div>
@@ -175,4 +243,10 @@ const MedicalRecordForm = ({
   )
 }
 
+
 export default MedicalRecordForm
+
+
+
+
+

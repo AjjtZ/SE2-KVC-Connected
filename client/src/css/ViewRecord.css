@@ -88,6 +88,19 @@
   section {
     margin-bottom: 2rem;
   }
+
+  .file-preview {
+    margin-top: 1rem;
+    text-align: center;
+  }
+  
+  .attached-file-preview {
+    max-width: 100%;
+    height: auto;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-top: 0.5rem;
+  }
   
   
   @media (max-width: 1024px) {

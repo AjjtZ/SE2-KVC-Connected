@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { Button } from "../components/Button";
 import FormGroup from "../components/FormGroup";
 import "../css/Forms.css";
+import { useUserRole } from "../contexts/UserRoleContext";
+import { useNavigate } from "react-router-dom";
 
 const PetInfo = () => {
   const [formData, setFormData] = useState({
@@ -39,12 +41,15 @@ const PetInfo = () => {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  const { setCurrentRole } = useUserRole(); // Access the context to set the role
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Pet Info Submitted:", formData);
 
     try {
+<<<<<<< HEAD
       const response = await fetch(
         "http://localhost:5000/auth/signup/petowner-step2",
         {
@@ -75,8 +80,45 @@ const PetInfo = () => {
     } catch (error) {
       console.error("Error:", error.message);
       setMessage(error.message);
+=======
+        const response = await fetch("http://localhost:5000/auth/signup/petowner-step2", {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            if (data.newCaptcha) {
+                // Update the CAPTCHA image
+                setCaptcha({ image: data.newCaptcha.image, captchaKey: data.newCaptcha.captchaKey });
+            }
+            throw new Error(data.error || "An error occurred during signup.");
+        }
+
+        // Handle successful signup
+        setCurrentRole(data.role); // Set the user's role in the context
+      navigate(getLandingPage(data.role)); // Redirect to the landing page based on role
+        
+    } catch (error) {
+        console.error("Error:", error.message);
+        setMessage(error.message);
+>>>>>>> origin/iahs-railway
     }
-  };
+};
+
+const getLandingPage = (role) => {
+  switch (role) {   
+    case "owner":
+      return "/mypets";
+    default:
+      return "/login";
+  }
+};
 
   return (
     <>

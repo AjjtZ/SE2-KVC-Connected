@@ -3,7 +3,8 @@ const fs = require('fs');
 const path = require('path');
 const db = require('../config/db');
 
-async function generatePdf(petId) {
+
+async function generatePdf(petId, recordId) {
     try {
         console.log("Generating PDF for pet ID:", petId);
     
@@ -94,19 +95,23 @@ async function generatePdf(petId) {
             LEFT JOIN lab_info l ON mrl.lab_id = l.lab_id
             LEFT JOIN immunization_record v ON p.pet_id = v.pet_id
             LEFT JOIN vax_info vi ON v.vax_id = vi.vax_id
-            WHERE p.pet_id = ?
+            WHERE p.pet_id = ? AND r.record_id = ?
         `;
 
-        const [rows] = await db.query(petQuery, [petId]);
+        const [rows] = await db.query(petQuery, [petId, recordId]);
         console.log("Raw Query Result:", rows);
 
         const petData = rows.length > 0 ? rows[0] : null;
+
+        console.log("DEBUG: record_lab_file type:", typeof petData.record_lab_file);
+        console.log("DEBUG: record_lab_file content:", petData.record_lab_file);
 
         if (!petData) {
             console.error("No pet record found for ID:", petId);
             throw new Error("Pet record not found");
         }
         console.log("Pet data retrieved:", petData);
+
 
         // Get unique vaccine records
         const vaccineRecords = rows.filter(row => row.vaccine_type).reduce((acc, row) => {
@@ -340,14 +345,29 @@ async function generatePdf(petId) {
         
         // Attached Lab File section with left-aligned header
         addSectionHeader('Attached Lab File');
-        
-        // Add the lab file info
-        doc.font('Helvetica').fontSize(10).text(petData.record_lab_file || '', {
-            width: pageWidth,
-            align: 'left'
-        });
+
+        //if deployed on cloud, get the stored image in cloud
+        // const imageUrl = rows[0].record_lab_file;  // Assuming it's stored as a URL
+        // doc.image(imageUrl, { width: 300, height: 200 });
+
+        //testing in local for now
+        const imageFilename = petData.record_lab_file.toString();  
+        const imagePath = path.join(__dirname, "../uploads", imageFilename); // Adjust your storage path
+
+        if (fs.existsSync(imagePath)) {
+            doc.image(imagePath, { width: 400, height: 200 });
+        } else {
+            doc.text("⚠️ Image file not found.");
+        }
         
         doc.end();
+
+        await new Promise((resolve, reject) => {
+            stream.on('finish', resolve);
+            stream.on('error', reject);
+        });
+
+
         return pdfPath;
     } catch (error) {
         throw error;

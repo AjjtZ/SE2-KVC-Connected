@@ -2,6 +2,7 @@ const UserModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const { authenticate } = require("../middleware/authMiddleware");
 const { hashPassword, comparePassword } = require("../utils/passwordUtility");
+const db = require("../config/db");
 
 exports.getEmployeeProfile = [
     authenticate,
@@ -71,11 +72,22 @@ exports.updateEmployeeProfile = [
 exports.updateOwnerProfile = [
     authenticate,
     async (req, res) => {
-        const { firstname, lastname, email, contact, address, altperson, altcontact } = req.body;
+        const { firstname, lastname, email, contact, address, altperson, altcontact, altperson2, altcontact2 } = req.body;
         const userId = req.user.userId;
 
         console.log("Request Body:", req.body);
         console.log("User ID from JWT:", userId);
+
+        // Validate required fields
+        const requiredFields = [firstname, lastname, email, contact, address, altperson, altcontact];
+        if (requiredFields.some((field) => !field || field.trim() === "")) {
+            return res.status(400).json({ error: "All fields except Emergency Contact 2 and Person 2 are required and cannot be empty." });
+        }
+
+        // Validate Emergency Contact 2 and Person 2
+        if ((altperson2 && !altcontact2) || (!altperson2 && altcontact2)) {
+            return res.status(400).json({ error: "If Emergency Contact Person 2 is provided, Emergency Contact Number 2 must also be provided, and vice versa." });
+        }
 
         try {
             const currentProfile = await UserModel.getUserById(userId);
@@ -88,17 +100,30 @@ exports.updateOwnerProfile = [
                 contact: contact || currentProfile.user_contact,
                 address: address || currentOwnerProfile.owner_address,
                 altperson: altperson || currentOwnerProfile.owner_alt_person1,
-                altcontact: altcontact || currentOwnerProfile.owner_alt_contact1
+                altcontact: altcontact || currentOwnerProfile.owner_alt_contact1,
+                altperson2: altperson2 || null, // Set to null if not provided
+                altcontact2: altcontact2 || null, // Set to null if not provided
             };
 
-            await UserModel.updateOwnerProfile(userId, updatedProfile.firstname, updatedProfile.lastname, updatedProfile.email, updatedProfile.contact, updatedProfile.address, updatedProfile.altperson, updatedProfile.altcontact);
+            await UserModel.updateOwnerProfile(
+                userId,
+                updatedProfile.firstname,
+                updatedProfile.lastname,
+                updatedProfile.email,
+                updatedProfile.contact,
+                updatedProfile.address,
+                updatedProfile.altperson,
+                updatedProfile.altcontact,
+                updatedProfile.altperson2,
+                updatedProfile.altcontact2
+            );
 
             res.json({ message: "✅ Pet owner profile updated successfully!" });
         } catch (error) {
             console.error("Profile Update Error:", error);
             res.status(500).json({ error: "❌ Server error while updating profile." });
         }
-    }
+    },
 ];
 
 exports.changePassword = [
@@ -143,3 +168,37 @@ exports.changePassword = [
         }
     }
 ];
+
+exports.getOwnerProfile = async (req, res) => {
+    const userId = req.user.userId; // Extract user ID from the authenticated token
+
+    try {
+        const [userResult] = await db.query(
+            `
+            SELECT 
+                u.user_firstname AS firstname,
+                u.user_lastname AS lastname,
+                u.user_email AS email,
+                u.user_contact AS contact,
+                o.owner_address AS address,
+                o.owner_alt_person1 AS altperson,
+                o.owner_alt_contact1 AS altcontact,
+                o.owner_alt_person2 AS altperson2,
+                o.owner_alt_contact2 AS altcontact2
+            FROM users u
+            JOIN owner o ON u.user_id = o.user_id
+            WHERE u.user_id = ?
+            `,
+            [userId]
+        );
+
+        if (userResult.length === 0) {
+            return res.status(404).json({ error: "Owner profile not found" });
+        }
+
+        res.json(userResult[0]); // Return the owner's profile
+    } catch (error) {
+        console.error("Error fetching owner profile:", error);
+        res.status(500).json({ error: "Failed to fetch owner profile" });
+    }
+};

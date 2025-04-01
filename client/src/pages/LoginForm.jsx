@@ -4,6 +4,12 @@ import { useState, useEffect } from "react";
 import { Button } from "../components/Button";
 import FormGroup from "../components/FormGroup";
 import "../css/Forms.css";
+<<<<<<< HEAD
+=======
+import { useUserRole } from "../contexts/UserRoleContext";
+import { useNavigate } from "react-router-dom";
+
+>>>>>>> origin/iahs-railway
 
 function LoginForm() {
   const [currentStep, setCurrentStep] = useState("login");
@@ -36,19 +42,29 @@ function LoginForm() {
     }
   };
 
+  const { setCurrentRole } = useUserRole(); // Access the context to set the role
+  const navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Form Submitted");
+
     try {
       const response = await fetch("http://localhost:5000/auth/login", {
         method: "POST",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
+<<<<<<< HEAD
         },
+=======
+          },
+>>>>>>> origin/iahs-railway
         body: JSON.stringify(formData),
       });
+
       const data = await response.json();
+<<<<<<< HEAD
       if (!response.ok) {
         if (data.newCaptcha) {
           console.log("Refreshing CAPTCHA..."); // Debug log
@@ -59,6 +75,16 @@ function LoginForm() {
         }
         throw new Error(data.error || "Login failed");
       }
+=======
+
+      if (!response.ok) {
+            if (data.newCaptcha) {
+                console.log("Refreshing CAPTCHA..."); // Debug log
+                setCaptcha({ image: data.newCaptcha.image, captchaKey: data.newCaptcha.captchaKey }); // Update CAPTCHA
+            }
+throw new Error(data.error || "Login failed");
+}
+>>>>>>> origin/iahs-railway
 
       const token =
         response.headers.get("Authorization")?.split(" ")[1] || data.token;
@@ -66,10 +92,29 @@ function LoginForm() {
         localStorage.setItem("jwt", token);
       }
 
+      setCurrentRole(data.role);
       setMessage(data.message);
+<<<<<<< HEAD
       window.location.replace(data.redirectUrl);
+=======
+      navigate(getLandingPage(data.role)); 
+>>>>>>> origin/iahs-railway
     } catch (error) {
+console.error("Error:", error.message);
       setMessage(error.message);
+    }
+  };
+
+  const getLandingPage = (role) => {
+    switch (role) {
+      case "doctor":
+      case "clinician":
+      case "staff":
+        return "/patients";
+      case "owner":
+        return "/mypets";
+      default:
+        return "/login";
     }
   };
 

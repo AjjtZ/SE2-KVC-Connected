@@ -43,17 +43,38 @@ const FilterModal = ({ isOpen, onClose, onApply, onReset, type = "patient" }) =>
   }
 
   const handleApply = () => {
+    console.log("Before applying filters:", filters); // Debugging
+  
     const updatedFilters = { ...filters };
-
-    // Remove sortBy and sortOrder if not explicitly selected
-    if (!filters.sortBy) {
-        delete updatedFilters.sortBy;
-        delete updatedFilters.sortOrder;
+  
+    if (filters.sortBy) {
+      if (!filters.sortOrder) {
+        updatedFilters.sortOrder = "ASC"; // Default value if undefined
+      }
+    } else {
+      // Convert sortOrder values
+        if (updatedFilters.sortOrder) {
+          if (updatedFilters.sortOrder === "oldest") {
+            updatedFilters.sortOrder = "ASC";
+          } else if (updatedFilters.sortOrder === "newest") {
+            updatedFilters.sortOrder = "DESC";
+          }
+        } else {
+          delete updatedFilters.sortOrder; // Remove if not set
+          delete updatedFilters.sortBy;
+        }
     }
-
+  
+    console.log("Updated Filters (before sending):", updatedFilters); // Debugging
+  
     onApply(updatedFilters);
     onClose();
-  }
+  };
+  
+  
+  
+  
+  
 
   if (!isOpen) return null
 

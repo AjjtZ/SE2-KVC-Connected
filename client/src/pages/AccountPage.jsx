@@ -102,7 +102,7 @@ const AccountPage = ({ title, displayData, initialUserData, isEditing, setIsEdit
           <div className="profile-section">
             <div className="avatar-container">
               <div className="avatar-placeholder"></div>
-              <h2>{`${displayData?.firstname || ""} ${displayData?.lastname || ""}`}</h2>
+              <h2>{`${displayData?.firstName || ""} ${displayData?.lastName || ""}`}</h2>
               <p className="role">{displayData?.role || ""}</p>
             </div>
 

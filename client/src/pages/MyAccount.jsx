@@ -29,15 +29,15 @@ const MyAccount = () => {
         console.log("Fetched user data:", data);
 
         setDisplayData({
-          firstname: data.firstname,
-          lastname: data.lastname,
+          firstName: data.firstname,
+          lastName: data.lastname,
           role: data.role,
           email: data.email,
           contact: data.contact,
         });
         setEditData({
-          firstname: data.firstname,
-          lastname: data.lastname,
+          firstName: data.firstname,
+          lastName: data.lastname,
           role: data.role,
           email: data.email,
           contact: data.contact,
@@ -105,13 +105,13 @@ const MyAccount = () => {
               {isEditing ? (
                 <input
                   type="text"
-                  name="firstname"
-                  value={userData.firstname}
+                  name="firstName"
+                  value={userData.firstName}
                   onChange={handleInputChange}
                   className="info-input"
                 />
               ) : (
-                <div className="info-value">{userData.firstname}</div>
+                <div className="info-value">{userData.firstName}</div>
               )}
             </div>
             <div className="info-group">
@@ -119,13 +119,13 @@ const MyAccount = () => {
               {isEditing ? (
                 <input
                   type="text"
-                  name="lastname"
-                  value={userData.lastname}
+                  name="lastName"
+                  value={userData.lastName}
                   onChange={handleInputChange}
                   className="info-input"
                 />
               ) : (
-                <div className="info-value">{userData.lastname}</div>
+                <div className="info-value">{userData.lastName}</div>
               )}
             </div>
           </div>
