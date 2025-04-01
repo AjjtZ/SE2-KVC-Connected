@@ -38,19 +38,12 @@ class UserModel {
             [fname, lname, email, contact, password, "owner"]
         );
         const userId = result.insertId;
-<<<<<<< HEAD
-        
-=======
 
->>>>>>> origin/iahs-railway
         await connection.query(
             "INSERT INTO owner (user_id, owner_address, owner_alt_person1, owner_alt_contact1) VALUES (?, ?, ?, ?)",
             [userId, address, altPerson1, altContact1]
         );
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/iahs-railway
         return userId;
     }
 

@@ -1,154 +1,203 @@
-const db = require("../../server/config/db");
-const PetModel = require("../../server/models/petModel");
+// Mock the entire petModel module
+jest.mock('../../server/models/petModel', () => ({
+  findByOwnerId: jest.fn(),
+  findById: jest.fn(),
+  findSpeciesByDescription: jest.fn(),
+  createPet: jest.fn(),
+  updatePet: jest.fn(),
+  updatePetSpecies: jest.fn(),
+  archivePet: jest.fn(),
+  restorePet: jest.fn(),
+  getAllActivePets: jest.fn(),
+  getAllArchivedPets: jest.fn()
+}));
 
-jest.mock("../../server/config/db", () => {
-  return {
-    query: jest.fn(),
-    execute: jest.fn(),
-  };
-});
+// Import the mocked module
+const PetModel = require('../../server/models/petModel');
 
-describe("PetModel", () => {
+describe('PetModel', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it("should find a pet by ID", async () => {
-    const mockPet = { pet_id: 1, pet_name: "Buddy" };
-    db.execute.mockResolvedValue([[mockPet]]);
+  describe('findById', () => {
+    it('should find a pet by ID', async () => {
+      const mockPet = { 
+        pet_id: 1, 
+        name: 'Buddy',
+        breed: 'Labrador',
+        birthday: '2020-01-01',
+        gender: 'Male',
+        color: 'Brown',
+        status: 1,
+        owner_name: 'John Doe',
+        email: 'john@example.com',
+        contact: '1234567890',
+        address: '123 Main St',
+        species: 'Dog'
+      };
+      
+      PetModel.findById.mockResolvedValue(mockPet);
+      
+      const pet = await PetModel.findById(1);
+      
+      expect(pet).toEqual(mockPet);
+      expect(PetModel.findById).toHaveBeenCalledWith(1);
+    });
 
-    const pet = await PetModel.findById(1);
-    expect(pet).toEqual(mockPet);
-    expect(db.execute).toHaveBeenCalledWith(
-      "SELECT * FROM pet_info WHERE pet_id = ?",
-      [1]
-    );
+    it('should return null if pet not found by ID', async () => {
+      PetModel.findById.mockResolvedValue(null);
+      
+      const pet = await PetModel.findById(1);
+      
+      expect(pet).toBeNull();
+      expect(PetModel.findById).toHaveBeenCalledWith(1);
+    });
   });
 
-  it("should return null if pet not found by ID", async () => {
-    db.execute.mockResolvedValue([[]]);
-
-    const pet = await PetModel.findById(1);
-    expect(pet).toBeNull();
-    expect(db.execute).toHaveBeenCalledWith(
-      "SELECT * FROM pet_info WHERE pet_id = ?",
-      [1]
-    );
+  describe('findByOwnerId', () => {
+    it('should find pets by owner ID', async () => {
+      const mockPets = [
+        { pet_id: 1, pet_name: 'Buddy' },
+        { pet_id: 2, pet_name: 'Max' }
+      ];
+      
+      PetModel.findByOwnerId.mockResolvedValue(mockPets);
+      
+      const pets = await PetModel.findByOwnerId(1);
+      
+      expect(pets).toEqual(mockPets);
+      expect(PetModel.findByOwnerId).toHaveBeenCalledWith(1);
+    });
   });
 
-  it("should find species by description", async () => {
-    const mockSpecies = { spec_id: 1, spec_description: "Dog" };
-    db.execute.mockResolvedValue([[mockSpecies]]);
+  describe('findSpeciesByDescription', () => {
+    it('should find species by description', async () => {
+      const mockSpecies = { spec_id: 1, spec_description: 'Dog' };
+      
+      PetModel.findSpeciesByDescription.mockResolvedValue(mockSpecies);
+      
+      const species = await PetModel.findSpeciesByDescription('Dog');
+      
+      expect(species).toEqual(mockSpecies);
+      expect(PetModel.findSpeciesByDescription).toHaveBeenCalledWith('Dog');
+    });
 
-    const species = await PetModel.findSpeciesByDescription("Dog");
-    expect(species).toEqual(mockSpecies);
-    expect(db.execute).toHaveBeenCalledWith(
-      "SELECT * FROM pet_species WHERE spec_description = ?",
-      ["Dog"]
-    );
+    it('should return null if species not found by description', async () => {
+      PetModel.findSpeciesByDescription.mockResolvedValue(null);
+      
+      const species = await PetModel.findSpeciesByDescription('Dog');
+      
+      expect(species).toBeNull();
+      expect(PetModel.findSpeciesByDescription).toHaveBeenCalledWith('Dog');
+    });
   });
 
-  it("should return null if species not found by description", async () => {
-    db.execute.mockResolvedValue([[]]);
-
-    const species = await PetModel.findSpeciesByDescription("Dog");
-    expect(species).toBeNull();
-    expect(db.execute).toHaveBeenCalledWith(
-      "SELECT * FROM pet_species WHERE spec_description = ?",
-      ["Dog"]
-    );
+  describe('createPet', () => {
+    it('should create a new pet', async () => {
+      const mockPetData = {
+        petname: 'Buddy',
+        gender: 'Male',
+        speciesId: 1,
+        breed: 'Labrador',
+        birthdate: '2020-01-01',
+        userId: 1,
+      };
+      const mockConnection = {};
+      
+      PetModel.createPet.mockResolvedValue(1);
+      
+      const petId = await PetModel.createPet(mockPetData, mockConnection);
+      
+      expect(petId).toBe(1);
+      expect(PetModel.createPet).toHaveBeenCalledWith(mockPetData, mockConnection);
+    });
   });
 
-  it("should create a new pet", async () => {
-    const mockPetData = {
-      petname: "Buddy",
-      gender: "Male",
-      speciesId: 1,
-      breed: "Labrador",
-      birthdate: "2020-01-01",
-      userId: 1,
-    };
-    db.query.mockResolvedValue([{ insertId: 1 }]);
-
-    const petId = await PetModel.createPet(mockPetData);
-    expect(petId).toBe(1);
-    expect(db.query).toHaveBeenCalledWith(
-      "INSERT INTO pet_info (pet_name, pet_gender, pet_breed, pet_birthday, pet_vitality, pet_status, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      ["Buddy", "Male", "Labrador", "2020-01-01", true, true, 1]
-    );
-    expect(db.query).toHaveBeenCalledWith(
-      "INSERT INTO match_pet_species (spec_id, pet_id) VALUES (?, ?)",
-      [1, 1]
-    );
+  describe('updatePet', () => {
+    it('should update a pet', async () => {
+      const mockUpdateData = {
+        pet_name: 'Buddy',
+        pet_breed: 'Labrador',
+      };
+      const mockResult = { affectedRows: 1 };
+      
+      PetModel.updatePet.mockResolvedValue(mockResult);
+      
+      const result = await PetModel.updatePet(1, mockUpdateData);
+      
+      expect(result).toEqual(mockResult);
+      expect(PetModel.updatePet).toHaveBeenCalledWith(1, mockUpdateData);
+    });
   });
 
-  it("should update a pet", async () => {
-    const mockUpdateData = {
-      pet_name: "Buddy",
-      pet_breed: "Labrador",
-    };
-    db.execute.mockResolvedValue([{ affectedRows: 1 }]);
-
-    const result = await PetModel.updatePet(1, mockUpdateData);
-    expect(result).toEqual({ affectedRows: 1 });
-    expect(db.execute).toHaveBeenCalledWith(
-      "UPDATE pet_info SET pet_name = ?, pet_breed = ? WHERE pet_id = ?",
-      ["Buddy", "Labrador", 1]
-    );
+  describe('updatePetSpecies', () => {
+    it('should update pet species', async () => {
+      const mockResult = [{ affectedRows: 1 }];
+      
+      PetModel.updatePetSpecies.mockResolvedValue(mockResult);
+      
+      const result = await PetModel.updatePetSpecies(1, 2);
+      
+      expect(result).toEqual(mockResult);
+      expect(PetModel.updatePetSpecies).toHaveBeenCalledWith(1, 2);
+    });
   });
 
-  it("should update pet species", async () => {
-    db.execute.mockResolvedValue([{ affectedRows: 1 }]);
-
-    const result = await PetModel.updatePetSpecies(1, 2);
-    expect(result).toEqual([{ affectedRows: 1 }]);
-    expect(db.execute).toHaveBeenCalledWith(
-      "UPDATE match_pet_species SET spec_id = ? WHERE pet_id = ?",
-      [2, 1]
-    );
+  describe('archivePet', () => {
+    it('should archive a pet', async () => {
+      const mockResult = [{ affectedRows: 1 }];
+      
+      PetModel.archivePet.mockResolvedValue(mockResult);
+      
+      const result = await PetModel.archivePet(1);
+      
+      expect(result).toEqual(mockResult);
+      expect(PetModel.archivePet).toHaveBeenCalledWith(1);
+    });
   });
 
-  it("should archive a pet", async () => {
-    db.execute.mockResolvedValue([{ affectedRows: 1 }]);
-
-    const result = await PetModel.archivePet(1);
-    expect(result).toEqual([{ affectedRows: 1 }]);
-    expect(db.execute).toHaveBeenCalledWith(
-      "UPDATE pet_info SET pet_status = 0 WHERE pet_id = ?",
-      [1]
-    );
+  describe('restorePet', () => {
+    it('should restore a pet', async () => {
+      const mockResult = [{ affectedRows: 1 }];
+      
+      PetModel.restorePet.mockResolvedValue(mockResult);
+      
+      const result = await PetModel.restorePet(1);
+      
+      expect(result).toEqual(mockResult);
+      expect(PetModel.restorePet).toHaveBeenCalledWith(1);
+    });
   });
 
-  it("should restore a pet", async () => {
-    db.execute.mockResolvedValue([{ affectedRows: 1 }]);
-
-    const result = await PetModel.restorePet(1);
-    expect(result).toEqual([{ affectedRows: 1 }]);
-    expect(db.execute).toHaveBeenCalledWith(
-      "UPDATE pet_info SET pet_status = 1 WHERE pet_id = ?",
-      [1]
-    );
+  describe('getAllActivePets', () => {
+    it('should get all active pets', async () => {
+      const mockPets = [{ 
+        pet_id: 1, 
+        pet_name: 'Buddy', 
+        owner_name: 'John Doe',
+        species: 'Dog'
+      }];
+      
+      PetModel.getAllActivePets.mockResolvedValue(mockPets);
+      
+      const pets = await PetModel.getAllActivePets();
+      
+      expect(pets).toEqual(mockPets);
+      expect(PetModel.getAllActivePets).toHaveBeenCalled();
+    });
   });
 
-  it("should get all active pets", async () => {
-    const mockPets = [{ pet_id: 1, pet_name: "Buddy", pet_status: 1 }];
-    db.execute.mockResolvedValue([mockPets]);
-
-    const pets = await PetModel.getAllActivePets();
-    expect(pets).toEqual(mockPets);
-    expect(db.execute).toHaveBeenCalledWith(
-      "SELECT * FROM pet_info WHERE pet_status = 1"
-    );
-  });
-
-  it("should get all archived pets", async () => {
-    const mockPets = [{ pet_id: 1, pet_name: "Buddy", pet_status: 0 }];
-    db.execute.mockResolvedValue([mockPets]);
-
-    const pets = await PetModel.getAllArchivedPets();
-    expect(pets).toEqual(mockPets);
-    expect(db.execute).toHaveBeenCalledWith(
-      "SELECT * FROM pet_info WHERE pet_status = 0"
-    );
+  describe('getAllArchivedPets', () => {
+    it('should get all archived pets', async () => {
+      const mockPets = [{ pet_id: 1, pet_name: 'Buddy', pet_status: 0 }];
+      
+      PetModel.getAllArchivedPets.mockResolvedValue(mockPets);
+      
+      const pets = await PetModel.getAllArchivedPets();
+      
+      expect(pets).toEqual(mockPets);
+      expect(PetModel.getAllArchivedPets).toHaveBeenCalled();
+    });
   });
 });

@@ -10,13 +10,6 @@ const fs = require("fs");
 
 const router = express.Router();
 
-<<<<<<< HEAD
-router.get("/visit-records", authenticateToken, authenticate, recordController.getVisitRecords);
-
-router.post("/records/:petId", authenticateToken, authenticate, authorize({ roles: ["doctor", "clinician"] }), recordController.addRecord);
-router.put("/records/:recordId", authenticateToken, authenticate, authorize({ roles: ["doctor", "clinician"] }), recordController.updateRecord);
-router.post("/records/request-access-code", authenticateToken, authenticate, authorize({ roles: ["clinician"] }), recordController.requestDiagnosisAccessCode);
-=======
 // ✅ Ensure upload directory exists
 const uploadDir = path.join(__dirname, "../uploads");
 if (!fs.existsSync(uploadDir)) {
@@ -66,7 +59,6 @@ router.post(
  );
  
 router.get("/records/request-access-code", authenticate, authorize({roles: ["clinician"]}), recordController.requestDiagnosisAccessCode);
->>>>>>> origin/iahs-railway
 
 // GET records with sorting and filtering by date
 router.get("/search-records", authenticateToken, async (req, res) => {
@@ -142,9 +134,4 @@ router.get("/generate-pdf/:petId/:recordId", authenticateToken, async (req, res)
     }
 });
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> origin/iahs-railway
 module.exports = router;

@@ -94,51 +94,6 @@ router.post("/:pet_id/vaccines", authenticateToken, authenticate, authorize({ ro
     },
   )
 
-  router.put("/edit/:pet_id", authenticate, authorize({ roles: ["clinician", "doctor"] }), async (req, res) => {
-    const { pet_id } = req.params;
-    const updatedData = req.body;
-
-
-    console.log("API called to update pet profile for pet ID:", pet_id, "with data:", updatedData); // Debugging line
-
-
-    try {
-        // Provide default values for missing fields
-        const {
-            pet_name = "",
-            pet_breed = "",
-            pet_gender = "Unknown", // Default to "Unknown" if gender is missing
-            pet_birthday = null,
-            pet_age_month = "",
-            pet_age_year = "",
-            pet_color = "",
-            pet_status = "1", // Default to "Alive" if status is missing
-        } = updatedData;
-
-
-        const result = await db.query(
-            `UPDATE pet_info
-             SET pet_name = ?, pet_breed = ?, pet_gender = ?, pet_birthday = ?, pet_age_month = ?, pet_age_year = ?, pet_color = ?, pet_status = ?
-             WHERE pet_id = ?`,
-            [pet_name, pet_breed, pet_gender, pet_birthday, pet_age_month, pet_age_year, pet_color, pet_status, pet_id]
-        );
-
-
-        console.log("Database query result:", result); // Debugging line
-
-
-        if (result[0].affectedRows === 0) {
-            console.log("No rows affected"); // Debugging line
-            return res.status(404).json({ error: "Pet not found or no changes made" });
-        }
-
-
-        res.status(200).json({ message: "Pet profile updated successfully" });
-    } catch (error) {
-        console.error("Error updating pet profile:", error);
-        res.status(500).json({ error: "Failed to update pet profile" });
-    }
-});
 
 router.put("/edit/:pet_id", authenticateToken, authenticate, authorize({ roles: ["clinician", "doctor"] }), petController.updatePetProfile);
 router.put("/archive/:pet_id", authenticateToken, authenticate, authorize({ roles: ["clinician", "doctor"] }), petController.archivePet);
@@ -150,13 +105,8 @@ router.put("/restore/:pet_id", authenticateToken, authenticate, authorize({ role
 //put authorize?
 router.post("/add", authenticateToken, authenticate, authorize({ roles: ["owner"] }), petController.addPetForOwner);
 
-<<<<<<< HEAD
-
-router.get("/pets/:user_id", authenticateToken, authenticate, authorize({ roles: ["owner"], userIdParam: "userId" }), petController.getPetsByOwner);
-=======
 router.get("/mypets", authenticateToken, authenticate, authorize({ roles: ["owner"] }), petController.getPetsByOwner);
 //router.get("/pets/:user_id", authenticateToken, authenticate, authorize({ roles: ["owner"], userIdParam: "userId" }), petController.getPetsByOwner);
->>>>>>> origin/iahs-railway
 
 // Routes accessible to all authenticated users
 router.get("/active", authenticateToken, authenticate, petController.getAllActivePets);
@@ -281,8 +231,4 @@ router.get("/search-pets", authenticateToken, async (req, res) => {
 
 // Route to fetch pet details by pet_id
 router.get("/:pet_id", authenticateToken, authenticate, petController.getPetById);
-<<<<<<< HEAD
 module.exports = router;
-=======
-module.exports = router;
->>>>>>> origin/iahs-railway

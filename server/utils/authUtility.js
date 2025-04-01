@@ -4,11 +4,7 @@ exports.generateToken = (userId, role) => {
     return jwt.sign(
         { userId, role },
         process.env.JWT_SECRET,
-<<<<<<< HEAD
-        { expiresIn: "1m" } // Token expires in 15 minutes
-=======
         { expiresIn: "15m" } // Token expires in 15 minutes
->>>>>>> origin/iahs-railway
     );
 };
 
@@ -35,8 +31,4 @@ exports.authenticateToken = (req, res, next) => {
         }
         return res.status(401).json({ error: "❌ Invalid token." });
     }
-<<<<<<< HEAD
 };
-=======
-};
->>>>>>> origin/iahs-railway

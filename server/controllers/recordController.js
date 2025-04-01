@@ -1,58 +1,5 @@
 const db = require("../config/db")
 
-<<<<<<< HEAD
-const getVisitRecords = async (req, res) => {
-  try {
-    const { pet_id } = req.query;
-
-    if (!pet_id) {
-      return res.status(400).json({ error: "pet_id is required" });
-    }
-
-    const records = await getAllVisitRecords(pet_id); // Fetch records from the database
-    console.log("Fetched visit records:", records); // Log the records to verify their structure
-    res.json(records);
-  } catch (error) {
-    console.error("Error fetching visit records:", error);
-    res.status(500).json({ error: "Failed to fetch visit records" });
-  }
-};
-
-// Ensure clinicians request an access code before adding a diagnosis
-const addRecord = async (req, res) => {
-  try {
-    const { role } = req.user; // Assuming user role is available in req.user
-    const { petId } = req.params;
-    const {
-      record_date,
-      record_weight,
-      record_temp,
-      record_condition,
-      record_symptom,
-      lab_description,
-      diagnosis_text,
-      surgery_type,
-      surgery_date,
-      record_recent_visit,
-      record_purchase,
-      record_purpose,
-    } = req.body;
-
-    // Validate required fields
-    if (
-      !record_date ||
-      !record_weight ||
-      !record_temp ||
-      !record_condition ||
-      !record_symptom ||
-      !record_recent_visit ||
-      !record_purchase ||
-      !record_purpose
-    ) {
-      return res.status(400).json({ error: "Missing required fields." });
-    }
-
-=======
 const {
     getAllVisitRecords, insertDiagnosis, insertSurgeryInfo, insertRecord, insertMatchRecLab,
     getLabIdByDescription, updateRecordInDB, updateMatchRecLab, getRecordById, updateDiagnosisText, updateSurgeryInfo, deleteSurgeryInfo, insertLabInfo
@@ -178,57 +125,36 @@ const getCompleteRecordById = async (recordId) => {
     }
  
  
->>>>>>> origin/iahs-railway
     // ❌ Prevent clinicians from adding diagnosis
     if (role === "clinician" && diagnosis_text) {
       return res.status(403).json({ error: "Clinicians cannot add a diagnosis when creating a record." });
     }
-<<<<<<< HEAD
-
-=======
  
  
->>>>>>> origin/iahs-railway
     let lab_id = null;
     if (lab_description) {
       lab_id = await getLabIdByDescription(lab_description);
       if (!lab_id) {
-<<<<<<< HEAD
-        return res.status(400).json({ error: "Invalid lab description." });
-      }
-    }
-
-=======
         // If lab description doesn't exist, create it
         lab_id = await insertLabInfo(lab_description)
       }
     }
  
  
->>>>>>> origin/iahs-railway
     let diagnosis_id = null;
     if (role === "doctor" && diagnosis_text) {
       diagnosis_id = await insertDiagnosis(diagnosis_text);
     }
-<<<<<<< HEAD
-
-=======
  
  
->>>>>>> origin/iahs-railway
     let surgery_id = null;
     if (surgery_type && surgery_date) {
       surgery_id = await insertSurgeryInfo(surgery_type, surgery_date);
     }
-<<<<<<< HEAD
-
-    const recordId = await insertRecord(petId, {
-=======
  
  
     const recordId = await insertRecord(
       petId,
->>>>>>> origin/iahs-railway
       record_date,
       record_weight,
       record_temp,
@@ -237,28 +163,6 @@ const getCompleteRecordById = async (recordId) => {
       record_recent_visit,
       record_purchase,
       record_purpose,
-<<<<<<< HEAD
-      lab_id,
-      diagnosis_id,
-      surgery_id,
-      record_lab_file: null,
-    });
-
-    if (lab_id) {
-      await insertMatchRecLab(recordId, lab_id);
-    }
-
-    // Fetch the newly added record
-    const newRecord = await getRecordById(recordId);
-    console.log("Newly added record:", newRecord); 
-
-    res.status(201).json(newRecord); // Return the newly added record
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Server error while adding medical record." });
-  }
-};
-=======
       record_lab_file,
       lab_id,
       diagnosis_id,
@@ -274,8 +178,6 @@ const getCompleteRecordById = async (recordId) => {
  
     // Fetch the newly added record
     const completeRecord = await getCompleteRecordById(recordId)
->>>>>>> origin/iahs-railway
-
 
     if (!completeRecord) {
       return res.status(404).json({ error: "Failed to retrieve the newly created record." })
@@ -309,21 +211,13 @@ const getCompleteRecordById = async (recordId) => {
             console.error(`❌ Record with ID ${recordId} not found.`);
             return res.status(404).json({ error: "Record not found." });
         }
-<<<<<<< HEAD
-
-=======
  
  
->>>>>>> origin/iahs-railway
         if (role === "clinician" && diagnosis_text) {
           if (!req.session || !req.session.diagnosisAccessCode) {
               return res.status(403).json({ error: "Access code not requested or expired." });
           }
-<<<<<<< HEAD
-      
-=======
      
->>>>>>> origin/iahs-railway
           if (accessCode !== req.session.diagnosisAccessCode) {
               console.error("❌ Invalid access code.");
               console.log("Session Access Code!!:", req.session.diagnosisAccessCode);
@@ -331,12 +225,8 @@ const getCompleteRecordById = async (recordId) => {
               return res.status(403).json({ error: "Invalid access code." });
           }
       }
-<<<<<<< HEAD
-
-=======
  
  
->>>>>>> origin/iahs-railway
         // Doctors can update without an access code
  
  
@@ -354,18 +244,12 @@ const getCompleteRecordById = async (recordId) => {
             surgery_id: currentRecord.surgery_id,
             record_lab_file: record_lab_file || currentRecord.record_lab_file
         };
-<<<<<<< HEAD
-
-        console.log("DEBUG: Updated Record Data:", updatedRecordData); 
-
-=======
  
  
         console.log("DEBUG: Updated Record Data:", updatedRecordData);
         console.log("DEBUG: req.file:", req.file);
  
  
->>>>>>> origin/iahs-railway
         if (lab_description) {
             const lab_id = await getLabIdByDescription(lab_description);
             if (!lab_id) {
@@ -506,12 +390,8 @@ const getCompleteRecordById = async (recordId) => {
  
         req.session.diagnosisAccessCode = accessCode;
         console.log("Generated Access Code:", accessCode);
-<<<<<<< HEAD
-
-=======
  
  
->>>>>>> origin/iahs-railway
         const clinicOwnerEmail = process.env.CLINIC_OWNER_EMAIL;
         if (!clinicOwnerEmail) {
             return res.status(500).json({ error: "❌ Clinic owner email is not set." });
@@ -523,16 +403,10 @@ const getCompleteRecordById = async (recordId) => {
  
  
         await sendEmail(clinicOwnerEmail, subject, body);
-<<<<<<< HEAD
-
-        // Include the access code in the response
-        res.json({ 
-=======
  
  
         // Include the access code in the response
         res.json({
->>>>>>> origin/iahs-railway
           message: "✅ Access code request sent. Await access code from the clinic owner.",
           accessCode: accessCode // Pass the access code to the frontend
       });
@@ -540,13 +414,7 @@ const getCompleteRecordById = async (recordId) => {
         console.error("Access Code Request Error:", error);
         res.status(500).json({ error: "❌ Server error while requesting access code." });
     }
-<<<<<<< HEAD
-};
-
-module.exports = { getVisitRecords, addRecord, updateRecord, requestDiagnosisAccessCode};
-=======
  };
  
  
  module.exports = { getVisitRecords, addRecord, updateRecord, requestDiagnosisAccessCode};
->>>>>>> origin/iahs-railway

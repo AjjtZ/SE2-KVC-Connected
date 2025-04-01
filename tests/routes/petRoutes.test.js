@@ -8,19 +8,31 @@ jest.mock('../../server/controllers/petController', () => ({
     restorePet: jest.fn(),
     getAllActivePets: jest.fn(),
     getAllArchivedPets: jest.fn(),
+    addPetForOwner: jest.fn(),
+    getPetsByOwner: jest.fn(),
+    getPetById: jest.fn(),
 }));
 
-jest.mock('../../server/middleware/authMiddleware', () => ({
-    authenticate: jest.fn((req, res, next) => {
+// Mock authenticateToken from authUtility.js
+jest.mock('../../server/utils/authUtility', () => ({
+    authenticateToken: jest.fn((req, res, next) => {
         if (req.headers['x-test-authenticated'] === 'true') {
             req.user = {
-                id: 'mockUserId',
+                userId: 'mockUserId',
                 role: req.headers['x-test-user-role'] || 'guest'
             };
             next();
         } else {
             res.status(401).json({ error: 'Authentication required (mocked)' });
         }
+    }),
+    generateToken: jest.fn(),
+}));
+
+jest.mock('../../server/middleware/authMiddleware', () => ({
+    authenticate: jest.fn((req, res, next) => {
+        // Since authenticateToken already set up the user, just pass through
+        next();
     }),
     // The factory mock - returns the actual middleware logic
     authorize: jest.fn((options) => (req, res, next) => {
@@ -44,6 +56,9 @@ const {
     // We still get the reference to the factory mock, even if we don't check its calls directly in 'it'
     authorize: mockedAuthorize
 } = require('../../server/middleware/authMiddleware');
+const {
+    authenticateToken: mockedAuthenticateToken
+} = require('../../server/utils/authUtility');
 
 // --- Test Application Setup ---
 const app = express();
@@ -87,6 +102,8 @@ describe('Pet Routes (/pets)', () => {
                         .send({ name: 'Updated Name' });
 
                     expect(response.status).toBe(200);
+                    // Check authenticateToken middleware was called during the request
+                    expect(mockedAuthenticateToken).toHaveBeenCalledTimes(1);
                     // Check authenticate middleware was called during the request
                     expect(mockedAuthenticate).toHaveBeenCalledTimes(1);
                     // Check the controller was reached (meaning authenticate AND the inner authorize logic passed)
@@ -104,11 +121,13 @@ describe('Pet Routes (/pets)', () => {
 
                 expect(response.status).toBe(403);
                 expect(response.body).toEqual({ error: 'Forbidden: Insufficient permissions (mocked)' });
-                 // Check authenticate middleware was called during the request
+                // Check authenticateToken middleware was called during the request
+                expect(mockedAuthenticateToken).toHaveBeenCalledTimes(1);
+                // Check authenticate middleware was called during the request
                 expect(mockedAuthenticate).toHaveBeenCalledTimes(1);
                 // Controller should not be called because authorization failed
                 expect(controller).not.toHaveBeenCalled();
-                 // *** REMOVED checks for mockedAuthorize factory calls ***
+                // *** REMOVED checks for mockedAuthorize factory calls ***
             });
 
             it('should return 401 Unauthorized if user is not authenticated', async () => {
@@ -119,12 +138,14 @@ describe('Pet Routes (/pets)', () => {
 
                 expect(response.status).toBe(401);
                 expect(response.body).toEqual({ error: 'Authentication required (mocked)' });
-                // Check authenticate middleware was called during the request
-                expect(mockedAuthenticate).toHaveBeenCalledTimes(1);
-                 // Controller should not be called because authentication failed
+                // Check authenticateToken middleware was called during the request
+                expect(mockedAuthenticateToken).toHaveBeenCalledTimes(1);
+                // Authenticate middleware should not be called because authenticateToken failed
+                expect(mockedAuthenticate).not.toHaveBeenCalled();
+                // Controller should not be called because authentication failed
                 expect(controller).not.toHaveBeenCalled();
-                 // Authorize factory wouldn't have been called during the request anyway,
-                 // and its setup call was cleared. No need to check mockedAuthorize here.
+                // Authorize factory wouldn't have been called during the request anyway,
+                // and its setup call was cleared. No need to check mockedAuthorize here.
             });
         });
     });
@@ -143,6 +164,8 @@ describe('Pet Routes (/pets)', () => {
                     .set('x-test-user-role', 'petowner');
 
                 expect(response.status).toBe(200);
+                // Check authenticateToken middleware was called during the request
+                expect(mockedAuthenticateToken).toHaveBeenCalledTimes(1);
                 // Check authenticate middleware was called during the request
                 expect(mockedAuthenticate).toHaveBeenCalledTimes(1);
                 // Controller should be called
@@ -157,11 +180,13 @@ describe('Pet Routes (/pets)', () => {
 
                 expect(response.status).toBe(401);
                 expect(response.body).toEqual({ error: 'Authentication required (mocked)' });
-                 // Check authenticate middleware was called during the request
-                expect(mockedAuthenticate).toHaveBeenCalledTimes(1);
+                // Check authenticateToken middleware was called during the request
+                expect(mockedAuthenticateToken).toHaveBeenCalledTimes(1);
+                // Authenticate middleware should not be called because authenticateToken failed
+                expect(mockedAuthenticate).not.toHaveBeenCalled();
                 // Controller should not be called
                 expect(controller).not.toHaveBeenCalled();
-                 // mockedAuthorize factory was never involved for these routes, so no need to check it.
+                // mockedAuthorize factory was never involved for these routes, so no need to check it.
             });
         });
     });

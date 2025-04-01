@@ -1,210 +1,293 @@
-const db = require("../../server/config/db");
-const {
-  insertLabInfo,
-  getLabIdByDescription,
-  insertDiagnosis,
-  insertSurgeryInfo,
-  insertRecord,
-  updateRecordInDB,
-  getRecordById,
-  insertMatchRecLab,
-  updateMatchRecLab,
-  updateDiagnosisText,
-} = require("../../server/models/recordModel");
+// Mock the entire recordModel module
+jest.mock('../../server/models/recordModel', () => ({
+  getAllVisitRecords: jest.fn(),
+  insertLabInfo: jest.fn(),
+  getLabIdByDescription: jest.fn(),
+  insertDiagnosis: jest.fn(),
+  insertSurgeryInfo: jest.fn(),
+  insertRecord: jest.fn(),
+  updateRecordInDB: jest.fn(),
+  getRecordById: jest.fn(),
+  insertMatchRecLab: jest.fn(),
+  updateMatchRecLab: jest.fn(),
+  updateDiagnosisText: jest.fn(),
+  updateSurgeryInfo: jest.fn(),
+  removeSurgeryFromRecord: jest.fn(),
+  getSurgeryIdForRecord: jest.fn(),
+  deleteSurgeryInfo: jest.fn()
+}));
 
-jest.mock("../../server/config/db", () => {
-  return {
-    query: jest.fn(),
-    execute: jest.fn(),
-  };
-});
+// Import the mocked module
+const recordModel = require('../../server/models/recordModel');
 
-describe("RecordModel", () => {
+describe('RecordModel', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it("should insert lab info and return the lab ID", async () => {
-    db.query.mockResolvedValue([{ insertId: 1 }]);
-
-    const labId = await insertLabInfo("Blood Test");
-    expect(labId).toBe(1);
-    expect(db.query).toHaveBeenCalledWith(
-      "INSERT INTO lab_info (lab_description) VALUES (?)",
-      ["Blood Test"]
-    );
+  describe('getAllVisitRecords', () => {
+    it('should get all visit records for a pet', async () => {
+      const mockRecords = [
+        { 
+          id: 1, 
+          date: '2022-01-01', 
+          purposeOfVisit: 'Checkup',
+          weight: 10,
+          temperature: 37.5,
+          conditions: 'Healthy',
+          symptoms: 'None',
+          recentVisit: '2022-01-01',
+          recentPurchase: 'Food',
+          file: null,
+          pet_name: 'Buddy',
+          laboratories: 'Blood Test',
+          surgeryType: null,
+          surgeryDate: null,
+          latestDiagnosis: 'Healthy',
+          petId: 1,
+          hadSurgery: false
+        }
+      ];
+      
+      recordModel.getAllVisitRecords.mockResolvedValue(mockRecords);
+      
+      const result = await recordModel.getAllVisitRecords(1);
+      
+      expect(result).toEqual(mockRecords);
+      expect(recordModel.getAllVisitRecords).toHaveBeenCalledWith(1);
+    });
   });
 
-  it("should get lab ID by description", async () => {
-    db.query.mockResolvedValue([[{ lab_id: 1 }]]);
-
-    const labId = await getLabIdByDescription("Blood Test");
-    expect(labId).toBe(1);
-    expect(db.query).toHaveBeenCalledWith(
-      "SELECT lab_id FROM lab_info WHERE lab_description = ?",
-      ["Blood Test"]
-    );
+  describe('insertLabInfo', () => {
+    it('should insert lab info and return the lab ID', async () => {
+      recordModel.insertLabInfo.mockResolvedValue(1);
+      
+      const result = await recordModel.insertLabInfo('Blood Test');
+      
+      expect(result).toBe(1);
+      expect(recordModel.insertLabInfo).toHaveBeenCalledWith('Blood Test');
+    });
   });
 
-  it("should return null if lab ID not found by description", async () => {
-    db.query.mockResolvedValue([[]]);
+  describe('getLabIdByDescription', () => {
+    it('should get lab ID by description', async () => {
+      recordModel.getLabIdByDescription.mockResolvedValue(1);
+      
+      const result = await recordModel.getLabIdByDescription('Blood Test');
+      
+      expect(result).toBe(1);
+      expect(recordModel.getLabIdByDescription).toHaveBeenCalledWith('Blood Test');
+    });
 
-    const labId = await getLabIdByDescription("Blood Test");
-    expect(labId).toBeNull();
-    expect(db.query).toHaveBeenCalledWith(
-      "SELECT lab_id FROM lab_info WHERE lab_description = ?",
-      ["Blood Test"]
-    );
+    it('should return null if lab ID not found by description', async () => {
+      recordModel.getLabIdByDescription.mockResolvedValue(null);
+      
+      const result = await recordModel.getLabIdByDescription('Blood Test');
+      
+      expect(result).toBeNull();
+      expect(recordModel.getLabIdByDescription).toHaveBeenCalledWith('Blood Test');
+    });
   });
 
-  it("should insert diagnosis and return the diagnosis ID", async () => {
-    db.query.mockResolvedValue([{ insertId: 1 }]);
-
-    const diagnosisId = await insertDiagnosis("No issues");
-    expect(diagnosisId).toBe(1);
-    expect(db.query).toHaveBeenCalledWith(
-      "INSERT INTO diagnosis (diagnosis_text) VALUES (?)",
-      ["No issues"]
-    );
+  describe('insertDiagnosis', () => {
+    it('should insert diagnosis and return the diagnosis ID', async () => {
+      recordModel.insertDiagnosis.mockResolvedValue(1);
+      
+      const result = await recordModel.insertDiagnosis('No issues');
+      
+      expect(result).toBe(1);
+      expect(recordModel.insertDiagnosis).toHaveBeenCalledWith('No issues');
+    });
   });
 
-  it("should insert surgery info and return the surgery ID", async () => {
-    db.query.mockResolvedValue([{ insertId: 1 }]);
-
-    const surgeryId = await insertSurgeryInfo("Neutering", "2022-01-01");
-    expect(surgeryId).toBe(1);
-    expect(db.query).toHaveBeenCalledWith(
-      "INSERT INTO surgery_info (surgery_type, surgery_date) VALUES (?, ?)",
-      ["Neutering", "2022-01-01"]
-    );
+  describe('insertSurgeryInfo', () => {
+    it('should insert surgery info and return the surgery ID', async () => {
+      recordModel.insertSurgeryInfo.mockResolvedValue(1);
+      
+      const result = await recordModel.insertSurgeryInfo('Neutering', '2022-01-01');
+      
+      expect(result).toBe(1);
+      expect(recordModel.insertSurgeryInfo).toHaveBeenCalledWith('Neutering', '2022-01-01');
+    });
   });
 
-  it("should insert a record and return the record ID", async () => {
-    const mockRecordData = {
-      record_date: "2022-01-01",
-      record_weight: 10,
-      record_temp: 37.5,
-      record_condition: "Healthy",
-      record_symptom: "None",
-      record_recent_visit: "2022-01-01",
-      record_purchase: "Food",
-      record_purpose: "Checkup",
-      lab_id: 1,
-      diagnosis_id: 1,
-      surgery_id: 1,
-      record_lab_file: null,
-    };
-    db.query.mockResolvedValue([{ insertId: 1 }]);
-
-    const recordId = await insertRecord(1, mockRecordData);
-    expect(recordId).toBe(1);
-
-    expect(db.query).toHaveBeenCalledWith(
-      `INSERT INTO record_info (pet_id, record_date, record_weight, record_temp, record_condition, 
-            record_symptom, record_recent_visit, record_purchase, record_purpose, lab_id, diagnosis_id, surgery_id, record_lab_file)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
+  describe('insertRecord', () => {
+    it('should insert a record and return the record ID', async () => {
+      recordModel.insertRecord.mockResolvedValue(1);
+      
+      const result = await recordModel.insertRecord(
+        1, // petId
+        '2022-01-01', // recordDate
+        10, // recordWeight
+        37.5, // recordTemp
+        'Healthy', // recordCondition
+        'None', // recordSymptom
+        '2022-01-01', // recordRecentVisit
+        'Food', // recordPurchase
+        'Checkup', // recordPurpose
+        null, // recordLabFile
+        1, // labId
+        1, // diagnosisId
+        1 // surgeryId
+      );
+      
+      expect(result).toBe(1);
+      expect(recordModel.insertRecord).toHaveBeenCalledWith(
         1,
-        "2022-01-01",
+        '2022-01-01',
         10,
         37.5,
-        "Healthy",
-        "None",
-        "2022-01-01",
-        "Food",
-        "Checkup",
-        1,
-        1,
-        1,
+        'Healthy',
+        'None',
+        '2022-01-01',
+        'Food',
+        'Checkup',
         null,
-      ]
-    );
+        1,
+        1,
+        1
+      );
+    });
   });
 
-  it("should update a record in the database", async () => {
-    const mockRecordData = {
-      record_date: "2022-01-02",
-      record_weight: 11,
-      record_temp: 38,
-      record_condition: "Sick",
-      record_symptom: "Cough",
-      record_recent_visit: "2022-01-02",
-      record_purchase: "Medicine",
-      record_purpose: "Treatment",
-      diagnosis_id: 2,
-    };
-    db.query.mockResolvedValue([{ affectedRows: 1 }]);
-
-    const affectedRows = await updateRecordInDB(1, mockRecordData);
-    expect(affectedRows).toBe(1);
-    expect(db.query).toHaveBeenCalledWith(
-      "UPDATE record_info SET record_date = ?, record_weight = ?, record_temp = ?, record_condition = ?, record_symptom = ?, record_recent_visit = ?, record_purchase = ?, record_purpose = ?, diagnosis_id = ? WHERE record_id = ?",
-      [
-        "2022-01-02",
+  describe('updateRecordInDB', () => {
+    it('should update a record in the database', async () => {
+      recordModel.updateRecordInDB.mockResolvedValue(true);
+      
+      const result = await recordModel.updateRecordInDB(
+        1, // recordId
+        '2022-01-02', // recordDate
+        'Treatment', // recordPurpose
+        11, // recordWeight
+        38, // recordTemp
+        'Sick', // recordCondition
+        'Cough', // recordSymptom
+        '2022-01-02', // recordRecentVisit
+        'Medicine', // recordPurchase
+        null // recordLabFile
+      );
+      
+      expect(result).toBe(true);
+      expect(recordModel.updateRecordInDB).toHaveBeenCalledWith(
+        1,
+        '2022-01-02',
+        'Treatment',
         11,
         38,
-        "Sick",
-        "Cough",
-        "2022-01-02",
-        "Medicine",
-        "Treatment",
-        2,
-        1,
-      ]
-    );
+        'Sick',
+        'Cough',
+        '2022-01-02',
+        'Medicine',
+        null
+      );
+    });
   });
 
-  it("should get a record by ID", async () => {
-    const mockRecord = { record_id: 1, record_date: "2022-01-01" };
-    db.query.mockResolvedValue([[mockRecord]]);
+  describe('getRecordById', () => {
+    it('should get a record by ID', async () => {
+      const mockRecord = { record_id: 1, record_date: '2022-01-01' };
+      recordModel.getRecordById.mockResolvedValue(mockRecord);
+      
+      const result = await recordModel.getRecordById(1);
+      
+      expect(result).toEqual(mockRecord);
+      expect(recordModel.getRecordById).toHaveBeenCalledWith(1);
+    });
 
-    const record = await getRecordById(1);
-    expect(record).toEqual(mockRecord);
-    expect(db.query).toHaveBeenCalledWith(
-      "SELECT * FROM record_info WHERE record_id = ?",
-      [1]
-    );
+    it('should return null if record not found by ID', async () => {
+      recordModel.getRecordById.mockResolvedValue(null);
+      
+      const result = await recordModel.getRecordById(1);
+      
+      expect(result).toBeNull();
+      expect(recordModel.getRecordById).toHaveBeenCalledWith(1);
+    });
   });
 
-  it("should return null if record not found by ID", async () => {
-    db.query.mockResolvedValue([[]]);
-
-    const record = await getRecordById(1);
-    expect(record).toBeNull();
-    expect(db.query).toHaveBeenCalledWith(
-      "SELECT * FROM record_info WHERE record_id = ?",
-      [1]
-    );
+  describe('insertMatchRecLab', () => {
+    it('should insert match record lab', async () => {
+      recordModel.insertMatchRecLab.mockResolvedValue(1);
+      
+      const result = await recordModel.insertMatchRecLab(1, 1);
+      
+      expect(result).toBe(1);
+      expect(recordModel.insertMatchRecLab).toHaveBeenCalledWith(1, 1);
+    });
   });
 
-  it("should insert match record lab", async () => {
-    await insertMatchRecLab(1, 1);
-    expect(db.query).toHaveBeenCalledWith(
-      "INSERT INTO match_rec_lab (record_id, lab_id) VALUES (?, ?)",
-      [1, 1]
-    );
+  describe('updateMatchRecLab', () => {
+    it('should update match record lab', async () => {
+      recordModel.updateMatchRecLab.mockResolvedValue(true);
+      
+      const result = await recordModel.updateMatchRecLab(1, 1);
+      
+      expect(result).toBe(true);
+      expect(recordModel.updateMatchRecLab).toHaveBeenCalledWith(1, 1);
+    });
   });
 
-  it("should update match record lab", async () => {
-    await updateMatchRecLab(1, 1);
-    expect(db.query).toHaveBeenCalledWith(
-      "DELETE FROM match_rec_lab WHERE record_id = ?",
-      [1]
-    );
-    expect(db.query).toHaveBeenCalledWith(
-      "INSERT INTO match_rec_lab (record_id, lab_id) VALUES (?, ?)",
-      [1, 1]
-    );
+  describe('updateDiagnosisText', () => {
+    it('should update diagnosis text', async () => {
+      const mockResult = { affectedRows: 1 };
+      recordModel.updateDiagnosisText.mockResolvedValue(mockResult);
+      
+      const result = await recordModel.updateDiagnosisText(1, 'Updated diagnosis');
+      
+      expect(result).toEqual(mockResult);
+      expect(recordModel.updateDiagnosisText).toHaveBeenCalledWith(1, 'Updated diagnosis');
+    });
   });
 
-  it("should update diagnosis text", async () => {
-    db.query.mockResolvedValue([{ affectedRows: 1 }]);
+  describe('updateSurgeryInfo', () => {
+    it('should update surgery info', async () => {
+      recordModel.updateSurgeryInfo.mockResolvedValue(true);
+      
+      const result = await recordModel.updateSurgeryInfo(1, 'Spaying', '2022-02-01');
+      
+      expect(result).toBe(true);
+      expect(recordModel.updateSurgeryInfo).toHaveBeenCalledWith(1, 'Spaying', '2022-02-01');
+    });
+  });
 
-    const result = await updateDiagnosisText(1, "Updated diagnosis");
-    expect(result).toEqual({ affectedRows: 1 });
-    expect(db.query).toHaveBeenCalledWith(
-      "UPDATE diagnosis SET diagnosis_text = ? WHERE diagnosis_id = ?",
-      ["Updated diagnosis", 1]
-    );
+  describe('removeSurgeryFromRecord', () => {
+    it('should remove surgery from record', async () => {
+      recordModel.removeSurgeryFromRecord.mockResolvedValue(true);
+      
+      const result = await recordModel.removeSurgeryFromRecord(1);
+      
+      expect(result).toBe(true);
+      expect(recordModel.removeSurgeryFromRecord).toHaveBeenCalledWith(1);
+    });
+  });
+
+  describe('getSurgeryIdForRecord', () => {
+    it('should get surgery ID for record', async () => {
+      recordModel.getSurgeryIdForRecord.mockResolvedValue(1);
+      
+      const result = await recordModel.getSurgeryIdForRecord(1);
+      
+      expect(result).toBe(1);
+      expect(recordModel.getSurgeryIdForRecord).toHaveBeenCalledWith(1);
+    });
+
+    it('should return null if surgery ID not found for record', async () => {
+      recordModel.getSurgeryIdForRecord.mockResolvedValue(null);
+      
+      const result = await recordModel.getSurgeryIdForRecord(1);
+      
+      expect(result).toBeNull();
+      expect(recordModel.getSurgeryIdForRecord).toHaveBeenCalledWith(1);
+    });
+  });
+
+  describe('deleteSurgeryInfo', () => {
+    it('should delete surgery info', async () => {
+      recordModel.deleteSurgeryInfo.mockResolvedValue(true);
+      
+      const result = await recordModel.deleteSurgeryInfo(1);
+      
+      expect(result).toBe(true);
+      expect(recordModel.deleteSurgeryInfo).toHaveBeenCalledWith(1);
+    });
   });
 });

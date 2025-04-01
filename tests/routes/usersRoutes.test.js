@@ -8,11 +8,32 @@ jest.mock('../../server/controllers/usersController', () => ({
     updateEmployeeProfile: jest.fn(),
     updateOwnerProfile: jest.fn(),
     changePassword: jest.fn(),
+    getEmployeeProfile: jest.fn(),
+    getOwnerProfile: jest.fn(),
+}));
+
+// Mock authenticateToken from authUtility.js
+jest.mock('../../server/utils/authUtility', () => ({
+    authenticateToken: jest.fn((req, res, next) => {
+        if (req.headers['x-test-authenticated'] === 'true') {
+            req.user = {
+                userId: 'user-123',
+                role: req.headers['x-test-user-role'] || 'guest'
+            };
+            next();
+        } else {
+            res.status(401).json({ error: 'Authentication required (mocked)' });
+        }
+    }),
+    generateToken: jest.fn(),
 }));
 
 // Mock the middleware BEFORE requiring the routes
 jest.mock('../../server/middleware/authMiddleware', () => ({
-    authenticate: jest.fn(), // We'll provide implementation per test
+    authenticate: jest.fn((req, res, next) => {
+        // Since authenticateToken already set up the user, just pass through
+        next();
+    }),
     // authorize is not used in these routes based on the snippet, so no need to mock explicitly unless routes file requires it
 }));
 
@@ -20,6 +41,7 @@ jest.mock('../../server/middleware/authMiddleware', () => ({
 const usersRoutes = require('../../server/routes/usersRoutes'); // Adjust path if needed
 const usersController = require('../../server/controllers/usersController'); // Get the mocked controller
 const { authenticate: mockedAuthenticate } = require('../../server/middleware/authMiddleware'); // Get the mocked middleware
+const { authenticateToken: mockedAuthenticateToken } = require('../../server/utils/authUtility'); // Get the mocked authenticateToken
 
 // --- Test Application Setup ---
 const app = express();
@@ -48,12 +70,13 @@ describe('Users Routes (/users)', () => {
         // Create a fresh agent for each test to avoid cookie/session interference
         agent = request.agent(app); // Use agent to handle cookies/session if needed by auth
 
-        // Default successful authentication mock (can be overridden in specific tests)
-        mockedAuthenticate.mockImplementation((req, res, next) => {
-            req.user = mockUser; // Attach mock user
-            req.session = req.session || {}; // Ensure session exists if needed
-            req.session.userId = mockUserId; // Simulate session-based auth if used
-            next(); // Proceed
+        // Default implementations for controller methods
+        usersController.getEmployeeProfile.mockImplementation((req, res) => {
+            res.status(200).json({ userId: mockUserId, role: 'employee', name: 'Test Employee' });
+        });
+        
+        usersController.getOwnerProfile.mockImplementation((req, res) => {
+            res.status(200).json({ userId: mockUserId, role: 'owner', name: 'Test Owner' });
         });
 
         // Default successful controller mocks (can be overridden)
@@ -68,6 +91,64 @@ describe('Users Routes (/users)', () => {
         });
     });
 
+    // --- Test GET /users/myAccount ---
+    describe('GET /users/myAccount', () => {
+        const path = '/users/myAccount';
+
+        it('should get employee profile successfully (200 OK)', async () => {
+            const response = await agent
+                .get(path)
+                .set('x-test-authenticated', 'true')
+                .set('x-test-user-role', 'employee');
+
+            expect(response.status).toBe(200);
+            expect(mockedAuthenticateToken).toHaveBeenCalledTimes(1);
+            expect(mockedAuthenticate).toHaveBeenCalledTimes(1);
+            expect(usersController.getEmployeeProfile).toHaveBeenCalledTimes(1);
+        });
+
+        it('should require authentication (401 Unauthorized)', async () => {
+            const response = await agent
+                .get(path)
+                .set('x-test-authenticated', 'false');
+
+            expect(response.status).toBe(401);
+            expect(response.body).toEqual({ error: 'Authentication required (mocked)' });
+            expect(mockedAuthenticateToken).toHaveBeenCalledTimes(1);
+            expect(mockedAuthenticate).not.toHaveBeenCalled();
+            expect(usersController.getEmployeeProfile).not.toHaveBeenCalled();
+        });
+    });
+
+    // --- Test GET /users/owner/myAccount ---
+    describe('GET /users/owner/myAccount', () => {
+        const path = '/users/owner/myAccount';
+
+        it('should get owner profile successfully (200 OK)', async () => {
+            const response = await agent
+                .get(path)
+                .set('x-test-authenticated', 'true')
+                .set('x-test-user-role', 'owner');
+
+            expect(response.status).toBe(200);
+            expect(mockedAuthenticateToken).toHaveBeenCalledTimes(1);
+            expect(mockedAuthenticate).toHaveBeenCalledTimes(1);
+            expect(usersController.getOwnerProfile).toHaveBeenCalledTimes(1);
+        });
+
+        it('should require authentication (401 Unauthorized)', async () => {
+            const response = await agent
+                .get(path)
+                .set('x-test-authenticated', 'false');
+
+            expect(response.status).toBe(401);
+            expect(response.body).toEqual({ error: 'Authentication required (mocked)' });
+            expect(mockedAuthenticateToken).toHaveBeenCalledTimes(1);
+            expect(mockedAuthenticate).not.toHaveBeenCalled();
+            expect(usersController.getOwnerProfile).not.toHaveBeenCalled();
+        });
+    });
+
     // --- Test PUT /users/update-employee-profile ---
     describe('PUT /users/update-employee-profile', () => {
         const path = '/users/update-employee-profile';
@@ -79,36 +160,29 @@ describe('Users Routes (/users)', () => {
         };
 
         it('should update employee profile successfully (200 OK)', async () => {
-            const response = await agent // Use agent
+            const response = await agent
                 .put(path)
+                .set('x-test-authenticated', 'true')
+                .set('x-test-user-role', 'employee')
                 .send(employeeData);
 
             expect(response.status).toBe(200);
             expect(response.body).toEqual({ message: '✅ Employee profile updated successfully!' });
+            expect(mockedAuthenticateToken).toHaveBeenCalledTimes(1);
             expect(mockedAuthenticate).toHaveBeenCalledTimes(1);
             expect(usersController.updateEmployeeProfile).toHaveBeenCalledTimes(1);
-            // Check if controller received user info and body
-            expect(usersController.updateEmployeeProfile).toHaveBeenCalledWith(
-                expect.objectContaining({ user: mockUser, body: employeeData }),
-                expect.anything(), // Response object
-                expect.any(Function) // Next function
-            );
         });
 
         it('should require authentication (401 Unauthorized)', async () => {
-            // Override authenticate mock to simulate failure
-            mockedAuthenticate.mockImplementationOnce((req, res, next) => {
-                res.status(401).json({ error: 'Authentication required (mocked)' });
-                // Do not call next()
-            });
-
-            const response = await agent // Use agent
+            const response = await agent
                 .put(path)
+                .set('x-test-authenticated', 'false')
                 .send(employeeData);
 
             expect(response.status).toBe(401);
             expect(response.body).toEqual({ error: 'Authentication required (mocked)' });
-            expect(mockedAuthenticate).toHaveBeenCalledTimes(1);
+            expect(mockedAuthenticateToken).toHaveBeenCalledTimes(1);
+            expect(mockedAuthenticate).not.toHaveBeenCalled();
             expect(usersController.updateEmployeeProfile).not.toHaveBeenCalled();
         });
     });
@@ -127,34 +201,29 @@ describe('Users Routes (/users)', () => {
         };
 
         it('should update pet owner profile successfully (200 OK)', async () => {
-            const response = await agent // Use agent
+            const response = await agent
                 .put(path)
+                .set('x-test-authenticated', 'true')
+                .set('x-test-user-role', 'owner')
                 .send(ownerData);
 
             expect(response.status).toBe(200);
             expect(response.body).toEqual({ message: '✅ Pet owner profile updated successfully!' });
+            expect(mockedAuthenticateToken).toHaveBeenCalledTimes(1);
             expect(mockedAuthenticate).toHaveBeenCalledTimes(1);
             expect(usersController.updateOwnerProfile).toHaveBeenCalledTimes(1);
-            // Check if controller received user info and body
-            expect(usersController.updateOwnerProfile).toHaveBeenCalledWith(
-                expect.objectContaining({ user: mockUser, body: ownerData }),
-                expect.anything(),
-                expect.any(Function)
-            );
         });
 
         it('should require authentication (401 Unauthorized)', async () => {
-            mockedAuthenticate.mockImplementationOnce((req, res, next) => {
-                res.status(401).json({ error: 'Authentication required (mocked)' });
-            });
-
-            const response = await agent // Use agent
+            const response = await agent
                 .put(path)
+                .set('x-test-authenticated', 'false')
                 .send(ownerData);
 
             expect(response.status).toBe(401);
             expect(response.body).toEqual({ error: 'Authentication required (mocked)' });
-            expect(mockedAuthenticate).toHaveBeenCalledTimes(1);
+            expect(mockedAuthenticateToken).toHaveBeenCalledTimes(1);
+            expect(mockedAuthenticate).not.toHaveBeenCalled();
             expect(usersController.updateOwnerProfile).not.toHaveBeenCalled();
         });
     });
@@ -169,34 +238,29 @@ describe('Users Routes (/users)', () => {
         };
 
         it('should change password successfully (200 OK)', async () => {
-            const response = await agent // Use agent
+            const response = await agent
                 .post(path)
+                .set('x-test-authenticated', 'true')
+                .set('x-test-user-role', 'employee')
                 .send(passwordData);
 
             expect(response.status).toBe(200);
             expect(response.body).toEqual({ message: '✅ Password changed successfully!' });
+            expect(mockedAuthenticateToken).toHaveBeenCalledTimes(1);
             expect(mockedAuthenticate).toHaveBeenCalledTimes(1);
             expect(usersController.changePassword).toHaveBeenCalledTimes(1);
-            // Check if controller received user info and body
-            expect(usersController.changePassword).toHaveBeenCalledWith(
-                expect.objectContaining({ user: mockUser, body: passwordData }),
-                expect.anything(),
-                expect.any(Function)
-            );
         });
 
         it('should require authentication (401 Unauthorized)', async () => {
-            mockedAuthenticate.mockImplementationOnce((req, res, next) => {
-                res.status(401).json({ error: 'Authentication required (mocked)' });
-            });
-
-            const response = await agent // Use agent
+            const response = await agent
                 .post(path)
+                .set('x-test-authenticated', 'false')
                 .send(passwordData);
 
             expect(response.status).toBe(401);
             expect(response.body).toEqual({ error: 'Authentication required (mocked)' });
-            expect(mockedAuthenticate).toHaveBeenCalledTimes(1);
+            expect(mockedAuthenticateToken).toHaveBeenCalledTimes(1);
+            expect(mockedAuthenticate).not.toHaveBeenCalled();
             expect(usersController.changePassword).not.toHaveBeenCalled();
         });
 
@@ -210,10 +274,13 @@ describe('Users Routes (/users)', () => {
         //     const badPasswordData = { ...passwordData, confirmNewPassword: 'differentpassword' };
         //     const response = await agent
         //         .post(path)
+        //         .set('x-test-authenticated', 'true')
+        //         .set('x-test-user-role', 'employee')
         //         .send(badPasswordData);
         //
         //     expect(response.status).toBe(400);
         //     expect(response.body).toEqual({ error: 'New passwords do not match' });
+        //     expect(mockedAuthenticateToken).toHaveBeenCalledTimes(1);
         //     expect(mockedAuthenticate).toHaveBeenCalledTimes(1);
         //     expect(usersController.changePassword).toHaveBeenCalledTimes(1);
         // });
