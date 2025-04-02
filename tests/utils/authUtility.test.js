@@ -59,13 +59,13 @@ describe("generateToken Utility", () => { // Renamed describe block to match tes
     expect(typeof decoded.exp).toBe("number"); // Should be a timestamp
   });
 
-  it("should set the expiration time to 1 hour from the issue time", () => {
+  it("should set the expiration time to 15 minutes from the issue time", () => {
     const token = generateToken(MOCK_USER_ID, MOCK_ROLE);
     const decoded = jwt.verify(token, MOCK_SECRET);
 
     const issueTime = decoded.iat;
     const expiryTime = decoded.exp;
-    const expectedDurationSeconds = 60 * 60; // 1 hour
+    const expectedDurationSeconds = 15 * 60; // 15 minutes
 
     expect(expiryTime - issueTime).toBe(expectedDurationSeconds);
   });

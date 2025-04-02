@@ -161,7 +161,7 @@ exports.changePassword = [
 
             await UserModel.updatePassword(userId, hashedPassword);
 
-            res.json({ message: "✅ Password changed successfully!" });
+            res.status(200).json({ message: "✅ Password changed successfully!" });
         } catch (error) {
             console.error("Password Change Error:", error);
             res.status(500).json({ error: "❌ Server error while changing password." });
@@ -201,4 +201,49 @@ exports.getOwnerProfile = async (req, res) => {
         console.error("Error fetching owner profile:", error);
         res.status(500).json({ error: "Failed to fetch owner profile" });
     }
+};
+
+const updateOwnerProfile = async (req, res) => {
+  try {
+    const { userId } = req.user;
+    const {
+      firstname,
+      lastname,
+      email,
+      contact,
+      address,
+      altperson,
+      altcontact,
+    } = req.body;
+
+    // Validate required fields
+    if (!firstname || !lastname || !email || !contact || !address) {
+      return res.status(400).json({ error: "❌ All fields are required!" });
+    }
+
+    // Fetch user and owner details
+    const user = await UserModel.getUserById(userId);
+    const owner = await UserModel.getOwnerByUserId(userId);
+
+    if (!user || !owner) {
+      return res.status(404).json({ error: "❌ User or owner not found." });
+    }
+
+    // Update owner profile
+    await UserModel.updateOwnerProfile(
+      userId,
+      firstname,
+      lastname,
+      email,
+      contact,
+      address,
+      altperson || null,
+      altcontact || null
+    );
+
+    res.status(200).json({ message: "✅ Pet owner profile updated successfully!" });
+  } catch (error) {
+    console.error("Error updating owner profile:", error);
+    res.status(500).json({ error: "❌ Server error while updating profile." }); // Ensure 500 is returned
+  }
 };

@@ -1,8 +1,10 @@
+//recordController.js
 const db = require("../config/db")
+const bcrypt = require('bcryptjs'); // Ensure bcryptjs is imported
 
 const {
     getAllVisitRecords, insertDiagnosis, insertSurgeryInfo, insertRecord, insertMatchRecLab,
-    getLabIdByDescription, updateRecordInDB, updateMatchRecLab, getRecordById, updateDiagnosisText, updateSurgeryInfo, deleteSurgeryInfo, insertLabInfo
+    getLabIdByDescription, updateMatchRecLab, getRecordById, updateDiagnosisText, updateSurgeryInfo, deleteSurgeryInfo, insertLabInfo
  } = require("../models/recordModel");
  const { authenticate, authorize } = require("../middleware/authMiddleware");
  const { sendEmail } = require("../utils/emailUtility");

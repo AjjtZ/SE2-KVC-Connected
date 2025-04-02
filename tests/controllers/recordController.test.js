@@ -1,405 +1,649 @@
-const request = require('supertest');
-const express = require('express');
-const session = require('express-session');
-const recordController = require('../../server/controllers/recordController'); // Corrected path depth? Verify this path.
-const {
-  insertDiagnosis, insertSurgeryInfo, insertRecord, insertMatchRecLab,
-  getLabIdByDescription, updateRecordInDB, updateMatchRecLab, getRecordById, updateDiagnosisText
-} = require('../../server/models/recordModel'); // Corrected path depth? Verify this path.
-const { sendEmail } = require('../../server/utils/emailUtility'); // Corrected path depth? Verify this path.
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+
+// Import controller AFTER setup/mocks if possible, or ensure mocks are defined before controller is potentially loaded by Jest
+const recordController = require('../../server/controllers/recordController');
+const db = require('../../server/config/db'); // Need to mock its methods like query
+const recordModel = require('../../server/models/recordModel');
+const emailUtility = require('../../server/utils/emailUtility');
 const crypto = require('crypto');
 
-// --- Mocking ---
-jest.mock('../../server/models/recordModel');
-jest.mock('../../server/utils/emailUtility');
-// Mock crypto *partially* if needed, or fully if functions are simple
-jest.mock('crypto', () => ({
-  ...jest.requireActual('crypto'), // Keep other crypto functions working if needed
-  randomBytes: jest.fn(), // Specifically mock randomBytes
+// --- Mocks ---
+
+// Mock the entire db module, specifically the query method used internally and by getCompleteRecordById
+jest.mock('../../server/config/db', () => ({
+    query: jest.fn(),
+    // Add mock for pool or other specific exports if controller uses them directly
 }));
 
-// --- Test Application Setup ---
-const app = express();
-app.use(express.json());
-app.use(session({
-  secret: 'test-session-secret',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false }
+// Mock the specific functions imported from recordModel
+jest.mock('../../server/models/recordModel', () => ({
+    getAllVisitRecords: jest.fn(),
+    insertDiagnosis: jest.fn(),
+    insertSurgeryInfo: jest.fn(),
+    insertRecord: jest.fn(),
+    insertMatchRecLab: jest.fn(),
+    getLabIdByDescription: jest.fn(),
+    updateRecordInDB: jest.fn(), // Although not directly used in controller, good practice if mocking module
+    updateMatchRecLab: jest.fn(),
+    getRecordById: jest.fn(),
+    updateDiagnosisText: jest.fn(),
+    updateSurgeryInfo: jest.fn(),
+    deleteSurgeryInfo: jest.fn(), // Though called via db.query, mock if directly imported/used
+    insertLabInfo: jest.fn(),
 }));
 
-// Middleware to Simulate Authentication (Populate req.user)
-app.use((req, res, next) => {
-  if (req.headers['x-test-user-role']) {
-    req.user = { role: req.headers['x-test-user-role'] };
-  } else {
-    req.user = { role: 'guest' };
-  }
+// Mock email utility
+jest.mock('../../server/utils/emailUtility', () => ({
+    sendEmail: jest.fn(),
+}));
 
-  if (req.headers['x-test-set-diag-code']) {
-    if (!req.session) {
-      // This shouldn't happen if session middleware ran first, but good practice
-      console.error("Attempted to set diag code header, but req.session doesn't exist.");
-      return next(new Error("Session not initialized before setting test header"));
-    }
-    req.session.diagnosisAccessCode = req.headers['x-test-set-diag-code'];
-    // Save the session explicitly after modification
-    req.session.save(err => {
-      if (err) {
-        console.error("Test middleware session save error:", err);
-        return next(err); // Pass error to Express error handler
-      }
-      console.log(`Test middleware set diagnosisAccessCode to: ${req.session.diagnosisAccessCode}`); // Log confirmation
-      next(); // Proceed AFTER saving
-    });
-  } else if (req.headers['x-test-set-session']) { // Keep the general session setting logic if needed elsewhere
-    try {
-      const sessionData = JSON.parse(req.headers['x-test-set-session']);
-      Object.assign(req.session, sessionData);
-      req.session.save(err => {
-        if (err) {
-          console.error("Test session save error (general):", err);
-          return next(err);
-        }
-        next();
-      });
-    } catch (e) {
-      console.error("Failed to parse x-test-set-session header:", e);
-      next(e);
-    }
-  } else {
-    // Proceed if no session headers are being used for this request
-    next();
-  }
-});
+// Mock crypto if needed for predictable codes (optional but good for testing)
+// We'll spy on it later if needed for specific tests
 
-
-// --- Mount Routes AFTER Middleware ---
-// ❗ Corrected route for addRecord to include :petId
-app.post('/records/request-access-code', recordController.requestDiagnosisAccessCode);
-
-// General routes with parameters next
-app.post('/records/:petId', recordController.addRecord);
-app.put('/records/:recordId', recordController.updateRecord);
 // --- Test Suite ---
+
 describe('Record Controller', () => {
-  let agent;
-  const recordId = '1'; // Define recordId here for reuse
-  const existingRecord = { // Define existingRecord here for reuse
-    record_id: recordId, record_date: '2022-01-01', record_weight: 10, record_temp: 37.5,
-    record_condition: 'Healthy', record_symptom: 'None', record_recent_visit: '2022-01-01',
-    record_purchase: 'Food', record_purpose: 'Checkup', lab_id: 1, diagnosis_id: 1, surgery_id: 1, record_lab_file: null
-  };
+    let req;
+    let res;
+    const mockPetId = 'pet123';
+    const mockRecordId = 'rec456';
+    const mockUserId = 'user789';
 
+    beforeEach(() => {
+        jest.clearAllMocks(); // Clear mocks between tests
 
-  beforeEach(() => {
-    jest.clearAllMocks();
-    // Reset mocks
-    getLabIdByDescription.mockResolvedValue(1);
-    insertDiagnosis.mockResolvedValue(1);
-    insertSurgeryInfo.mockResolvedValue(1);
-    insertRecord.mockResolvedValue(1);
-    insertMatchRecLab.mockResolvedValue();
-    // Set default for getRecordById here
-    getRecordById.mockResolvedValue(existingRecord); // Default to finding the record
-    updateRecordInDB.mockResolvedValue();
-    updateMatchRecLab.mockResolvedValue();
-    updateDiagnosisText.mockResolvedValue();
-    sendEmail.mockResolvedValue();
-    crypto.randomBytes.mockReturnValue(Buffer.from('ABCDEF01', 'hex'));
+        req = {
+            query: {},
+            params: {},
+            body: {},
+            user: { id: mockUserId, role: 'doctor' }, // Default to doctor, override in tests
+            session: {}, // Mock session for access code tests
+            file: null, // Mock file upload
+        };
 
-    agent = request.agent(app);
-    process.env.CLINIC_OWNER_EMAIL = 'owner@test.com';
-  });
+        res = {
+            status: jest.fn().mockReturnThis(),
+            json: jest.fn(),
+            send: jest.fn(), // Include send if used
+        };
 
-  afterEach(() => {
-    delete process.env.CLINIC_OWNER_EMAIL;
-  });
+        // Default mock for db.query used by getCompleteRecordById and updateRecord
+        // Return structure: [rows, fields]
+        db.query.mockResolvedValue([[], []]);
+    });
 
-  // --- addRecord Tests ---
-  describe('POST /records/:petId', () => {
-    const petId = '123';
-    const validRecordData = {
-      record_date: '2022-01-01', record_weight: 10, record_temp: 37.5, record_condition: 'Healthy',
-      record_symptom: 'None', record_recent_visit: '2022-01-01', record_purchase: 'Food', record_purpose: 'Checkup'
-    };
+    // == Test getVisitRecords ==
+    describe('getVisitRecords', () => {
+        it('should return 400 if pet_id is missing', async () => {
+            req.query = {}; // No pet_id
 
-    it('should add a medical record successfully by a doctor (with lab, diagnosis, surgery)', async () => {
-      const response = await agent // Use agent
-        .post(`/records/${petId}`) // Use correct route with petId
-        .set('x-test-user-role', 'doctor') // Use test header for role
-        .send({
-          ...validRecordData,
-          lab_description: 'Blood Test', // Causes getLabIdByDescription -> 1
-          diagnosis_text: 'No issues',   // Causes insertDiagnosis -> 1
-          surgery_type: 'Neutering',     // Causes insertSurgeryInfo -> 1
-          surgery_date: '2022-01-02',
+            await recordController.getVisitRecords(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ error: 'pet_id is required' });
+            expect(recordModel.getAllVisitRecords).not.toHaveBeenCalled();
         });
 
-      expect(insertRecord).toHaveBeenCalledWith(petId, expect.objectContaining({
-        ...validRecordData,
-        lab_id: 1,
-        diagnosis_id: 1,
-        surgery_id: 1,
-        record_lab_file: null // Ensure this is included/handled
-      }));
-      expect(insertMatchRecLab).toHaveBeenCalledWith(1, 1); // recordId, labId
-      expect(response.status).toBe(201);
-      expect(response.body.message).toBe('Medical record added successfully!');
-    });
+        it('should fetch and return records successfully', async () => {
+            req.query = { pet_id: mockPetId };
+            const mockRecords = [{ id: 1, date: '2023-01-01' }, { id: 2, date: '2023-02-15' }];
+            recordModel.getAllVisitRecords.mockResolvedValue(mockRecords);
 
-    it('should add a medical record successfully by a clinician (no diagnosis)', async () => {
-      const response = await agent
-        .post(`/records/${petId}`)
-        .set('x-test-user-role', 'clinician')
-        .send({
-          ...validRecordData,
-          lab_description: 'Blood Test',
-          // No diagnosis_text
-          surgery_type: 'Checkup Scan', // Can add surgery
-          surgery_date: '2022-01-03',
+            await recordController.getVisitRecords(req, res);
+
+            expect(recordModel.getAllVisitRecords).toHaveBeenCalledWith(mockPetId);
+            expect(res.status).not.toHaveBeenCalled(); // Should default to 200, check json called
+            expect(res.json).toHaveBeenCalledWith(mockRecords);
         });
 
-      expect(insertDiagnosis).not.toHaveBeenCalled(); // Verify clinician didn't insert diagnosis
-      expect(insertRecord).toHaveBeenCalledWith(petId, expect.objectContaining({
-        lab_id: 1,
-        diagnosis_id: null, // Should be null
-        surgery_id: 1,
-      }));
-      expect(insertMatchRecLab).toHaveBeenCalledWith(1, 1);
-      expect(response.status).toBe(201);
-      expect(response.body.message).toBe('Medical record added successfully!');
+        it('should return 500 if fetching records fails', async () => {
+            req.query = { pet_id: mockPetId };
+            const error = new Error('DB Error');
+            recordModel.getAllVisitRecords.mockRejectedValue(error);
+
+            await recordController.getVisitRecords(req, res);
+
+            expect(recordModel.getAllVisitRecords).toHaveBeenCalledWith(mockPetId);
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({ error: 'Failed to fetch visit records' });
+        });
     });
 
+    // == Test addRecord ==
+    describe('addRecord', () => {
+        const baseRecordData = {
+            record_date: '2024-03-15',
+            record_weight: '10',
+            record_temp: '38.5',
+            record_condition: 'Good',
+            record_symptom: 'None',
+            record_recent_visit: 'No',
+            record_purchase: 'Food',
+            record_purpose: 'Checkup',
+        };
 
-    it('should return 400 if required fields are missing', async () => {
-      const response = await agent
-        .post(`/records/${petId}`)
-        .set('x-test-user-role', 'doctor')
-        .send({ // Missing record_weight, record_temp etc.
-          record_date: '2022-01-01',
-          record_condition: 'Healthy',
+        beforeEach(() => {
+            req.params = { petId: mockPetId };
+            req.body = { ...baseRecordData };
+            req.user = { role: 'doctor' }; // Default to doctor
+
+            // Mock insertRecord returning a mock ID
+            recordModel.insertRecord.mockResolvedValue(mockRecordId);
+
+            // Mock getCompleteRecordById (via db.query) returning a structure
+            const mockCompleteRecord = {
+                id: mockRecordId,
+                date: baseRecordData.record_date,
+                purposeOfVisit: baseRecordData.record_purpose,
+                // ... other fields based on getCompleteRecordById query ...
+                petId: mockPetId,
+                hadSurgery: false,
+            };
+            // Simulate db.query call inside getCompleteRecordById
+            db.query.mockImplementation((query, params) => {
+                 // Check if it's the SELECT query from getCompleteRecordById
+                if (query.includes('SELECT') && query.includes('record_info r') && params[0] === mockRecordId) {
+                    return Promise.resolve([[mockCompleteRecord], []]); // [rows, fields]
+                }
+                return Promise.resolve([[], []]); // Default empty for other queries
+            });
         });
 
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('Missing required fields.');
-    });
+        it('should add a record successfully for a doctor without optional fields', async () => {
+            await recordController.addRecord(req, res);
 
-    it('should return 403 if clinician tries to add a diagnosis during creation', async () => {
-      const response = await agent
-        .post(`/records/${petId}`)
-        .set('x-test-user-role', 'clinician')
-        .send({
-          ...validRecordData,
-          diagnosis_text: 'Should not be allowed', // Clinician adding diagnosis
+            expect(recordModel.insertRecord).toHaveBeenCalledWith(
+                mockPetId,
+                baseRecordData.record_date,
+                baseRecordData.record_weight,
+                baseRecordData.record_temp,
+                baseRecordData.record_condition,
+                baseRecordData.record_symptom,
+                baseRecordData.record_recent_visit,
+                baseRecordData.record_purchase,
+                baseRecordData.record_purpose,
+                null, // record_lab_file
+                null, // lab_id
+                null, // diagnosis_id
+                null  // surgery_id
+            );
+            expect(recordModel.getLabIdByDescription).not.toHaveBeenCalled();
+            expect(recordModel.insertLabInfo).not.toHaveBeenCalled();
+            expect(recordModel.insertDiagnosis).not.toHaveBeenCalled();
+            expect(recordModel.insertSurgeryInfo).not.toHaveBeenCalled();
+            expect(recordModel.insertMatchRecLab).not.toHaveBeenCalled();
+            expect(db.query).toHaveBeenCalledTimes(1); // Only the getCompleteRecordById call
+            expect(res.status).toHaveBeenCalledWith(201);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ id: mockRecordId }));
         });
 
-      expect(response.status).toBe(403);
-      expect(response.body.error).toBe('Clinicians cannot add a diagnosis when creating a record.');
-    });
+        it('should add a record with existing lab info', async () => {
+            req.body.lab_description = 'Blood Test';
+            const mockLabId = 'lab001';
+            recordModel.getLabIdByDescription.mockResolvedValue(mockLabId);
 
-    it('should return 400 if invalid lab description is provided', async () => {
-      getLabIdByDescription.mockResolvedValue(null); // Simulate invalid lab
-      const response = await agent
-        .post(`/records/${petId}`)
-        .set('x-test-user-role', 'doctor')
-        .send({
-          ...validRecordData,
-          lab_description: 'Invalid Lab Name',
+            await recordController.addRecord(req, res);
+
+            expect(recordModel.getLabIdByDescription).toHaveBeenCalledWith('Blood Test');
+            expect(recordModel.insertLabInfo).not.toHaveBeenCalled();
+            expect(recordModel.insertRecord).toHaveBeenCalledWith(expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), null, mockLabId, null, null);
+            expect(recordModel.insertMatchRecLab).toHaveBeenCalledWith(mockRecordId, mockLabId);
+            expect(res.status).toHaveBeenCalledWith(201);
         });
 
-      expect(response.status).toBe(400);
-      expect(response.body.error).toBe('Invalid lab description.');
-    });
-  });
+        it('should add a record and create new lab info if not existing', async () => {
+            req.body.lab_description = 'New Test';
+            const mockNewLabId = 'lab002';
+            recordModel.getLabIdByDescription.mockResolvedValue(null); // Not found
+            recordModel.insertLabInfo.mockResolvedValue(mockNewLabId);
 
-  // --- updateRecord Tests ---
-  describe('PUT /records/:recordId', () => {
-   // const recordId = '1';
-   /* const existingRecord = {
-      record_id: recordId, record_date: '2022-01-01', record_weight: 10, record_temp: 37.5,
-      record_condition: 'Healthy', record_symptom: 'None', record_recent_visit: '2022-01-01',
-      record_purchase: 'Food', record_purpose: 'Checkup', lab_id: 1, diagnosis_id: 1, surgery_id: 1, record_lab_file: null
-    };*/
-    const updateData = {
-      record_weight: 11, record_condition: 'Sick', diagnosis_text: 'Flu Update'
-    };
+            await recordController.addRecord(req, res);
 
-    
-    it('should update a medical record successfully by a doctor', async () => {
-      const response = await agent
-        .put(`/records/${recordId}`)
-        .set('x-test-user-role', 'doctor')
-        .send(updateData);
-
-      expect(getRecordById).toHaveBeenCalledWith(recordId);
-      expect(updateDiagnosisText).toHaveBeenCalledWith(existingRecord.diagnosis_id, updateData.diagnosis_text);
-      expect(updateRecordInDB).toHaveBeenCalledWith(recordId, expect.objectContaining({
-        record_weight: updateData.record_weight, // updated
-        record_condition: updateData.record_condition, // updated
-        diagnosis_id: existingRecord.diagnosis_id, // updated via updateDiagnosisText, ID remains same
-        // other fields should be from existingRecord
-        record_date: existingRecord.record_date,
-        lab_id: existingRecord.lab_id,
-      }));
-      expect(updateMatchRecLab).not.toHaveBeenCalled(); // Lab ID didn't change
-      expect(response.status).toBe(200);
-      expect(response.body.message).toBe('Medical record updated successfully!');
-    });
-
-    it('should insert new diagnosis if doctor updates record without existing diagnosis', async () => {
-      getRecordById.mockResolvedValue({ ...existingRecord, diagnosis_id: null }); // Simulate no existing diagnosis
-      insertDiagnosis.mockResolvedValue(2); // Simulate new diagnosis ID
-
-      const response = await agent
-        .put(`/records/${recordId}`)
-        .set('x-test-user-role', 'doctor')
-        .send({ diagnosis_text: 'New Diagnosis Added' });
-
-      expect(updateDiagnosisText).not.toHaveBeenCalled();
-      expect(insertDiagnosis).toHaveBeenCalledWith('New Diagnosis Added');
-      expect(updateRecordInDB).toHaveBeenCalledWith(recordId, expect.objectContaining({
-        diagnosis_id: 2, // Should link the new diagnosis ID
-      }));
-      expect(response.status).toBe(200);
-    });
-
-
-    it('should return 404 if record not found during update', async () => {
-      getRecordById.mockResolvedValue(null); // Override default for this test
-
-      const response = await agent
-        .put(`/records/${recordId}`)
-        .set('x-test-user-role', 'doctor')
-        .send(updateData);
-
-      expect(response.status).toBe(404);
-      expect(response.body.error).toBe('Record not found.');
-    });
-
-    it('should return 403 if clinician tries to update diagnosis without access code', async () => {
-      const response = await agent
-        .put(`/records/${recordId}`)
-        .set('x-test-user-role', 'clinician') // Clinician role
-        .send({ diagnosis_text: 'Clinician Flu Update' }); // Attempting diagnosis update
-
-      expect(response.status).toBe(403);
-      expect(response.body.error).toBe('Clinicians need a valid access code to update a diagnosis.');
-    });
-
-    it('should return 403 if clinician tries to update diagnosis with incorrect access code', async () => {
-      // Simulate session having a *different* code via agent's cookie persistence
-      // First, request a code (which mocks setting it in session)
-      crypto.randomBytes.mockReturnValue(Buffer.from('OLDCODE1', 'hex'));
-      await agent.post('/records/request-access-code').set('x-test-user-role', 'clinician');
-      // Now, attempt update with a different code
-      const response = await agent
-        .put(`/records/${recordId}`)
-        .set('x-test-user-role', 'clinician')
-        .send({
-          diagnosis_text: 'Clinician Flu Update',
-          accessCode: 'WRONGCODE' // Provide incorrect code
+            expect(recordModel.getLabIdByDescription).toHaveBeenCalledWith('New Test');
+            expect(recordModel.insertLabInfo).toHaveBeenCalledWith('New Test');
+            expect(recordModel.insertRecord).toHaveBeenCalledWith(expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), null, mockNewLabId, null, null);
+            expect(recordModel.insertMatchRecLab).toHaveBeenCalledWith(mockRecordId, mockNewLabId);
+            expect(res.status).toHaveBeenCalledWith(201);
         });
 
-      expect(response.status).toBe(403);
-      expect(response.body.error).toBe('Clinicians need a valid access code to update a diagnosis.');
-    });
+         it('should add a record with diagnosis for a doctor', async () => {
+            req.body.diagnosis_text = 'Healthy';
+            const mockDiagnosisId = 'diag001';
+            recordModel.insertDiagnosis.mockResolvedValue(mockDiagnosisId);
 
+            await recordController.addRecord(req, res);
 
-    it('should allow clinician to update diagnosis with correct access code', async () => {
-      const correctCode = 'GOODCODE';
-      
-      //crypto.randomBytes.mockReturnValue(Buffer.from(correctCode, 'hex'));
-     // await agent.post('/records/request-access-code').set('x-test-user-role', 'clinician'); // This should set req.session.diagnosisAccessCode via the agent
-
-      // Now attempt the update with the correct code
-      const response = await agent
-                .put(`/records/${recordId}`)
-                .set('x-test-user-role', 'clinician') // Set user role
-                .set('x-test-set-diag-code', correctCode) // <--- SET SESSION CODE VIA HEADER
-                .send({
-                    diagnosis_text: 'Clinician Allowed Update',
-                    accessCode: correctCode // Still need to send the code in the body for the controller check
-                });
-
-            // Assertions remain the same
-            expect(getRecordById).toHaveBeenCalledWith(recordId);
-            expect(updateDiagnosisText).toHaveBeenCalledWith(existingRecord.diagnosis_id, 'Clinician Allowed Update');
-            expect(updateRecordInDB).toHaveBeenCalledWith(recordId, expect.objectContaining({
-                 diagnosis_id: existingRecord.diagnosis_id,
-            }));
-            expect(response.status).toBe(200);
-            expect(response.body.message).toBe('Medical record updated successfully!');
+             expect(recordModel.insertDiagnosis).toHaveBeenCalledWith('Healthy');
+             expect(recordModel.insertRecord).toHaveBeenCalledWith(expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), null, null, mockDiagnosisId, null);
+             expect(res.status).toHaveBeenCalledWith(201);
         });
 
-        it('should allow clinician to add diagnosis with correct access code if none exists', async () => {
-            // Simulate record having no existing diagnosis
-            getRecordById.mockResolvedValue({ ...existingRecord, diagnosis_id: null });
-            insertDiagnosis.mockResolvedValue(3); // Simulate new diagnosis ID
-            const correctCode = 'ADDCODE1';
+         it('should add a record with surgery info', async () => {
+            req.body.surgery_type = 'Spay';
+            req.body.surgery_date = '2024-03-16';
+            const mockSurgeryId = 'surg001';
+            recordModel.insertSurgeryInfo.mockResolvedValue(mockSurgeryId);
 
-            // --- REMOVE THE POST REQUEST ---
-            // crypto.randomBytes.mockReturnValue(Buffer.from(correctCode, 'hex'));
-            // await agent.post('/records/request-access-code').set('x-test-user-role', 'clinician');
+            await recordController.addRecord(req, res);
 
-            // Attempt update, setting code via header
-            const response = await agent
-                .put(`/records/${recordId}`)
-                .set('x-test-user-role', 'clinician')
-                .set('x-test-set-diag-code', correctCode) // <--- SET SESSION CODE VIA HEADER
-                .send({
-                    diagnosis_text: 'Clinician Adding Diagnosis',
-                    accessCode: correctCode // Send code in body too
-                });
-
-            // Assertions remain the same
-            expect(insertDiagnosis).toHaveBeenCalledWith('Clinician Adding Diagnosis');
-            expect(updateRecordInDB).toHaveBeenCalledWith(recordId, expect.objectContaining({
-                 diagnosis_id: 3, // New ID linked
-            }));
-            expect(response.status).toBe(200);
+             expect(recordModel.insertSurgeryInfo).toHaveBeenCalledWith('Spay', '2024-03-16');
+             expect(recordModel.insertRecord).toHaveBeenCalledWith(expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), null, null, null, mockSurgeryId);
+             expect(res.status).toHaveBeenCalledWith(201);
         });
 
-         // ... other update tests (lab link, etc.) ...
+         it('should add a record with lab file', async () => {
+            req.file = { filename: 'lab_report.pdf' };
 
-    }); // End describe PUT /records/:recordId
+            await recordController.addRecord(req, res);
 
+             expect(recordModel.insertRecord).toHaveBeenCalledWith(expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), expect.anything(), 'lab_report.pdf', null, null, null);
+             expect(res.status).toHaveBeenCalledWith(201);
+        });
 
-  // --- requestDiagnosisAccessCode Tests ---
-  describe('POST /records/request-access-code', () => {
-    // Use a fresh agent for each request code test if needed, but one per describe should be fine.
+        it('should return 403 if clinician tries to add diagnosis', async () => {
+            req.user.role = 'clinician';
+            req.body.diagnosis_text = 'Attempted Diagnosis';
 
-    it('should request diagnosis access code successfully, send email, and set session', async () => {
-      const generatedCode = 'ABCDEF01'; // From the mock setup
-      crypto.randomBytes.mockReturnValue(Buffer.from(generatedCode, 'hex')); // Ensure mock is set for this test
+            await recordController.addRecord(req, res);
 
-      const response = await agent // Use agent
-        .post('/records/request-access-code')
-        .set('x-test-user-role', 'clinician'); // Simulate clinician user
+            expect(res.status).toHaveBeenCalledWith(403);
+            expect(res.json).toHaveBeenCalledWith({ error: 'Clinicians cannot add a diagnosis when creating a record.' });
+            expect(recordModel.insertRecord).not.toHaveBeenCalled();
+        });
 
-      expect(response.status).toBe(200);
-      expect(response.body.message).toBe('✅ Access code request sent. Await access code from the clinic owner.');
-      expect(crypto.randomBytes).toHaveBeenCalledWith(4);
-      expect(sendEmail).toHaveBeenCalledWith(
-        'owner@test.com', // From process.env mock
-        expect.any(String), // Subject can be flexible
-        expect.stringContaining(`Access Code: ${generatedCode}`) // Check code is in body
-      );
+         it('should return 400 if required fields are missing', async () => {
+            delete req.body.record_weight; // Remove a required field
 
-    }, 10000); // Increase timeout slightly just in case network mock is slow, but shouldn't be needed after fixes
+            await recordController.addRecord(req, res);
 
-    it('should return 500 if clinic owner email is not set', async () => {
-      delete process.env.CLINIC_OWNER_EMAIL; // Unset the env var for this test
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ error: 'Missing required fields.' });
+            expect(recordModel.insertRecord).not.toHaveBeenCalled();
+        });
 
-      const response = await agent
-        .post('/records/request-access-code')
-        .set('x-test-user-role', 'clinician');
+         it('should return 500 if insertRecord fails', async () => {
+            const error = new Error('DB Insert Error');
+            recordModel.insertRecord.mockRejectedValue(error);
 
-      expect(response.status).toBe(500);
-      expect(response.body.error).toBe('❌ Clinic owner email is not set.');
-      expect(sendEmail).not.toHaveBeenCalled();
+            await recordController.addRecord(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({ error: 'Server error while adding medical record.' });
+        });
+
+         it('should return 404 if getCompleteRecordById fails after insert', async () => {
+             // insertRecord works (mocked in beforeEach)
+             // Make getCompleteRecordById return null/empty
+             db.query.mockResolvedValue([[], []]); // No rows found
+
+             await recordController.addRecord(req, res);
+
+             expect(recordModel.insertRecord).toHaveBeenCalled();
+             expect(db.query).toHaveBeenCalledTimes(1); // getCompleteRecordById query
+             expect(res.status).toHaveBeenCalledWith(404);
+             expect(res.json).toHaveBeenCalledWith({ error: 'Failed to retrieve the newly created record.' });
+        });
     });
 
-  });
+    // == Test updateRecord ==
+    describe('updateRecord', () => {
+        const mockRecordId = 'rec789';
+        let currentRecordMock;
 
+        beforeEach(() => {
+            req.params = { recordId: mockRecordId }; // Or req.params.id depending on route setup
+            req.user = { role: 'doctor' };
+            req.session = { diagnosisAccessCode: 'VALIDCODE' }; // Assume valid code for relevant tests
+
+            currentRecordMock = {
+                record_id: mockRecordId,
+                record_date: '2024-03-10',
+                record_weight: '9',
+                record_temp: '38.0',
+                record_condition: 'Fair',
+                record_symptom: 'Lethargy',
+                record_recent_visit: 'Yes',
+                record_purchase: 'Meds',
+                record_purpose: 'Follow-up',
+                record_lab_file: null,
+                lab_id: null,
+                diagnosis_id: null,
+                surgery_id: null,
+            };
+
+            // Mock getRecordById to return the base record
+            recordModel.getRecordById.mockResolvedValue(currentRecordMock);
+
+            // Mock getCompleteRecordById (via db.query) for the final response
+            // Simulate db.query calls:
+            // 1. Potential SELECT in getCompleteRecordById (mocked to return updated data)
+            // 2. The UPDATE query itself
+            // 3. Potential DELETE for surgery removal
+            // 4. Potential UPDATE for surgery removal (setting to NULL)
+             db.query.mockImplementation(async (query, params) => {
+                if (typeof query === 'string') {
+                     if (query.startsWith('UPDATE record_info SET surgery_id = NULL')) {
+                        return Promise.resolve([{ affectedRows: 1 }, []]); // Mock successful NULL update
+                    }
+                    if (query.startsWith('DELETE FROM surgery_info')) {
+                         return Promise.resolve([{ affectedRows: 1 }, []]); // Mock successful delete
+                    }
+                     if (query.startsWith('UPDATE record_info SET')) {
+                         return Promise.resolve([{ affectedRows: 1 }, []]); // Mock successful final update
+                     }
+                     if (query.startsWith('SELECT') && query.includes('FROM record_info r') && params && params[0] === mockRecordId) {
+                        // Return updated data for the final fetch
+                        const updatedData = { ...currentRecordMock, ...req.body, id: mockRecordId }; // Simple merge for test
+                        return Promise.resolve([[updatedData], []]);
+                     }
+                 }
+                 return Promise.resolve([[], []]); // Default empty
+             });
+        });
+
+        it('should return 404 if record not found', async () => {
+            recordModel.getRecordById.mockResolvedValue(null); // Record doesn't exist
+
+            await recordController.updateRecord(req, res);
+
+            expect(recordModel.getRecordById).toHaveBeenCalledWith(mockRecordId);
+            expect(res.status).toHaveBeenCalledWith(404);
+            expect(res.json).toHaveBeenCalledWith({ error: 'Record not found.' });
+            expect(db.query).not.toHaveBeenCalled(); // No update/select queries if not found
+        });
+
+
+        // --- Diagnosis Updates ---
+        it('should add diagnosis by doctor if none exists', async () => {
+            req.body = { diagnosis_text: 'New Diagnosis' };
+            currentRecordMock.diagnosis_id = null; // Ensure no current diagnosis
+            const newDiagnosisId = 'diag002';
+            recordModel.insertDiagnosis.mockResolvedValue(newDiagnosisId);
+
+            await recordController.updateRecord(req, res);
+
+            expect(recordModel.insertDiagnosis).toHaveBeenCalledWith('New Diagnosis');
+            expect(recordModel.updateDiagnosisText).not.toHaveBeenCalled();
+            expect(db.query).toHaveBeenCalledWith(
+                expect.stringContaining('UPDATE record_info SET'),
+                expect.arrayContaining([newDiagnosisId]) // Check new ID is in the update values
+            );
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+
+        it('should update existing diagnosis by doctor', async () => {
+            req.body = { diagnosis_text: 'Updated Diagnosis' };
+            currentRecordMock.diagnosis_id = 'diag001'; // Has existing diagnosis
+            recordModel.updateDiagnosisText.mockResolvedValue(); // Mock success
+
+            await recordController.updateRecord(req, res);
+
+            expect(recordModel.insertDiagnosis).not.toHaveBeenCalled();
+            expect(recordModel.updateDiagnosisText).toHaveBeenCalledWith('diag001', 'Updated Diagnosis');
+             expect(db.query).toHaveBeenCalledWith(
+                 expect.stringContaining('UPDATE record_info SET'),
+                 expect.arrayContaining(['diag001']) // Check existing ID is in the update values
+             );
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+
+        it('should add diagnosis by clinician with valid code', async () => {
+            req.user.role = 'clinician';
+            req.body = { diagnosis_text: 'Clinician Added Diagnosis', accessCode: 'VALIDCODE' };
+            currentRecordMock.diagnosis_id = null;
+            const newDiagnosisId = 'diag003';
+            recordModel.insertDiagnosis.mockResolvedValue(newDiagnosisId);
+
+            await recordController.updateRecord(req, res);
+
+            expect(req.session.diagnosisAccessCode).toBe('VALIDCODE');
+            expect(recordModel.insertDiagnosis).toHaveBeenCalledWith('Clinician Added Diagnosis');
+            expect(db.query).toHaveBeenCalledWith(
+                expect.stringContaining('UPDATE record_info SET'),
+                expect.arrayContaining([newDiagnosisId])
+            );
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+
+        it('should update diagnosis by clinician with valid code', async () => {
+            req.user.role = 'clinician';
+            req.body = { diagnosis_text: 'Clinician Updated Diagnosis', accessCode: 'VALIDCODE' };
+            currentRecordMock.diagnosis_id = 'diag001';
+            recordModel.updateDiagnosisText.mockResolvedValue();
+
+            await recordController.updateRecord(req, res);
+
+            expect(req.session.diagnosisAccessCode).toBe('VALIDCODE');
+            expect(recordModel.updateDiagnosisText).toHaveBeenCalledWith('diag001', 'Clinician Updated Diagnosis');
+             expect(db.query).toHaveBeenCalledWith(
+                 expect.stringContaining('UPDATE record_info SET'),
+                 expect.arrayContaining(['diag001'])
+             );
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+
+        it('should return 403 if clinician updates diagnosis without requesting code', async () => {
+            req.user.role = 'clinician';
+            req.body = { diagnosis_text: 'Test', accessCode: 'ANYCODE' };
+            delete req.session.diagnosisAccessCode; // Code not requested/expired
+
+            await recordController.updateRecord(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(403);
+            expect(res.json).toHaveBeenCalledWith({ error: 'Access code not requested or expired.' });
+            expect(db.query).not.toHaveBeenCalledWith(expect.stringContaining('UPDATE record_info SET'));
+        });
+
+        it('should return 403 if clinician updates diagnosis with invalid code', async () => {
+            req.user.role = 'clinician';
+            req.body = { diagnosis_text: 'Test', accessCode: 'INVALIDCODE' };
+            req.session.diagnosisAccessCode = 'VALIDCODE'; // Session has different code
+
+            await recordController.updateRecord(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(403);
+            expect(res.json).toHaveBeenCalledWith({ error: 'Invalid access code.' });
+             expect(db.query).not.toHaveBeenCalledWith(expect.stringContaining('UPDATE record_info SET'));
+        });
+
+
+        // --- Surgery Updates ---
+        it('should add surgery info if none exists', async () => {
+            req.body = { surgery_type: 'Neuter', surgery_date: '2024-03-20' };
+            currentRecordMock.surgery_id = null;
+            const newSurgeryId = 'surg002';
+            recordModel.insertSurgeryInfo.mockResolvedValue(newSurgeryId);
+
+            await recordController.updateRecord(req, res);
+
+            expect(recordModel.insertSurgeryInfo).toHaveBeenCalledWith('Neuter', '2024-03-20');
+             expect(db.query).toHaveBeenCalledWith(
+                 expect.stringContaining('UPDATE record_info SET'),
+                 expect.arrayContaining([newSurgeryId]) // Check new ID in update values
+             );
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ hadSurgery: true }));
+        });
+
+         it('should update existing surgery info', async () => {
+            req.body = { surgery_type: 'Neuter Updated', surgery_date: '2024-03-21' };
+            currentRecordMock.surgery_id = 'surg001';
+            recordModel.updateSurgeryInfo.mockResolvedValue();
+
+            await recordController.updateRecord(req, res);
+
+            expect(recordModel.updateSurgeryInfo).toHaveBeenCalledWith('surg001', 'Neuter Updated', '2024-03-21');
+             expect(db.query).toHaveBeenCalledWith(
+                 expect.stringContaining('UPDATE record_info SET'),
+                 expect.arrayContaining(['surg001']) // Check existing ID in update values
+             );
+            expect(res.status).toHaveBeenCalledWith(200);
+             expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ hadSurgery: true }));
+        });
+
+        it('should remove surgery info if hadSurgery is false', async () => {
+            req.body = { hadSurgery: false };
+            currentRecordMock.surgery_id = 'surg001'; // Has existing surgery
+
+            await recordController.updateRecord(req, res);
+
+            // Check the query to set surgery_id to NULL in record_info
+            expect(db.query).toHaveBeenCalledWith(
+                expect.stringContaining('UPDATE record_info SET surgery_id = NULL WHERE record_id = ?'),
+                [mockRecordId]
+            );
+            // Check the query to DELETE from surgery_info
+             expect(db.query).toHaveBeenCalledWith(
+                 expect.stringContaining('DELETE FROM surgery_info WHERE surgery_id = ?'),
+                 [currentRecordMock.surgery_id]
+             );
+             // Check the final UPDATE query has surgery_id as NULL
+              expect(db.query).toHaveBeenCalledWith(
+                  expect.stringContaining('UPDATE record_info SET'),
+                  expect.arrayContaining([null]) // surgery_id should be null in the update list
+              );
+            expect(res.status).toHaveBeenCalledWith(200);
+            expect(res.json).toHaveBeenCalledWith(expect.objectContaining({ hadSurgery: false }));
+        });
+
+        // --- Lab Update ---
+        it('should update lab info', async () => {
+            req.body = { lab_description: 'Updated Blood Test' };
+            const newLabId = 'lab003';
+            recordModel.getLabIdByDescription.mockResolvedValue(newLabId);
+            currentRecordMock.lab_id = 'lab001'; // Has different current lab
+
+            await recordController.updateRecord(req, res);
+
+            expect(recordModel.getLabIdByDescription).toHaveBeenCalledWith('Updated Blood Test');
+             expect(db.query).toHaveBeenCalledWith(
+                 expect.stringContaining('UPDATE record_info SET'),
+                 expect.arrayContaining([newLabId]) // Check new lab ID in update values
+             );
+            expect(recordModel.updateMatchRecLab).toHaveBeenCalledWith(mockRecordId, newLabId);
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+
+        it('should return 400 if invalid lab description provided', async () => {
+            req.body = { lab_description: 'NonExistentTest' };
+            recordModel.getLabIdByDescription.mockResolvedValue(null); // Lab not found
+
+            await recordController.updateRecord(req, res);
+
+            expect(recordModel.getLabIdByDescription).toHaveBeenCalledWith('NonExistentTest');
+            expect(res.status).toHaveBeenCalledWith(400);
+            expect(res.json).toHaveBeenCalledWith({ error: 'Invalid lab description.' });
+            expect(db.query).not.toHaveBeenCalledWith(expect.stringContaining('UPDATE record_info SET'));
+        });
+
+        // --- File Update ---
+         it('should update record with new lab file', async () => {
+            req.file = { filename: 'new_report.pdf' };
+
+            await recordController.updateRecord(req, res);
+
+             expect(db.query).toHaveBeenCalledWith(
+                 expect.stringContaining('UPDATE record_info SET'),
+                 expect.arrayContaining(['new_report.pdf']) // Check filename in update values
+             );
+            expect(res.status).toHaveBeenCalledWith(200);
+        });
+
+         // --- General Error ---
+         it('should return 500 if database update fails', async () => {
+             req.body = { record_weight: '10' };
+             const updateError = new Error('DB Update Failed');
+             // Make the final UPDATE query fail
+             db.query.mockImplementation(async (query) => {
+                 if (typeof query === 'string' && query.startsWith('UPDATE record_info SET')) {
+                     throw updateError;
+                 }
+                 // Allow getRecordById query to succeed
+                 if (typeof query === 'string' && query.startsWith('SELECT') && query.includes('FROM record_info r')) {
+                     return [[currentRecordMock], []];
+                 }
+                 return [[],[]];
+             });
+              recordModel.getRecordById.mockResolvedValue(currentRecordMock); // Ensure this still resolves first
+
+
+             await recordController.updateRecord(req, res);
+
+             expect(res.status).toHaveBeenCalledWith(500);
+             expect(res.json).toHaveBeenCalledWith({ error: 'Server error while updating medical record.' });
+         });
+
+    });
+
+    // == Test requestDiagnosisAccessCode ==
+    describe('requestDiagnosisAccessCode', () => {
+        const mockAccessCode = 'ABCDEF12'; // Predictable code
+        const mockOwnerEmail = 'owner@clinic.com';
+
+         beforeEach(() => {
+             // Mock crypto to return a predictable value
+             const mockBuffer = Buffer.from(mockAccessCode.toLowerCase(), 'hex'); // Simulate hex bytes
+             jest.spyOn(crypto, 'randomBytes').mockReturnValue(mockBuffer);
+
+             // Set the required environment variable for the test
+             process.env.CLINIC_OWNER_EMAIL = mockOwnerEmail;
+
+             req.session = {}; // Ensure session exists
+             emailUtility.sendEmail.mockResolvedValue(); // Mock successful email send
+         });
+
+         afterEach(() => {
+             // Clean up environment variable changes if necessary
+             delete process.env.CLINIC_OWNER_EMAIL;
+         });
+
+        it('should generate code, store in session, send email, and return code', async () => {
+            await recordController.requestDiagnosisAccessCode(req, res);
+
+            expect(crypto.randomBytes).toHaveBeenCalledWith(4);
+            expect(req.session.diagnosisAccessCode).toBe(mockAccessCode); // Check if stored (case adjusted)
+            expect(emailUtility.sendEmail).toHaveBeenCalledWith(
+                mockOwnerEmail,
+                expect.stringContaining('Diagnosis Access Code Request'),
+                expect.stringContaining(mockAccessCode) // Check if code is in email body
+            );
+             expect(res.json).toHaveBeenCalledWith({
+                 message: expect.any(String),
+                 accessCode: mockAccessCode, // Check code is returned
+             });
+             expect(res.status).not.toHaveBeenCalled(); // Should be 200 OK by default
+        });
+
+        it('should return 500 if session is not initialized', async () => {
+            req.session = null; // Simulate no session middleware
+
+            await recordController.requestDiagnosisAccessCode(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({ error: '❌ Session is not initialized.' });
+            expect(emailUtility.sendEmail).not.toHaveBeenCalled();
+        });
+
+        it('should return 500 if clinic owner email is not set', async () => {
+            delete process.env.CLINIC_OWNER_EMAIL; // Simulate missing env var
+
+            await recordController.requestDiagnosisAccessCode(req, res);
+
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({ error: '❌ Clinic owner email is not set.' });
+            expect(emailUtility.sendEmail).not.toHaveBeenCalled();
+        });
+
+        it('should return 500 if sending email fails', async () => {
+            const emailError = new Error('SMTP Error');
+            emailUtility.sendEmail.mockRejectedValue(emailError);
+
+            await recordController.requestDiagnosisAccessCode(req, res);
+
+            expect(emailUtility.sendEmail).toHaveBeenCalled();
+            expect(res.status).toHaveBeenCalledWith(500);
+            expect(res.json).toHaveBeenCalledWith({ error: '❌ Server error while requesting access code.' });
+        });
+    });
 });

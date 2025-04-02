@@ -1,103 +1,137 @@
 // tests/utils/emailUtility.test.js
 const { sendEmail } = require('../../server/utils/emailUtility'); // Adjust path if needed
+const nodemailer = require('nodemailer'); // Require after mock
 
-// --- Define mockSendMail first, so it's in scope for the mock factory ---
+// --- Mock Setup ---
 const mockSendMail = jest.fn();
 
-// --- Mock nodemailer using the factory parameter ---
-// This MUST be before the 'nodemailer' require/import if you use it later
+// Mock nodemailer *before* requiring it
 jest.mock('nodemailer', () => ({
-    // Define what the mocked module exports:
-    // createTransport is a Jest mock function...
-    createTransport: jest.fn().mockImplementation(() => {
-        // ...that when called, returns an object...
-        return {
-            // ...containing our mock sendMail function.
-            sendMail: mockSendMail
-        };
-    })
+    createTransport: jest.fn().mockImplementation(() => ({
+        sendMail: mockSendMail,
+    })),
 }));
-
-// --- Now require nodemailer AFTER mocking it ---
-// This variable will hold the mocked version defined above.
-// We need it to reference 'nodemailer.createTransport' in our expectations.
-const nodemailer = require('nodemailer');
 
 // --- Test Data ---
 const testTo = 'recipient@example.com';
 const testSubject = 'Test Email Subject';
 const testBody = 'This is the test email body.';
-const testUser = 'test_user@gmail.com'; // Ensure these have values
-const testPass = 'test_password';      // Ensure these have values
+const testUser = 'test_user@gmail.com';
+const testPass = 'test_password';
 
 describe('sendEmail Function', () => {
+    // Store original env vars
+    const originalEnv = process.env;
 
     beforeEach(() => {
-        // Reset all mocks (clears calls, reset implementation if not explicitly set again)
+        // Reset mocks before each test
         jest.clearAllMocks();
 
-        // --- Set up environment variables for the test context ---
-        // This is still crucial!
+        // Restore original environment variables and then set for the test
+        // This prevents env variable pollution between tests
+        process.env = { ...originalEnv };
         process.env.EMAIL_USER = testUser;
         process.env.EMAIL_PASS = testPass;
+
+        // Mock console.error for tests that check it
+        jest.spyOn(console, 'error').mockImplementation(() => {}); // Suppress console.error output during tests unless needed
     });
 
-    // Optional: Clean up env vars if needed
-    // afterAll(() => {
-    //   delete process.env.EMAIL_USER;
-    //   delete process.env.EMAIL_PASS;
-    // });
+    afterEach(() => {
+         // Restore console.error
+         console.error.mockRestore();
+    });
+
+    // Restore original env after all tests in this suite
+    afterAll(() => {
+        process.env = originalEnv;
+    });
+
 
     test('should call createTransport with correct service and auth', async () => {
-        // Arrange: Configure the mock sendMail's behavior for this test
+        // Arrange: Mock sendMail to simulate success
         mockSendMail.mockResolvedValue({ response: '250 OK: Mock success' });
 
-        // Act: Call the function under test
+        // Act
         await sendEmail(testTo, testSubject, testBody);
 
-        // Assert:
-        // 1. Verify the MOCKED createTransport was called
-        expect(nodemailer.createTransport).toHaveBeenCalledTimes(1); // Check the mock
+        // Assert
+        expect(nodemailer.createTransport).toHaveBeenCalledTimes(1);
         expect(nodemailer.createTransport).toHaveBeenCalledWith({
             service: 'gmail',
             auth: {
                 user: testUser,
                 pass: testPass,
             },
-            // DO NOT include tls options here unless sendEmail explicitly adds them
         });
-
-        // 2. Verify the MOCKED sendMail function was called
+        // Check that sendMail was also called as expected in this flow
         expect(mockSendMail).toHaveBeenCalledTimes(1);
-        // Optional: Add check for sendMail arguments if needed for this specific test
-        // expect(mockSendMail).toHaveBeenCalledWith({ ... });
     });
 
-    // --- Add your other tests back here ---
-    // They should use the same mocking setup.
-    // Example:
     test('should call sendMail with correct mail options', async () => {
-         mockSendMail.mockResolvedValue({ response: '250 OK' });
-         await sendEmail(testTo, testSubject, testBody);
-         expect(mockSendMail).toHaveBeenCalledWith({
-             from: `"Your Clinic" <${testUser}>`,
-             to: testTo,
-             subject: testSubject,
-             text: testBody,
-         });
-     });
+        // Arrange
+        mockSendMail.mockResolvedValue({ response: '250 OK' });
 
-     test('should log error and not call transporter if EMAIL_USER is missing', async () => {
-        delete process.env.EMAIL_USER;
-        console.error = jest.fn();
+        // Act
         await sendEmail(testTo, testSubject, testBody);
+
+        // Assert
+        expect(mockSendMail).toHaveBeenCalledTimes(1); // Ensure it was called
+        expect(mockSendMail).toHaveBeenCalledWith({
+            // --- FIX: Use the correct "from" name ---
+            from: `"Kho Veterinary Clinic Support" <${testUser}>`,
+            to: testTo,
+            subject: testSubject,
+            text: testBody,
+        });
+    });
+
+     test('should log error and not call transporter/sendMail if EMAIL_USER is missing', async () => {
+        // Arrange
+        delete process.env.EMAIL_USER; // Simulate missing variable
+        // console.error is already mocked in beforeEach
+
+        // Act
+        await sendEmail(testTo, testSubject, testBody);
+
+        // Assert
+        // --- FIX: Now this expectation should pass because we added the check in sendEmail ---
+        expect(console.error).toHaveBeenCalledTimes(1); // Check it was called
         expect(console.error).toHaveBeenCalledWith("Error sending email: EMAIL_USER or EMAIL_PASS environment variables not set.");
         expect(nodemailer.createTransport).not.toHaveBeenCalled();
         expect(mockSendMail).not.toHaveBeenCalled();
-        console.error.mockRestore();
-        process.env.EMAIL_USER = testUser; // Restore
     });
 
-    // Add other tests similarly...
+    test('should log error and not call transporter/sendMail if EMAIL_PASS is missing', async () => {
+        // Arrange
+        delete process.env.EMAIL_PASS; // Simulate missing variable
+        // console.error is already mocked in beforeEach
+
+        // Act
+        await sendEmail(testTo, testSubject, testBody);
+
+        // Assert
+        expect(console.error).toHaveBeenCalledTimes(1);
+        expect(console.error).toHaveBeenCalledWith("Error sending email: EMAIL_USER or EMAIL_PASS environment variables not set.");
+        expect(nodemailer.createTransport).not.toHaveBeenCalled();
+        expect(mockSendMail).not.toHaveBeenCalled();
+    });
+
+     test('should log error if sendMail fails', async () => {
+        // Arrange
+        const sendMailError = new Error('Failed to send');
+        mockSendMail.mockRejectedValue(sendMailError); // Simulate sendMail failure
+        // console.error is already mocked in beforeEach
+
+        // Act
+        await sendEmail(testTo, testSubject, testBody);
+
+        // Assert
+        expect(nodemailer.createTransport).toHaveBeenCalledTimes(1); // Transport is created
+        expect(mockSendMail).toHaveBeenCalledTimes(1); // sendMail is attempted
+        expect(console.error).toHaveBeenCalledTimes(1); // Error should be logged
+        // Check that the catch block logs the correct message structure
+        expect(console.error).toHaveBeenCalledWith("Error sending email:", sendMailError);
+    });
 
 });

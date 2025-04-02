@@ -1,431 +1,477 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="jest tests" tests="170" failures="8" errors="0" time="7.077">
-  <testsuite name="passwordUtility" errors="0" failures="3" skipped="0" timestamp="2025-03-30T15:49:16" time="2.194" tests="3">
-    <testcase classname="passwordUtility hashPassword should hash the password with the correct salt rounds" name="passwordUtility hashPassword should hash the password with the correct salt rounds" time="0.103">
-      <failure>Error: expect(received).toBe(expected) // Object.is equality
-
-Expected: &quot;hashedpassword&quot;
-Received: &quot;$2b$10$UopaYYr.fXiwjvY2YMA6vuEojVVS.Qq7zHHml8pHvqC3i20I/IvF.&quot;
-    at Object.toBe (C:\Users\althe\Documents\codes\SE2-KVC-Backend\tests\utils\passwordUtility.test.js:19:30)</failure>
+<testsuites name="jest tests" tests="217" failures="0" errors="0" time="5.911">
+  <testsuite name="Vaccine Routes" errors="0" failures="0" skipped="0" timestamp="2025-04-02T18:17:21" time="2.34" tests="7">
+    <testcase classname="Vaccine Routes POST /pets/:pet_id/vaccines should allow doctor to add a valid vaccination record (201 Created)" name="Vaccine Routes POST /pets/:pet_id/vaccines should allow doctor to add a valid vaccination record (201 Created)" time="0.099">
     </testcase>
-    <testcase classname="passwordUtility comparePassword should return true if the passwords match" name="passwordUtility comparePassword should return true if the passwords match" time="0.004">
-      <failure>Error: expect(received).toBe(expected) // Object.is equality
-
-Expected: true
-Received: false
-    at Object.toBe (C:\Users\althe\Documents\codes\SE2-KVC-Backend\tests\utils\passwordUtility.test.js:32:23)</failure>
+    <testcase classname="Vaccine Routes POST /pets/:pet_id/vaccines should allow clinician to add a valid vaccination record (201 Created)" name="Vaccine Routes POST /pets/:pet_id/vaccines should allow clinician to add a valid vaccination record (201 Created)" time="0.011">
     </testcase>
-    <testcase classname="passwordUtility comparePassword should return false if the passwords do not match" name="passwordUtility comparePassword should return false if the passwords do not match" time="0.026">
-      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-Expected: &quot;password123&quot;, &quot;hashedpassword&quot;
-
-Number of calls: 0
-    at Object.toHaveBeenCalledWith (C:\Users\althe\Documents\codes\SE2-KVC-Backend\tests\utils\passwordUtility.test.js:44:30)</failure>
+    <testcase classname="Vaccine Routes POST /pets/:pet_id/vaccines should return 400 Bad Request if required fields are missing (controller validation)" name="Vaccine Routes POST /pets/:pet_id/vaccines should return 400 Bad Request if required fields are missing (controller validation)" time="0.014">
+    </testcase>
+    <testcase classname="Vaccine Routes POST /pets/:pet_id/vaccines should forbid access for unauthorized role (e.g., petowner) (403 Forbidden)" name="Vaccine Routes POST /pets/:pet_id/vaccines should forbid access for unauthorized role (e.g., petowner) (403 Forbidden)" time="0.008">
+    </testcase>
+    <testcase classname="Vaccine Routes POST /pets/:pet_id/vaccines should require authentication (401 Unauthorized)" name="Vaccine Routes POST /pets/:pet_id/vaccines should require authentication (401 Unauthorized)" time="0.012">
+    </testcase>
+    <testcase classname="Vaccine Routes GET /pets/:pet_id/viewVaccines should allow authenticated user to view vaccination records (200 OK)" name="Vaccine Routes GET /pets/:pet_id/viewVaccines should allow authenticated user to view vaccination records (200 OK)" time="0.043">
+    </testcase>
+    <testcase classname="Vaccine Routes GET /pets/:pet_id/viewVaccines should require authentication (401 Unauthorized)" name="Vaccine Routes GET /pets/:pet_id/viewVaccines should require authentication (401 Unauthorized)" time="0.009">
     </testcase>
   </testsuite>
-  <testsuite name="Email Utility: sendEmail" errors="0" failures="5" skipped="0" timestamp="2025-03-30T15:49:16" time="2.349" tests="5">
-    <testcase classname="Email Utility: sendEmail should call nodemailer.createTransport with correct configuration" name="Email Utility: sendEmail should call nodemailer.createTransport with correct configuration" time="0.265">
-      <failure>Error: expect(jest.fn()).toHaveBeenCalledTimes(expected)
-
-Expected number of calls: 1
-Received number of calls: 0
-    at Object.toHaveBeenCalledTimes (C:\Users\althe\Documents\codes\SE2-KVC-Backend\tests\utils\emailUtility.test.js:52:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)</failure>
+  <testsuite name="Record Routes" errors="0" failures="0" skipped="0" timestamp="2025-04-02T18:17:21" time="2.48" tests="22">
+    <testcase classname="Record Routes GET /visit-records should allow authenticated user to get visit records (200 OK)" name="Record Routes GET /visit-records should allow authenticated user to get visit records (200 OK)" time="0.049">
     </testcase>
-    <testcase classname="Email Utility: sendEmail should call transporter.sendMail with correct mail options" name="Email Utility: sendEmail should call transporter.sendMail with correct mail options" time="0.168">
-      <failure>Error: expect(jest.fn()).toHaveBeenCalledTimes(expected)
-
-Expected number of calls: 1
-Received number of calls: 0
-    at Object.toHaveBeenCalledTimes (C:\Users\althe\Documents\codes\SE2-KVC-Backend\tests\utils\emailUtility.test.js:70:26)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)</failure>
+    <testcase classname="Record Routes GET /visit-records should require authentication (401 Unauthorized)" name="Record Routes GET /visit-records should require authentication (401 Unauthorized)" time="0.01">
     </testcase>
-    <testcase classname="Email Utility: sendEmail should log success message when email sends successfully" name="Email Utility: sendEmail should log success message when email sends successfully" time="0.157">
-      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-Expected: &quot;Email sent:&quot;, &quot;250 Email Sent Mock Response&quot;
-
-Number of calls: 0
-    at Object.toHaveBeenCalledWith (C:\Users\althe\Documents\codes\SE2-KVC-Backend\tests\utils\emailUtility.test.js:90:24)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)</failure>
+    <testcase classname="Record Routes POST /records/:petId should allow doctor to add a record (201 Created)" name="Record Routes POST /records/:petId should allow doctor to add a record (201 Created)" time="0.034">
     </testcase>
-    <testcase classname="Email Utility: sendEmail should log an error message when sendMail fails" name="Email Utility: sendEmail should log an error message when sendMail fails" time="0.154">
-      <failure>Error: expect(jest.fn()).toHaveBeenCalledTimes(expected)
-
-Expected number of calls: 1
-Received number of calls: 0
-    at Object.toHaveBeenCalledTimes (C:\Users\althe\Documents\codes\SE2-KVC-Backend\tests\utils\emailUtility.test.js:109:26)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)</failure>
+    <testcase classname="Record Routes POST /records/:petId should allow clinician to add a record (201 Created)" name="Record Routes POST /records/:petId should allow clinician to add a record (201 Created)" time="0.009">
     </testcase>
-    <testcase classname="Email Utility: sendEmail should handle missing EMAIL_PASS gracefully (nodemailer likely rejects)" name="Email Utility: sendEmail should handle missing EMAIL_PASS gracefully (nodemailer likely rejects)" time="0.002">
-      <failure>Error: expect(jest.fn()).toHaveBeenCalledWith(...expected)
-
-Expected: {&quot;auth&quot;: {&quot;pass&quot;: undefined, &quot;user&quot;: &quot;testuser@gmail.com&quot;}, &quot;service&quot;: &quot;gmail&quot;}
-
-Number of calls: 0
-    at Object.toHaveBeenCalledWith (C:\Users\althe\Documents\codes\SE2-KVC-Backend\tests\utils\emailUtility.test.js:132:40)
-    at processTicksAndRejections (node:internal/process/task_queues:105:5)</failure>
+    <testcase classname="Record Routes POST /records/:petId should forbid access for unauthorized role (e.g., petowner) (403 Forbidden)" name="Record Routes POST /records/:petId should forbid access for unauthorized role (e.g., petowner) (403 Forbidden)" time="0.032">
     </testcase>
-  </testsuite>
-  <testsuite name="Vaccine Routes - POST /api/pets/:pet_id/vaccines" errors="0" failures="0" skipped="0" timestamp="2025-03-30T15:49:16" time="3.426" tests="5">
-    <testcase classname="Vaccine Routes - POST /api/pets/:pet_id/vaccines should allow doctor to add a valid vaccination record (201 Created)" name="Vaccine Routes - POST /api/pets/:pet_id/vaccines should allow doctor to add a valid vaccination record (201 Created)" time="0.142">
+    <testcase classname="Record Routes POST /records/:petId should require authentication (401 Unauthorized)" name="Record Routes POST /records/:petId should require authentication (401 Unauthorized)" time="0.014">
     </testcase>
-    <testcase classname="Vaccine Routes - POST /api/pets/:pet_id/vaccines should allow clinician to add a valid vaccination record (201 Created)" name="Vaccine Routes - POST /api/pets/:pet_id/vaccines should allow clinician to add a valid vaccination record (201 Created)" time="0.015">
+    <testcase classname="Record Routes PUT /records/:recordId should allow doctor to update a record (200 OK)" name="Record Routes PUT /records/:recordId should allow doctor to update a record (200 OK)" time="0.007">
     </testcase>
-    <testcase classname="Vaccine Routes - POST /api/pets/:pet_id/vaccines should return 400 Bad Request if required fields are missing (controller validation)" name="Vaccine Routes - POST /api/pets/:pet_id/vaccines should return 400 Bad Request if required fields are missing (controller validation)" time="0.017">
+    <testcase classname="Record Routes PUT /records/:recordId should allow clinician to update a record (200 OK)" name="Record Routes PUT /records/:recordId should allow clinician to update a record (200 OK)" time="0.007">
     </testcase>
-    <testcase classname="Vaccine Routes - POST /api/pets/:pet_id/vaccines should forbid access for unauthorized role (e.g., petowner) (403 Forbidden)" name="Vaccine Routes - POST /api/pets/:pet_id/vaccines should forbid access for unauthorized role (e.g., petowner) (403 Forbidden)" time="0.012">
+    <testcase classname="Record Routes PUT /records/:recordId should forbid access for unauthorized role (e.g., petowner) (403 Forbidden)" name="Record Routes PUT /records/:recordId should forbid access for unauthorized role (e.g., petowner) (403 Forbidden)" time="0.029">
     </testcase>
-    <testcase classname="Vaccine Routes - POST /api/pets/:pet_id/vaccines should require authentication (401 Unauthorized)" name="Vaccine Routes - POST /api/pets/:pet_id/vaccines should require authentication (401 Unauthorized)" time="0.01">
+    <testcase classname="Record Routes PUT /records/:recordId should require authentication (401 Unauthorized)" name="Record Routes PUT /records/:recordId should require authentication (401 Unauthorized)" time="0.007">
+    </testcase>
+    <testcase classname="Record Routes GET /records/request-access-code should allow clinician to request an access code (200 OK)" name="Record Routes GET /records/request-access-code should allow clinician to request an access code (200 OK)" time="0.007">
+    </testcase>
+    <testcase classname="Record Routes GET /records/request-access-code should forbid access for unauthorized role (doctor) (403 Forbidden)" name="Record Routes GET /records/request-access-code should forbid access for unauthorized role (doctor) (403 Forbidden)" time="0.005">
+    </testcase>
+    <testcase classname="Record Routes GET /records/request-access-code should forbid access for unauthorized role (petowner) (403 Forbidden)" name="Record Routes GET /records/request-access-code should forbid access for unauthorized role (petowner) (403 Forbidden)" time="0.005">
+    </testcase>
+    <testcase classname="Record Routes GET /records/request-access-code should require authentication (401 Unauthorized)" name="Record Routes GET /records/request-access-code should require authentication (401 Unauthorized)" time="0.005">
+    </testcase>
+    <testcase classname="Record Routes GET /search-records should allow authenticated user to search records (200 OK)" name="Record Routes GET /search-records should allow authenticated user to search records (200 OK)" time="0.037">
+    </testcase>
+    <testcase classname="Record Routes GET /search-records should allow sorting records (e.g., ASC)" name="Record Routes GET /search-records should allow sorting records (e.g., ASC)" time="0.008">
+    </testcase>
+    <testcase classname="Record Routes GET /search-records should allow filtering by date range" name="Record Routes GET /search-records should allow filtering by date range" time="0.011">
+    </testcase>
+    <testcase classname="Record Routes GET /search-records should require authentication (401 Unauthorized)" name="Record Routes GET /search-records should require authentication (401 Unauthorized)" time="0.005">
+    </testcase>
+    <testcase classname="Record Routes GET /search-records should return 400 if pet_id is missing" name="Record Routes GET /search-records should return 400 if pet_id is missing" time="0.044">
+    </testcase>
+    <testcase classname="Record Routes GET /generate-pdf/:petId/:recordId should allow authenticated user to generate PDF (200 OK)" name="Record Routes GET /generate-pdf/:petId/:recordId should allow authenticated user to generate PDF (200 OK)" time="0.008">
+    </testcase>
+    <testcase classname="Record Routes GET /generate-pdf/:petId/:recordId should require authentication (401 Unauthorized)" name="Record Routes GET /generate-pdf/:petId/:recordId should require authentication (401 Unauthorized)" time="0.008">
+    </testcase>
+    <testcase classname="Record Routes GET /generate-pdf/:petId/:recordId should return 500 if PDF generation fails" name="Record Routes GET /generate-pdf/:petId/:recordId should return 500 if PDF generation fails" time="0.092">
     </testcase>
   </testsuite>
-  <testsuite name="Users Routes (/users)" errors="0" failures="0" skipped="0" timestamp="2025-03-30T15:49:17" time="3.45" tests="6">
-    <testcase classname="Users Routes (/users) PUT /users/update-employee-profile should update employee profile successfully (200 OK)" name="Users Routes (/users) PUT /users/update-employee-profile should update employee profile successfully (200 OK)" time="0.131">
-    </testcase>
-    <testcase classname="Users Routes (/users) PUT /users/update-employee-profile should require authentication (401 Unauthorized)" name="Users Routes (/users) PUT /users/update-employee-profile should require authentication (401 Unauthorized)" time="0.068">
-    </testcase>
-    <testcase classname="Users Routes (/users) PUT /users/update-petowner-profile should update pet owner profile successfully (200 OK)" name="Users Routes (/users) PUT /users/update-petowner-profile should update pet owner profile successfully (200 OK)" time="0.013">
-    </testcase>
-    <testcase classname="Users Routes (/users) PUT /users/update-petowner-profile should require authentication (401 Unauthorized)" name="Users Routes (/users) PUT /users/update-petowner-profile should require authentication (401 Unauthorized)" time="0.012">
-    </testcase>
-    <testcase classname="Users Routes (/users) POST /users/change-password should change password successfully (200 OK)" name="Users Routes (/users) POST /users/change-password should change password successfully (200 OK)" time="0.009">
-    </testcase>
-    <testcase classname="Users Routes (/users) POST /users/change-password should require authentication (401 Unauthorized)" name="Users Routes (/users) POST /users/change-password should require authentication (401 Unauthorized)" time="0.056">
-    </testcase>
-  </testsuite>
-  <testsuite name="Record Routes (/api/records)" errors="0" failures="0" skipped="0" timestamp="2025-03-30T15:49:17" time="3.539" tests="12">
-    <testcase classname="Record Routes (/api/records) POST /api/records/:petId should allow doctor to add a record (201 Created)" name="Record Routes (/api/records) POST /api/records/:petId should allow doctor to add a record (201 Created)" time="0.212">
-    </testcase>
-    <testcase classname="Record Routes (/api/records) POST /api/records/:petId should allow clinician to add a record (201 Created)" name="Record Routes (/api/records) POST /api/records/:petId should allow clinician to add a record (201 Created)" time="0.052">
-    </testcase>
-    <testcase classname="Record Routes (/api/records) POST /api/records/:petId should forbid access for unauthorized role (e.g., petowner) (403 Forbidden)" name="Record Routes (/api/records) POST /api/records/:petId should forbid access for unauthorized role (e.g., petowner) (403 Forbidden)" time="0.007">
-    </testcase>
-    <testcase classname="Record Routes (/api/records) POST /api/records/:petId should require authentication (401 Unauthorized)" name="Record Routes (/api/records) POST /api/records/:petId should require authentication (401 Unauthorized)" time="0.007">
-    </testcase>
-    <testcase classname="Record Routes (/api/records) PUT /api/records/:recordId should allow doctor to update a record (200 OK)" name="Record Routes (/api/records) PUT /api/records/:recordId should allow doctor to update a record (200 OK)" time="0.008">
-    </testcase>
-    <testcase classname="Record Routes (/api/records) PUT /api/records/:recordId should allow clinician to update a record (200 OK)" name="Record Routes (/api/records) PUT /api/records/:recordId should allow clinician to update a record (200 OK)" time="0.012">
-    </testcase>
-    <testcase classname="Record Routes (/api/records) PUT /api/records/:recordId should forbid access for unauthorized role (e.g., petowner) (403 Forbidden)" name="Record Routes (/api/records) PUT /api/records/:recordId should forbid access for unauthorized role (e.g., petowner) (403 Forbidden)" time="0.02">
-    </testcase>
-    <testcase classname="Record Routes (/api/records) PUT /api/records/:recordId should require authentication (401 Unauthorized)" name="Record Routes (/api/records) PUT /api/records/:recordId should require authentication (401 Unauthorized)" time="0.056">
-    </testcase>
-    <testcase classname="Record Routes (/api/records) GET /api/records/request-access-code should allow clinician to request an access code (200 OK)" name="Record Routes (/api/records) GET /api/records/request-access-code should allow clinician to request an access code (200 OK)" time="0.03">
-    </testcase>
-    <testcase classname="Record Routes (/api/records) GET /api/records/request-access-code should forbid access for unauthorized role (doctor) (403 Forbidden)" name="Record Routes (/api/records) GET /api/records/request-access-code should forbid access for unauthorized role (doctor) (403 Forbidden)" time="0.008">
-    </testcase>
-    <testcase classname="Record Routes (/api/records) GET /api/records/request-access-code should forbid access for unauthorized role (petowner) (403 Forbidden)" name="Record Routes (/api/records) GET /api/records/request-access-code should forbid access for unauthorized role (petowner) (403 Forbidden)" time="0.02">
-    </testcase>
-    <testcase classname="Record Routes (/api/records) GET /api/records/request-access-code should require authentication (401 Unauthorized)" name="Record Routes (/api/records) GET /api/records/request-access-code should require authentication (401 Unauthorized)" time="0.008">
-    </testcase>
-  </testsuite>
-  <testsuite name="Authentication Routes (/auth)" errors="0" failures="0" skipped="0" timestamp="2025-03-30T15:49:16" time="4.038" tests="12">
-    <testcase classname="Authentication Routes (/auth) POST /auth/captcha/verify should return 200 and success message for correct CAPTCHA" name="Authentication Routes (/auth) POST /auth/captcha/verify should return 200 and success message for correct CAPTCHA" time="0.083">
-    </testcase>
-    <testcase classname="Authentication Routes (/auth) POST /auth/captcha/verify should return 400 if CAPTCHA response is missing" name="Authentication Routes (/auth) POST /auth/captcha/verify should return 400 if CAPTCHA response is missing" time="0.015">
-    </testcase>
-    <testcase classname="Authentication Routes (/auth) POST /auth/captcha/verify should return 400 if session expired (no CAPTCHA in session)" name="Authentication Routes (/auth) POST /auth/captcha/verify should return 400 if session expired (no CAPTCHA in session)" time="0.009">
-    </testcase>
-    <testcase classname="Authentication Routes (/auth) POST /auth/captcha/verify should return 400 for incorrect CAPTCHA" name="Authentication Routes (/auth) POST /auth/captcha/verify should return 400 for incorrect CAPTCHA" time="0.043">
-    </testcase>
-    <testcase classname="Authentication Routes (/auth) GET /auth/captcha should call authController.getCaptcha and return 200" name="Authentication Routes (/auth) GET /auth/captcha should call authController.getCaptcha and return 200" time="0.008">
-    </testcase>
-    <testcase classname="Authentication Routes (/auth) POST /auth/login should call authController.loginUser and return 200" name="Authentication Routes (/auth) POST /auth/login should call authController.loginUser and return 200" time="0.007">
-    </testcase>
-    <testcase classname="Authentication Routes (/auth) POST /auth/signup/petowner-step1 should call authController.signupPetOwnerStep1 and return 200" name="Authentication Routes (/auth) POST /auth/signup/petowner-step1 should call authController.signupPetOwnerStep1 and return 200" time="0.097">
-    </testcase>
-    <testcase classname="Authentication Routes (/auth) POST /auth/signup/petowner-step2 should call authController.signupPetOwnerStep2 and return 200" name="Authentication Routes (/auth) POST /auth/signup/petowner-step2 should call authController.signupPetOwnerStep2 and return 200" time="0.01">
-    </testcase>
-    <testcase classname="Authentication Routes (/auth) POST /auth/signup/employee should call authController.signupEmployeeRequest and return 200" name="Authentication Routes (/auth) POST /auth/signup/employee should call authController.signupEmployeeRequest and return 200" time="0.017">
-    </testcase>
-    <testcase classname="Authentication Routes (/auth) POST /auth/signup/employee-verify should call authController.signupEmployeeComplete and return 200" name="Authentication Routes (/auth) POST /auth/signup/employee-verify should call authController.signupEmployeeComplete and return 200" time="0.022">
-    </testcase>
-    <testcase classname="Authentication Routes (/auth) POST /auth/logout should call authenticate middleware, then authController.logoutUser and return 200 if authenticated" name="Authentication Routes (/auth) POST /auth/logout should call authenticate middleware, then authController.logoutUser and return 200 if authenticated" time="0.01">
-    </testcase>
-    <testcase classname="Authentication Routes (/auth) POST /auth/logout should call authenticate middleware and return 401 if not authenticated" name="Authentication Routes (/auth) POST /auth/logout should call authenticate middleware and return 401 if not authenticated" time="0.007">
-    </testcase>
-  </testsuite>
-  <testsuite name="RecordModel" errors="0" failures="0" skipped="0" timestamp="2025-03-30T15:49:20" time="0.43" tests="12">
-    <testcase classname="RecordModel should insert lab info and return the lab ID" name="RecordModel should insert lab info and return the lab ID" time="0.002">
-    </testcase>
-    <testcase classname="RecordModel should get lab ID by description" name="RecordModel should get lab ID by description" time="0.001">
-    </testcase>
-    <testcase classname="RecordModel should return null if lab ID not found by description" name="RecordModel should return null if lab ID not found by description" time="0">
-    </testcase>
-    <testcase classname="RecordModel should insert diagnosis and return the diagnosis ID" name="RecordModel should insert diagnosis and return the diagnosis ID" time="0.006">
-    </testcase>
-    <testcase classname="RecordModel should insert surgery info and return the surgery ID" name="RecordModel should insert surgery info and return the surgery ID" time="0.001">
-    </testcase>
-    <testcase classname="RecordModel should insert a record and return the record ID" name="RecordModel should insert a record and return the record ID" time="0">
-    </testcase>
-    <testcase classname="RecordModel should update a record in the database" name="RecordModel should update a record in the database" time="0.002">
-    </testcase>
-    <testcase classname="RecordModel should get a record by ID" name="RecordModel should get a record by ID" time="0.001">
-    </testcase>
-    <testcase classname="RecordModel should return null if record not found by ID" name="RecordModel should return null if record not found by ID" time="0">
-    </testcase>
-    <testcase classname="RecordModel should insert match record lab" name="RecordModel should insert match record lab" time="0.001">
-    </testcase>
-    <testcase classname="RecordModel should update match record lab" name="RecordModel should update match record lab" time="0">
-    </testcase>
-    <testcase classname="RecordModel should update diagnosis text" name="RecordModel should update diagnosis text" time="0.025">
-    </testcase>
-  </testsuite>
-  <testsuite name="UserModel" errors="0" failures="0" skipped="0" timestamp="2025-03-30T15:49:20" time="1.009" tests="15">
-    <testcase classname="UserModel should get a user by ID" name="UserModel should get a user by ID" time="0.002">
-    </testcase>
-    <testcase classname="UserModel should return null if user not found by ID" name="UserModel should return null if user not found by ID" time="0">
-    </testcase>
-    <testcase classname="UserModel should get owner by user ID" name="UserModel should get owner by user ID" time="0">
-    </testcase>
-    <testcase classname="UserModel should return null if owner not found by user ID" name="UserModel should return null if owner not found by user ID" time="0">
-    </testcase>
-    <testcase classname="UserModel should get password by user ID" name="UserModel should get password by user ID" time="0">
-    </testcase>
-    <testcase classname="UserModel should return null if password not found by user ID" name="UserModel should return null if password not found by user ID" time="0">
-    </testcase>
-    <testcase classname="UserModel should update password" name="UserModel should update password" time="0.001">
-    </testcase>
-    <testcase classname="UserModel should find user by email" name="UserModel should find user by email" time="0">
-    </testcase>
-    <testcase classname="UserModel should return null if user not found by email" name="UserModel should return null if user not found by email" time="0">
-    </testcase>
-    <testcase classname="UserModel should check if email is taken" name="UserModel should check if email is taken" time="0.001">
-    </testcase>
-    <testcase classname="UserModel should return false if email is not taken" name="UserModel should return false if email is not taken" time="0">
-    </testcase>
-    <testcase classname="UserModel should create a pet owner" name="UserModel should create a pet owner" time="0.001">
-    </testcase>
-    <testcase classname="UserModel should create an employee" name="UserModel should create an employee" time="0.001">
-    </testcase>
-    <testcase classname="UserModel should update employee profile" name="UserModel should update employee profile" time="0">
-    </testcase>
-    <testcase classname="UserModel should update owner profile" name="UserModel should update owner profile" time="0.001">
-    </testcase>
-  </testsuite>
-  <testsuite name="PetModel" errors="0" failures="0" skipped="0" timestamp="2025-03-30T15:49:21" time="0.304" tests="11">
-    <testcase classname="PetModel should find a pet by ID" name="PetModel should find a pet by ID" time="0.001">
-    </testcase>
-    <testcase classname="PetModel should return null if pet not found by ID" name="PetModel should return null if pet not found by ID" time="0">
-    </testcase>
-    <testcase classname="PetModel should find species by description" name="PetModel should find species by description" time="0.002">
-    </testcase>
-    <testcase classname="PetModel should return null if species not found by description" name="PetModel should return null if species not found by description" time="0.001">
-    </testcase>
-    <testcase classname="PetModel should create a new pet" name="PetModel should create a new pet" time="0.001">
-    </testcase>
-    <testcase classname="PetModel should update a pet" name="PetModel should update a pet" time="0.001">
-    </testcase>
-    <testcase classname="PetModel should update pet species" name="PetModel should update pet species" time="0.002">
-    </testcase>
-    <testcase classname="PetModel should archive a pet" name="PetModel should archive a pet" time="0">
-    </testcase>
-    <testcase classname="PetModel should restore a pet" name="PetModel should restore a pet" time="0.001">
-    </testcase>
-    <testcase classname="PetModel should get all active pets" name="PetModel should get all active pets" time="0">
-    </testcase>
-    <testcase classname="PetModel should get all archived pets" name="PetModel should get all archived pets" time="0">
-    </testcase>
-  </testsuite>
-  <testsuite name="VaccineModel" errors="0" failures="0" skipped="0" timestamp="2025-03-30T15:49:21" time="0.201" tests="4">
-    <testcase classname="VaccineModel should get all vaccines" name="VaccineModel should get all vaccines" time="0.002">
-    </testcase>
-    <testcase classname="VaccineModel should get vaccine by type" name="VaccineModel should get vaccine by type" time="0.001">
-    </testcase>
-    <testcase classname="VaccineModel should return null if vaccine not found by type" name="VaccineModel should return null if vaccine not found by type" time="0">
-    </testcase>
-    <testcase classname="VaccineModel should add pet vaccination record" name="VaccineModel should add pet vaccination record" time="0.001">
-    </testcase>
-  </testsuite>
-  <testsuite name="Vaccine Controller" errors="0" failures="0" skipped="0" timestamp="2025-03-30T15:49:20" time="1.198" tests="4">
-    <testcase classname="Vaccine Controller should add a vaccination record successfully" name="Vaccine Controller should add a vaccination record successfully" time="0.022">
-    </testcase>
-    <testcase classname="Vaccine Controller should return error if required fields are missing" name="Vaccine Controller should return error if required fields are missing" time="0.021">
-    </testcase>
-    <testcase classname="Vaccine Controller should return error if vaccine type is invalid" name="Vaccine Controller should return error if vaccine type is invalid" time="0.011">
-    </testcase>
-    <testcase classname="Vaccine Controller should return server error if an exception occurs" name="Vaccine Controller should return server error if an exception occurs" time="0.022">
-    </testcase>
-  </testsuite>
-  <testsuite name="Pet Routes (/pets)" errors="0" failures="0" skipped="0" timestamp="2025-03-30T15:49:21" time="1.123" tests="16">
-    <testcase classname="Pet Routes (/pets) PUT /pets/edit/123 should allow access and call controller for role: clinician" name="Pet Routes (/pets) PUT /pets/edit/123 should allow access and call controller for role: clinician" time="0.036">
-    </testcase>
-    <testcase classname="Pet Routes (/pets) PUT /pets/edit/123 should allow access and call controller for role: doctor" name="Pet Routes (/pets) PUT /pets/edit/123 should allow access and call controller for role: doctor" time="0.007">
-    </testcase>
-    <testcase classname="Pet Routes (/pets) PUT /pets/edit/123 should return 403 Forbidden for unauthorized role (e.g., petowner)" name="Pet Routes (/pets) PUT /pets/edit/123 should return 403 Forbidden for unauthorized role (e.g., petowner)" time="0.01">
-    </testcase>
-    <testcase classname="Pet Routes (/pets) PUT /pets/edit/123 should return 401 Unauthorized if user is not authenticated" name="Pet Routes (/pets) PUT /pets/edit/123 should return 401 Unauthorized if user is not authenticated" time="0.01">
-    </testcase>
-    <testcase classname="Pet Routes (/pets) PUT /pets/archive/123 should allow access and call controller for role: clinician" name="Pet Routes (/pets) PUT /pets/archive/123 should allow access and call controller for role: clinician" time="0.007">
-    </testcase>
-    <testcase classname="Pet Routes (/pets) PUT /pets/archive/123 should allow access and call controller for role: doctor" name="Pet Routes (/pets) PUT /pets/archive/123 should allow access and call controller for role: doctor" time="0.033">
-    </testcase>
-    <testcase classname="Pet Routes (/pets) PUT /pets/archive/123 should return 403 Forbidden for unauthorized role (e.g., petowner)" name="Pet Routes (/pets) PUT /pets/archive/123 should return 403 Forbidden for unauthorized role (e.g., petowner)" time="0.007">
-    </testcase>
-    <testcase classname="Pet Routes (/pets) PUT /pets/archive/123 should return 401 Unauthorized if user is not authenticated" name="Pet Routes (/pets) PUT /pets/archive/123 should return 401 Unauthorized if user is not authenticated" time="0.008">
-    </testcase>
-    <testcase classname="Pet Routes (/pets) PUT /pets/restore/123 should allow access and call controller for role: clinician" name="Pet Routes (/pets) PUT /pets/restore/123 should allow access and call controller for role: clinician" time="0.016">
-    </testcase>
-    <testcase classname="Pet Routes (/pets) PUT /pets/restore/123 should allow access and call controller for role: doctor" name="Pet Routes (/pets) PUT /pets/restore/123 should allow access and call controller for role: doctor" time="0.008">
-    </testcase>
-    <testcase classname="Pet Routes (/pets) PUT /pets/restore/123 should return 403 Forbidden for unauthorized role (e.g., petowner)" name="Pet Routes (/pets) PUT /pets/restore/123 should return 403 Forbidden for unauthorized role (e.g., petowner)" time="0.007">
-    </testcase>
-    <testcase classname="Pet Routes (/pets) PUT /pets/restore/123 should return 401 Unauthorized if user is not authenticated" name="Pet Routes (/pets) PUT /pets/restore/123 should return 401 Unauthorized if user is not authenticated" time="0.006">
-    </testcase>
-    <testcase classname="Pet Routes (/pets) GET /pets/active should allow access and call controller for any authenticated user" name="Pet Routes (/pets) GET /pets/active should allow access and call controller for any authenticated user" time="0.058">
-    </testcase>
-    <testcase classname="Pet Routes (/pets) GET /pets/active should return 401 Unauthorized if user is not authenticated" name="Pet Routes (/pets) GET /pets/active should return 401 Unauthorized if user is not authenticated" time="0.008">
-    </testcase>
-    <testcase classname="Pet Routes (/pets) GET /pets/archived should allow access and call controller for any authenticated user" name="Pet Routes (/pets) GET /pets/archived should allow access and call controller for any authenticated user" time="0.023">
-    </testcase>
-    <testcase classname="Pet Routes (/pets) GET /pets/archived should return 401 Unauthorized if user is not authenticated" name="Pet Routes (/pets) GET /pets/archived should return 401 Unauthorized if user is not authenticated" time="0.03">
-    </testcase>
-  </testsuite>
-  <testsuite name="Pet Controller" errors="0" failures="0" skipped="0" timestamp="2025-03-30T15:49:19" time="2.899" tests="9">
-    <testcase classname="Pet Controller should update pet profile successfully" name="Pet Controller should update pet profile successfully" time="0.292">
-    </testcase>
-    <testcase classname="Pet Controller should return error if pet not found during update" name="Pet Controller should return error if pet not found during update" time="0.067">
-    </testcase>
-    <testcase classname="Pet Controller should return error if age mismatch during update" name="Pet Controller should return error if age mismatch during update" time="0.077">
-    </testcase>
-    <testcase classname="Pet Controller should archive pet successfully" name="Pet Controller should archive pet successfully" time="0.007">
-    </testcase>
-    <testcase classname="Pet Controller should return error if pet not found during archiving" name="Pet Controller should return error if pet not found during archiving" time="0.009">
-    </testcase>
-    <testcase classname="Pet Controller should restore pet successfully" name="Pet Controller should restore pet successfully" time="0.007">
-    </testcase>
-    <testcase classname="Pet Controller should return error if pet not found during restoring" name="Pet Controller should return error if pet not found during restoring" time="0.028">
-    </testcase>
-    <testcase classname="Pet Controller should fetch all active pets successfully" name="Pet Controller should fetch all active pets successfully" time="0.021">
-    </testcase>
-    <testcase classname="Pet Controller should fetch all archived pets successfully" name="Pet Controller should fetch all archived pets successfully" time="0.015">
-    </testcase>
-  </testsuite>
-  <testsuite name="Record Controller" errors="0" failures="0" skipped="0" timestamp="2025-03-30T15:49:19" time="3.216" tests="14">
-    <testcase classname="Record Controller POST /records/:petId should add a medical record successfully by a doctor (with lab, diagnosis, surgery)" name="Record Controller POST /records/:petId should add a medical record successfully by a doctor (with lab, diagnosis, surgery)" time="0.273">
-    </testcase>
-    <testcase classname="Record Controller POST /records/:petId should add a medical record successfully by a clinician (no diagnosis)" name="Record Controller POST /records/:petId should add a medical record successfully by a clinician (no diagnosis)" time="0.013">
-    </testcase>
-    <testcase classname="Record Controller POST /records/:petId should return 400 if required fields are missing" name="Record Controller POST /records/:petId should return 400 if required fields are missing" time="0.02">
-    </testcase>
-    <testcase classname="Record Controller POST /records/:petId should return 403 if clinician tries to add a diagnosis during creation" name="Record Controller POST /records/:petId should return 403 if clinician tries to add a diagnosis during creation" time="0.007">
-    </testcase>
-    <testcase classname="Record Controller POST /records/:petId should return 400 if invalid lab description is provided" name="Record Controller POST /records/:petId should return 400 if invalid lab description is provided" time="0.009">
-    </testcase>
-    <testcase classname="Record Controller PUT /records/:recordId should update a medical record successfully by a doctor" name="Record Controller PUT /records/:recordId should update a medical record successfully by a doctor" time="0.01">
-    </testcase>
-    <testcase classname="Record Controller PUT /records/:recordId should insert new diagnosis if doctor updates record without existing diagnosis" name="Record Controller PUT /records/:recordId should insert new diagnosis if doctor updates record without existing diagnosis" time="0.009">
-    </testcase>
-    <testcase classname="Record Controller PUT /records/:recordId should return 404 if record not found during update" name="Record Controller PUT /records/:recordId should return 404 if record not found during update" time="0.009">
-    </testcase>
-    <testcase classname="Record Controller PUT /records/:recordId should return 403 if clinician tries to update diagnosis without access code" name="Record Controller PUT /records/:recordId should return 403 if clinician tries to update diagnosis without access code" time="0.019">
-    </testcase>
-    <testcase classname="Record Controller PUT /records/:recordId should return 403 if clinician tries to update diagnosis with incorrect access code" name="Record Controller PUT /records/:recordId should return 403 if clinician tries to update diagnosis with incorrect access code" time="0.042">
-    </testcase>
-    <testcase classname="Record Controller PUT /records/:recordId should allow clinician to update diagnosis with correct access code" name="Record Controller PUT /records/:recordId should allow clinician to update diagnosis with correct access code" time="0.01">
-    </testcase>
-    <testcase classname="Record Controller PUT /records/:recordId should allow clinician to add diagnosis with correct access code if none exists" name="Record Controller PUT /records/:recordId should allow clinician to add diagnosis with correct access code if none exists" time="0.008">
-    </testcase>
-    <testcase classname="Record Controller POST /records/request-access-code should request diagnosis access code successfully, send email, and set session" name="Record Controller POST /records/request-access-code should request diagnosis access code successfully, send email, and set session" time="0.011">
-    </testcase>
-    <testcase classname="Record Controller POST /records/request-access-code should return 500 if clinic owner email is not set" name="Record Controller POST /records/request-access-code should return 500 if clinic owner email is not set" time="0.016">
-    </testcase>
-  </testsuite>
-  <testsuite name="Auth Middleware" errors="0" failures="0" skipped="0" timestamp="2025-03-30T15:49:21" time="0.685" tests="10">
-    <testcase classname="Auth Middleware should return 500 if JWT_SECRET is missing" name="Auth Middleware should return 500 if JWT_SECRET is missing" time="0.009">
-    </testcase>
-    <testcase classname="Auth Middleware should return 401 if no token provided" name="Auth Middleware should return 401 if no token provided" time="0.006">
-    </testcase>
-    <testcase classname="Auth Middleware should return 401 if token is expired" name="Auth Middleware should return 401 if token is expired" time="0.007">
-    </testcase>
-    <testcase classname="Auth Middleware should return 401 if token is invalid" name="Auth Middleware should return 401 if token is invalid" time="0.008">
-    </testcase>
-    <testcase classname="Auth Middleware should grant access if token is valid" name="Auth Middleware should grant access if token is valid" time="0.01">
-    </testcase>
-    <testcase classname="Auth Middleware should return 403 if user does not have the required role" name="Auth Middleware should return 403 if user does not have the required role" time="0.006">
-    </testcase>
-    <testcase classname="Auth Middleware should grant access if user has the required role" name="Auth Middleware should grant access if user has the required role" time="0.005">
-    </testcase>
-    <testcase classname="Auth Middleware should change password successfully if passwords match" name="Auth Middleware should change password successfully if passwords match" time="0.03">
-    </testcase>
-    <testcase classname="Auth Middleware should return 404 if user is not found during password change" name="Auth Middleware should return 404 if user is not found during password change" time="0.018">
-    </testcase>
-    <testcase classname="Auth Middleware should return 400 if passwords do not match during password change" name="Auth Middleware should return 400 if passwords do not match during password change" time="0.013">
-    </testcase>
-  </testsuite>
-  <testsuite name="Direct Database Connection Test" errors="0" failures="0" skipped="0" timestamp="2025-03-30T15:49:22" time="0.47" tests="1">
-    <testcase classname="Direct Database Connection Test should connect to the database successfully" name="Direct Database Connection Test should connect to the database successfully" time="0.085">
-    </testcase>
-  </testsuite>
-  <testsuite name="generateToken Utility" errors="0" failures="0" skipped="0" timestamp="2025-03-30T15:49:22" time="0.476" tests="7">
-    <testcase classname="generateToken Utility should generate a non-empty string token" name="generateToken Utility should generate a non-empty string token" time="0.009">
-    </testcase>
-    <testcase classname="generateToken Utility should create a token that can be verified with the same secret" name="generateToken Utility should create a token that can be verified with the same secret" time="0.006">
-    </testcase>
-    <testcase classname="generateToken Utility should include the correct userId and role in the token payload" name="generateToken Utility should include the correct userId and role in the token payload" time="0.004">
-    </testcase>
-    <testcase classname="generateToken Utility should include standard JWT claims like &apos;iat&apos; (issued at) and &apos;exp&apos; (expiration time)" name="generateToken Utility should include standard JWT claims like &apos;iat&apos; (issued at) and &apos;exp&apos; (expiration time)" time="0.004">
-    </testcase>
-    <testcase classname="generateToken Utility should set the expiration time to 1 hour from the issue time" name="generateToken Utility should set the expiration time to 1 hour from the issue time" time="0.005">
-    </testcase>
-    <testcase classname="generateToken Utility should throw an error if JWT_SECRET environment variable is not set" name="generateToken Utility should throw an error if JWT_SECRET environment variable is not set" time="0.01">
-    </testcase>
-    <testcase classname="generateToken Utility should generate different tokens for different inputs or times" name="generateToken Utility should generate different tokens for different inputs or times" time="0.005">
-    </testcase>
-  </testsuite>
-  <testsuite name="AuthController" errors="0" failures="0" skipped="0" timestamp="2025-03-30T15:49:21" time="1.008" tests="6">
-    <testcase classname="AuthController loginUser should login user successfully with correct credentials" name="AuthController loginUser should login user successfully with correct credentials" time="0.528">
-    </testcase>
-    <testcase classname="AuthController loginUser should return 401 for incorrect CAPTCHA" name="AuthController loginUser should return 401 for incorrect CAPTCHA" time="0.039">
-    </testcase>
-    <testcase classname="AuthController loginUser should return 401 for non-existent email" name="AuthController loginUser should return 401 for non-existent email" time="0.035">
-    </testcase>
-    <testcase classname="AuthController loginUser should return 401 for incorrect password" name="AuthController loginUser should return 401 for incorrect password" time="0.042">
-    </testcase>
-    <testcase classname="AuthController loginUser should return 500 if UserModel.findByEmail fails" name="AuthController loginUser should return 500 if UserModel.findByEmail fails" time="0.043">
-    </testcase>
-    <testcase classname="AuthController loginUser should return 500 if bcrypt.compare fails" name="AuthController loginUser should return 500 if bcrypt.compare fails" time="0.032">
-    </testcase>
-  </testsuite>
-  <testsuite name="Users Controller" errors="0" failures="0" skipped="0" timestamp="2025-03-30T15:49:21" time="1.286" tests="9">
-    <testcase classname="Users Controller should update employee profile successfully" name="Users Controller should update employee profile successfully" time="0.052">
-    </testcase>
-    <testcase classname="Users Controller should return error if server error occurs while updating employee profile" name="Users Controller should return error if server error occurs while updating employee profile" time="0.045">
-    </testcase>
-    <testcase classname="Users Controller should update owner profile successfully" name="Users Controller should update owner profile successfully" time="0.008">
-    </testcase>
-    <testcase classname="Users Controller should return error if server error occurs while updating owner profile" name="Users Controller should return error if server error occurs while updating owner profile" time="0.008">
-    </testcase>
-    <testcase classname="Users Controller should change password successfully" name="Users Controller should change password successfully" time="0.007">
-    </testcase>
-    <testcase classname="Users Controller should return error if current password is incorrect" name="Users Controller should return error if current password is incorrect" time="0.005">
-    </testcase>
-    <testcase classname="Users Controller should return error if new passwords do not match" name="Users Controller should return error if new passwords do not match" time="0.005">
-    </testcase>
-    <testcase classname="Users Controller should return error if required fields are missing when changing password" name="Users Controller should return error if required fields are missing when changing password" time="0.004">
-    </testcase>
-    <testcase classname="Users Controller should return error if user is not logged in when changing password" name="Users Controller should return error if user is not logged in when changing password" time="0.01">
-    </testcase>
-  </testsuite>
-  <testsuite name="Captcha Utilities" errors="0" failures="0" skipped="0" timestamp="2025-03-30T15:49:16" time="6.184" tests="9">
-    <testcase classname="Captcha Utilities generateCaptcha should return a string" name="Captcha Utilities generateCaptcha should return a string" time="0.014">
+  <testsuite name="Captcha Utilities" errors="0" failures="0" skipped="0" timestamp="2025-04-02T18:17:21" time="2.676" tests="9">
+    <testcase classname="Captcha Utilities generateCaptcha should return a string" name="Captcha Utilities generateCaptcha should return a string" time="0.01">
     </testcase>
     <testcase classname="Captcha Utilities generateCaptcha should return a string of length 6" name="Captcha Utilities generateCaptcha should return a string of length 6" time="0.001">
     </testcase>
     <testcase classname="Captcha Utilities generateCaptcha should contain only characters from the allowed set: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789" name="Captcha Utilities generateCaptcha should contain only characters from the allowed set: ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789" time="0.001">
     </testcase>
-    <testcase classname="Captcha Utilities generateCaptcha should generate different codes on subsequent calls (highly likely)" name="Captcha Utilities generateCaptcha should generate different codes on subsequent calls (highly likely)" time="0.01">
+    <testcase classname="Captcha Utilities generateCaptcha should generate different codes on subsequent calls (highly likely)" name="Captcha Utilities generateCaptcha should generate different codes on subsequent calls (highly likely)" time="0.014">
     </testcase>
-    <testcase classname="Captcha Utilities generateCaptchaImage should return a string" name="Captcha Utilities generateCaptchaImage should return a string" time="4.863">
+    <testcase classname="Captcha Utilities generateCaptchaImage should return a string" name="Captcha Utilities generateCaptchaImage should return a string" time="1.529">
     </testcase>
-    <testcase classname="Captcha Utilities generateCaptchaImage should return a valid PNG Data URL" name="Captcha Utilities generateCaptchaImage should return a valid PNG Data URL" time="0.002">
+    <testcase classname="Captcha Utilities generateCaptchaImage should return a valid PNG Data URL" name="Captcha Utilities generateCaptchaImage should return a valid PNG Data URL" time="0.004">
     </testcase>
-    <testcase classname="Captcha Utilities generateCaptchaImage should generate different Data URLs for different input text" name="Captcha Utilities generateCaptchaImage should generate different Data URLs for different input text" time="0.003">
+    <testcase classname="Captcha Utilities generateCaptchaImage should generate different Data URLs for different input text" name="Captcha Utilities generateCaptchaImage should generate different Data URLs for different input text" time="0.03">
     </testcase>
-    <testcase classname="Captcha Utilities generateCaptchaImage should execute without errors for typical input" name="Captcha Utilities generateCaptchaImage should execute without errors for typical input" time="0.002">
+    <testcase classname="Captcha Utilities generateCaptchaImage should execute without errors for typical input" name="Captcha Utilities generateCaptchaImage should execute without errors for typical input" time="0.003">
     </testcase>
-    <testcase classname="Captcha Utilities generateCaptchaImage should handle empty string input without error (generates image with no text)" name="Captcha Utilities generateCaptchaImage should handle empty string input without error (generates image with no text)" time="0.001">
+    <testcase classname="Captcha Utilities generateCaptchaImage should handle empty string input without error (generates image with no text)" name="Captcha Utilities generateCaptchaImage should handle empty string input without error (generates image with no text)" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="Password Utilities (bcryptjs)" errors="0" failures="0" skipped="0" timestamp="2025-04-02T18:17:21" time="2.92" tests="6">
+    <testcase classname="Password Utilities (bcryptjs) should correctly hash a password" name="Password Utilities (bcryptjs) should correctly hash a password" time="0.009">
+    </testcase>
+    <testcase classname="Password Utilities (bcryptjs) should return true when comparing the correct password" name="Password Utilities (bcryptjs) should return true when comparing the correct password" time="0.12">
+    </testcase>
+    <testcase classname="Password Utilities (bcryptjs) should return false when comparing an incorrect password" name="Password Utilities (bcryptjs) should return false when comparing an incorrect password" time="0.106">
+    </testcase>
+    <testcase classname="Password Utilities (bcryptjs) should return false when comparing an empty string against a non-empty hash" name="Password Utilities (bcryptjs) should return false when comparing an empty string against a non-empty hash" time="0.097">
+    </testcase>
+    <testcase classname="Password Utilities (bcryptjs) should handle hashing and comparing an empty string correctly" name="Password Utilities (bcryptjs) should handle hashing and comparing an empty string correctly" time="0.371">
+    </testcase>
+    <testcase classname="Password Utilities (bcryptjs) should produce different hashes for the same password (due to salt)" name="Password Utilities (bcryptjs) should produce different hashes for the same password (due to salt)" time="0.548">
+    </testcase>
+  </testsuite>
+  <testsuite name="Authentication Routes (/auth)" errors="0" failures="0" skipped="0" timestamp="2025-04-02T18:17:21" time="2.94" tests="12">
+    <testcase classname="Authentication Routes (/auth) POST /auth/captcha/verify should return 200 and success message for correct CAPTCHA" name="Authentication Routes (/auth) POST /auth/captcha/verify should return 200 and success message for correct CAPTCHA" time="0.115">
+    </testcase>
+    <testcase classname="Authentication Routes (/auth) POST /auth/captcha/verify should return 400 if CAPTCHA response is missing" name="Authentication Routes (/auth) POST /auth/captcha/verify should return 400 if CAPTCHA response is missing" time="0.011">
+    </testcase>
+    <testcase classname="Authentication Routes (/auth) POST /auth/captcha/verify should return 400 if session expired (no CAPTCHA in session)" name="Authentication Routes (/auth) POST /auth/captcha/verify should return 400 if session expired (no CAPTCHA in session)" time="0.01">
+    </testcase>
+    <testcase classname="Authentication Routes (/auth) POST /auth/captcha/verify should return 400 for incorrect CAPTCHA" name="Authentication Routes (/auth) POST /auth/captcha/verify should return 400 for incorrect CAPTCHA" time="0.021">
+    </testcase>
+    <testcase classname="Authentication Routes (/auth) GET /auth/captcha should call authController.getCaptcha and return 200" name="Authentication Routes (/auth) GET /auth/captcha should call authController.getCaptcha and return 200" time="0.014">
+    </testcase>
+    <testcase classname="Authentication Routes (/auth) POST /auth/login should call authController.loginUser and return 200" name="Authentication Routes (/auth) POST /auth/login should call authController.loginUser and return 200" time="0.01">
+    </testcase>
+    <testcase classname="Authentication Routes (/auth) POST /auth/signup/petowner-step1 should call authController.signupPetOwnerStep1 and return 200" name="Authentication Routes (/auth) POST /auth/signup/petowner-step1 should call authController.signupPetOwnerStep1 and return 200" time="0.012">
+    </testcase>
+    <testcase classname="Authentication Routes (/auth) POST /auth/signup/petowner-step2 should call authController.signupPetOwnerStep2 and return 200" name="Authentication Routes (/auth) POST /auth/signup/petowner-step2 should call authController.signupPetOwnerStep2 and return 200" time="0.012">
+    </testcase>
+    <testcase classname="Authentication Routes (/auth) POST /auth/signup/employee should call authController.signupEmployeeRequest and return 200" name="Authentication Routes (/auth) POST /auth/signup/employee should call authController.signupEmployeeRequest and return 200" time="0.008">
+    </testcase>
+    <testcase classname="Authentication Routes (/auth) POST /auth/signup/employee-verify should call authController.signupEmployeeComplete and return 200" name="Authentication Routes (/auth) POST /auth/signup/employee-verify should call authController.signupEmployeeComplete and return 200" time="0.01">
+    </testcase>
+    <testcase classname="Authentication Routes (/auth) POST /auth/logout should call authenticate middleware, then authController.logoutUser and return 200 if authenticated" name="Authentication Routes (/auth) POST /auth/logout should call authenticate middleware, then authController.logoutUser and return 200 if authenticated" time="0.007">
+    </testcase>
+    <testcase classname="Authentication Routes (/auth) POST /auth/logout should call authenticate middleware and return 401 if not authenticated" name="Authentication Routes (/auth) POST /auth/logout should call authenticate middleware and return 401 if not authenticated" time="0.011">
+    </testcase>
+  </testsuite>
+  <testsuite name="Users Controller" errors="0" failures="0" skipped="0" timestamp="2025-04-02T18:17:21" time="3.344" tests="8">
+    <testcase classname="Users Controller should update employee profile successfully" name="Users Controller should update employee profile successfully" time="0.119">
+    </testcase>
+    <testcase classname="Users Controller should return error if server error occurs while updating employee profile" name="Users Controller should return error if server error occurs while updating employee profile" time="0.027">
+    </testcase>
+    <testcase classname="Users Controller should update owner profile successfully" name="Users Controller should update owner profile successfully" time="0.012">
+    </testcase>
+    <testcase classname="Users Controller should return error if server error occurs while updating owner profile" name="Users Controller should return error if server error occurs while updating owner profile" time="0.01">
+    </testcase>
+    <testcase classname="Users Controller should change password successfully" name="Users Controller should change password successfully" time="0.008">
+    </testcase>
+    <testcase classname="Users Controller should return error if current password is incorrect" name="Users Controller should return error if current password is incorrect" time="0.009">
+    </testcase>
+    <testcase classname="Users Controller should return error if new passwords do not match" name="Users Controller should return error if new passwords do not match" time="0.008">
+    </testcase>
+    <testcase classname="Users Controller should return error if required fields are missing when changing password" name="Users Controller should return error if required fields are missing when changing password" time="0.058">
+    </testcase>
+  </testsuite>
+  <testsuite name="Pet Controller" errors="0" failures="0" skipped="0" timestamp="2025-04-02T18:17:23" time="1.309" tests="9">
+    <testcase classname="Pet Controller should update pet profile successfully" name="Pet Controller should update pet profile successfully" time="0.058">
+    </testcase>
+    <testcase classname="Pet Controller should return error if pet not found during update" name="Pet Controller should return error if pet not found during update" time="0.012">
+    </testcase>
+    <testcase classname="Pet Controller should return error if age mismatch during update" name="Pet Controller should return error if age mismatch during update" time="0.017">
+    </testcase>
+    <testcase classname="Pet Controller should archive pet successfully" name="Pet Controller should archive pet successfully" time="0.096">
+    </testcase>
+    <testcase classname="Pet Controller should return error if pet not found during archiving" name="Pet Controller should return error if pet not found during archiving" time="0.007">
+    </testcase>
+    <testcase classname="Pet Controller should restore pet successfully" name="Pet Controller should restore pet successfully" time="0.005">
+    </testcase>
+    <testcase classname="Pet Controller should return error if pet not found during restoring" name="Pet Controller should return error if pet not found during restoring" time="0.016">
+    </testcase>
+    <testcase classname="Pet Controller should fetch all active pets successfully" name="Pet Controller should fetch all active pets successfully" time="0.007">
+    </testcase>
+    <testcase classname="Pet Controller should fetch all archived pets successfully" name="Pet Controller should fetch all archived pets successfully" time="0.007">
+    </testcase>
+  </testsuite>
+  <testsuite name="Users Routes (/users)" errors="0" failures="0" skipped="0" timestamp="2025-04-02T18:17:25" time="0.443" tests="10">
+    <testcase classname="Users Routes (/users) GET /users/myAccount should get employee profile successfully (200 OK)" name="Users Routes (/users) GET /users/myAccount should get employee profile successfully (200 OK)" time="0.009">
+    </testcase>
+    <testcase classname="Users Routes (/users) GET /users/myAccount should require authentication (401 Unauthorized)" name="Users Routes (/users) GET /users/myAccount should require authentication (401 Unauthorized)" time="0.01">
+    </testcase>
+    <testcase classname="Users Routes (/users) GET /users/owner/myAccount should get owner profile successfully (200 OK)" name="Users Routes (/users) GET /users/owner/myAccount should get owner profile successfully (200 OK)" time="0.006">
+    </testcase>
+    <testcase classname="Users Routes (/users) GET /users/owner/myAccount should require authentication (401 Unauthorized)" name="Users Routes (/users) GET /users/owner/myAccount should require authentication (401 Unauthorized)" time="0.025">
+    </testcase>
+    <testcase classname="Users Routes (/users) PUT /users/update-employee-profile should update employee profile successfully (200 OK)" name="Users Routes (/users) PUT /users/update-employee-profile should update employee profile successfully (200 OK)" time="0.019">
+    </testcase>
+    <testcase classname="Users Routes (/users) PUT /users/update-employee-profile should require authentication (401 Unauthorized)" name="Users Routes (/users) PUT /users/update-employee-profile should require authentication (401 Unauthorized)" time="0.008">
+    </testcase>
+    <testcase classname="Users Routes (/users) PUT /users/update-petowner-profile should update pet owner profile successfully (200 OK)" name="Users Routes (/users) PUT /users/update-petowner-profile should update pet owner profile successfully (200 OK)" time="0.007">
+    </testcase>
+    <testcase classname="Users Routes (/users) PUT /users/update-petowner-profile should require authentication (401 Unauthorized)" name="Users Routes (/users) PUT /users/update-petowner-profile should require authentication (401 Unauthorized)" time="0.006">
+    </testcase>
+    <testcase classname="Users Routes (/users) POST /users/change-password should change password successfully (200 OK)" name="Users Routes (/users) POST /users/change-password should change password successfully (200 OK)" time="0.007">
+    </testcase>
+    <testcase classname="Users Routes (/users) POST /users/change-password should require authentication (401 Unauthorized)" name="Users Routes (/users) POST /users/change-password should require authentication (401 Unauthorized)" time="0.008">
+    </testcase>
+  </testsuite>
+  <testsuite name="Pet Routes (/pets)" errors="0" failures="0" skipped="0" timestamp="2025-04-02T18:17:23" time="1.285" tests="16">
+    <testcase classname="Pet Routes (/pets) PUT /pets/edit/123 should allow access and call controller for role: clinician" name="Pet Routes (/pets) PUT /pets/edit/123 should allow access and call controller for role: clinician" time="0.018">
+    </testcase>
+    <testcase classname="Pet Routes (/pets) PUT /pets/edit/123 should allow access and call controller for role: doctor" name="Pet Routes (/pets) PUT /pets/edit/123 should allow access and call controller for role: doctor" time="0.045">
+    </testcase>
+    <testcase classname="Pet Routes (/pets) PUT /pets/edit/123 should return 403 Forbidden for unauthorized role (e.g., petowner)" name="Pet Routes (/pets) PUT /pets/edit/123 should return 403 Forbidden for unauthorized role (e.g., petowner)" time="0.008">
+    </testcase>
+    <testcase classname="Pet Routes (/pets) PUT /pets/edit/123 should return 401 Unauthorized if user is not authenticated" name="Pet Routes (/pets) PUT /pets/edit/123 should return 401 Unauthorized if user is not authenticated" time="0.006">
+    </testcase>
+    <testcase classname="Pet Routes (/pets) PUT /pets/archive/123 should allow access and call controller for role: clinician" name="Pet Routes (/pets) PUT /pets/archive/123 should allow access and call controller for role: clinician" time="0.042">
+    </testcase>
+    <testcase classname="Pet Routes (/pets) PUT /pets/archive/123 should allow access and call controller for role: doctor" name="Pet Routes (/pets) PUT /pets/archive/123 should allow access and call controller for role: doctor" time="0.011">
+    </testcase>
+    <testcase classname="Pet Routes (/pets) PUT /pets/archive/123 should return 403 Forbidden for unauthorized role (e.g., petowner)" name="Pet Routes (/pets) PUT /pets/archive/123 should return 403 Forbidden for unauthorized role (e.g., petowner)" time="0.061">
+    </testcase>
+    <testcase classname="Pet Routes (/pets) PUT /pets/archive/123 should return 401 Unauthorized if user is not authenticated" name="Pet Routes (/pets) PUT /pets/archive/123 should return 401 Unauthorized if user is not authenticated" time="0.008">
+    </testcase>
+    <testcase classname="Pet Routes (/pets) PUT /pets/restore/123 should allow access and call controller for role: clinician" name="Pet Routes (/pets) PUT /pets/restore/123 should allow access and call controller for role: clinician" time="0.017">
+    </testcase>
+    <testcase classname="Pet Routes (/pets) PUT /pets/restore/123 should allow access and call controller for role: doctor" name="Pet Routes (/pets) PUT /pets/restore/123 should allow access and call controller for role: doctor" time="0.006">
+    </testcase>
+    <testcase classname="Pet Routes (/pets) PUT /pets/restore/123 should return 403 Forbidden for unauthorized role (e.g., petowner)" name="Pet Routes (/pets) PUT /pets/restore/123 should return 403 Forbidden for unauthorized role (e.g., petowner)" time="0.014">
+    </testcase>
+    <testcase classname="Pet Routes (/pets) PUT /pets/restore/123 should return 401 Unauthorized if user is not authenticated" name="Pet Routes (/pets) PUT /pets/restore/123 should return 401 Unauthorized if user is not authenticated" time="0.005">
+    </testcase>
+    <testcase classname="Pet Routes (/pets) GET /pets/active should allow access and call controller for any authenticated user" name="Pet Routes (/pets) GET /pets/active should allow access and call controller for any authenticated user" time="0.008">
+    </testcase>
+    <testcase classname="Pet Routes (/pets) GET /pets/active should return 401 Unauthorized if user is not authenticated" name="Pet Routes (/pets) GET /pets/active should return 401 Unauthorized if user is not authenticated" time="0.005">
+    </testcase>
+    <testcase classname="Pet Routes (/pets) GET /pets/archived should allow access and call controller for any authenticated user" name="Pet Routes (/pets) GET /pets/archived should allow access and call controller for any authenticated user" time="0.022">
+    </testcase>
+    <testcase classname="Pet Routes (/pets) GET /pets/archived should return 401 Unauthorized if user is not authenticated" name="Pet Routes (/pets) GET /pets/archived should return 401 Unauthorized if user is not authenticated" time="0.006">
+    </testcase>
+  </testsuite>
+  <testsuite name="AuthController" errors="0" failures="0" skipped="0" timestamp="2025-04-02T18:17:21" time="4.373" tests="11">
+    <testcase classname="AuthController loginUser should login user successfully with correct credentials" name="AuthController loginUser should login user successfully with correct credentials" time="0.93">
+    </testcase>
+    <testcase classname="AuthController loginUser should return 401 for incorrect CAPTCHA" name="AuthController loginUser should return 401 for incorrect CAPTCHA" time="1.106">
+    </testcase>
+    <testcase classname="AuthController loginUser should return 401 for non-existent email" name="AuthController loginUser should return 401 for non-existent email" time="0.193">
+    </testcase>
+    <testcase classname="AuthController loginUser should return 401 for incorrect password" name="AuthController loginUser should return 401 for incorrect password" time="0.234">
+    </testcase>
+    <testcase classname="AuthController loginUser should return 500 if UserModel.findByEmail fails" name="AuthController loginUser should return 500 if UserModel.findByEmail fails" time="0.229">
+    </testcase>
+    <testcase classname="AuthController loginUser should return 500 if bcrypt.compare fails" name="AuthController loginUser should return 500 if bcrypt.compare fails" time="0.115">
+    </testcase>
+    <testcase classname="AuthController loginUser should return 400 when email is missing" name="AuthController loginUser should return 400 when email is missing" time="0.124">
+    </testcase>
+    <testcase classname="AuthController loginUser should return 400 when password is missing" name="AuthController loginUser should return 400 when password is missing" time="0.1">
+    </testcase>
+    <testcase classname="AuthController logoutUser should successfully logout user" name="AuthController logoutUser should successfully logout user" time="0.1">
+    </testcase>
+    <testcase classname="AuthController logoutUser should handle logout errors gracefully" name="AuthController logoutUser should handle logout errors gracefully" time="0.112">
+    </testcase>
+    <testcase classname="AuthController generateToken should generate valid JWT token" name="AuthController generateToken should generate valid JWT token" time="0.118">
+    </testcase>
+  </testsuite>
+  <testsuite name="generateToken Utility" errors="0" failures="0" skipped="0" timestamp="2025-04-02T18:17:25" time="0.343" tests="7">
+    <testcase classname="generateToken Utility should generate a non-empty string token" name="generateToken Utility should generate a non-empty string token" time="0.008">
+    </testcase>
+    <testcase classname="generateToken Utility should create a token that can be verified with the same secret" name="generateToken Utility should create a token that can be verified with the same secret" time="0.012">
+    </testcase>
+    <testcase classname="generateToken Utility should include the correct userId and role in the token payload" name="generateToken Utility should include the correct userId and role in the token payload" time="0.008">
+    </testcase>
+    <testcase classname="generateToken Utility should include standard JWT claims like &apos;iat&apos; (issued at) and &apos;exp&apos; (expiration time)" name="generateToken Utility should include standard JWT claims like &apos;iat&apos; (issued at) and &apos;exp&apos; (expiration time)" time="0.022">
+    </testcase>
+    <testcase classname="generateToken Utility should set the expiration time to 15 minutes from the issue time" name="generateToken Utility should set the expiration time to 15 minutes from the issue time" time="0.012">
+    </testcase>
+    <testcase classname="generateToken Utility should throw an error if JWT_SECRET environment variable is not set" name="generateToken Utility should throw an error if JWT_SECRET environment variable is not set" time="0.018">
+    </testcase>
+    <testcase classname="generateToken Utility should generate different tokens for different inputs or times" name="generateToken Utility should generate different tokens for different inputs or times" time="0.007">
+    </testcase>
+  </testsuite>
+  <testsuite name="Auth Middleware" errors="0" failures="0" skipped="0" timestamp="2025-04-02T18:17:25" time="0.442" tests="10">
+    <testcase classname="Auth Middleware should return 500 if JWT_SECRET is missing" name="Auth Middleware should return 500 if JWT_SECRET is missing" time="0.032">
+    </testcase>
+    <testcase classname="Auth Middleware should return 401 if no token provided" name="Auth Middleware should return 401 if no token provided" time="0.029">
+    </testcase>
+    <testcase classname="Auth Middleware should return 401 if token is expired" name="Auth Middleware should return 401 if token is expired" time="0.006">
+    </testcase>
+    <testcase classname="Auth Middleware should return 401 if token is invalid" name="Auth Middleware should return 401 if token is invalid" time="0.008">
+    </testcase>
+    <testcase classname="Auth Middleware should grant access if token is valid" name="Auth Middleware should grant access if token is valid" time="0.009">
+    </testcase>
+    <testcase classname="Auth Middleware should return 403 if user does not have the required role" name="Auth Middleware should return 403 if user does not have the required role" time="0.005">
+    </testcase>
+    <testcase classname="Auth Middleware should grant access if user has the required role" name="Auth Middleware should grant access if user has the required role" time="0.034">
+    </testcase>
+    <testcase classname="Auth Middleware should change password successfully if passwords match" name="Auth Middleware should change password successfully if passwords match" time="0.027">
+    </testcase>
+    <testcase classname="Auth Middleware should return 404 if user is not found during password change" name="Auth Middleware should return 404 if user is not found during password change" time="0.006">
+    </testcase>
+    <testcase classname="Auth Middleware should return 400 if passwords do not match during password change" name="Auth Middleware should return 400 if passwords do not match during password change" time="0.009">
+    </testcase>
+  </testsuite>
+  <testsuite name="Record Controller" errors="0" failures="0" skipped="0" timestamp="2025-04-02T18:17:24" time="0.709" tests="31">
+    <testcase classname="Record Controller getVisitRecords should return 400 if pet_id is missing" name="Record Controller getVisitRecords should return 400 if pet_id is missing" time="0.007">
+    </testcase>
+    <testcase classname="Record Controller getVisitRecords should fetch and return records successfully" name="Record Controller getVisitRecords should fetch and return records successfully" time="0.113">
+    </testcase>
+    <testcase classname="Record Controller getVisitRecords should return 500 if fetching records fails" name="Record Controller getVisitRecords should return 500 if fetching records fails" time="0.107">
+    </testcase>
+    <testcase classname="Record Controller addRecord should add a record successfully for a doctor without optional fields" name="Record Controller addRecord should add a record successfully for a doctor without optional fields" time="0.044">
+    </testcase>
+    <testcase classname="Record Controller addRecord should add a record with existing lab info" name="Record Controller addRecord should add a record with existing lab info" time="0.005">
+    </testcase>
+    <testcase classname="Record Controller addRecord should add a record and create new lab info if not existing" name="Record Controller addRecord should add a record and create new lab info if not existing" time="0.004">
+    </testcase>
+    <testcase classname="Record Controller addRecord should add a record with diagnosis for a doctor" name="Record Controller addRecord should add a record with diagnosis for a doctor" time="0.003">
+    </testcase>
+    <testcase classname="Record Controller addRecord should add a record with surgery info" name="Record Controller addRecord should add a record with surgery info" time="0.018">
+    </testcase>
+    <testcase classname="Record Controller addRecord should add a record with lab file" name="Record Controller addRecord should add a record with lab file" time="0.006">
+    </testcase>
+    <testcase classname="Record Controller addRecord should return 403 if clinician tries to add diagnosis" name="Record Controller addRecord should return 403 if clinician tries to add diagnosis" time="0.003">
+    </testcase>
+    <testcase classname="Record Controller addRecord should return 400 if required fields are missing" name="Record Controller addRecord should return 400 if required fields are missing" time="0.002">
+    </testcase>
+    <testcase classname="Record Controller addRecord should return 500 if insertRecord fails" name="Record Controller addRecord should return 500 if insertRecord fails" time="0.003">
+    </testcase>
+    <testcase classname="Record Controller addRecord should return 404 if getCompleteRecordById fails after insert" name="Record Controller addRecord should return 404 if getCompleteRecordById fails after insert" time="0.002">
+    </testcase>
+    <testcase classname="Record Controller updateRecord should return 404 if record not found" name="Record Controller updateRecord should return 404 if record not found" time="0.003">
+    </testcase>
+    <testcase classname="Record Controller updateRecord should add diagnosis by doctor if none exists" name="Record Controller updateRecord should add diagnosis by doctor if none exists" time="0.003">
+    </testcase>
+    <testcase classname="Record Controller updateRecord should update existing diagnosis by doctor" name="Record Controller updateRecord should update existing diagnosis by doctor" time="0.007">
+    </testcase>
+    <testcase classname="Record Controller updateRecord should add diagnosis by clinician with valid code" name="Record Controller updateRecord should add diagnosis by clinician with valid code" time="0.004">
+    </testcase>
+    <testcase classname="Record Controller updateRecord should update diagnosis by clinician with valid code" name="Record Controller updateRecord should update diagnosis by clinician with valid code" time="0.002">
+    </testcase>
+    <testcase classname="Record Controller updateRecord should return 403 if clinician updates diagnosis without requesting code" name="Record Controller updateRecord should return 403 if clinician updates diagnosis without requesting code" time="0.001">
+    </testcase>
+    <testcase classname="Record Controller updateRecord should return 403 if clinician updates diagnosis with invalid code" name="Record Controller updateRecord should return 403 if clinician updates diagnosis with invalid code" time="0.001">
+    </testcase>
+    <testcase classname="Record Controller updateRecord should add surgery info if none exists" name="Record Controller updateRecord should add surgery info if none exists" time="0.002">
+    </testcase>
+    <testcase classname="Record Controller updateRecord should update existing surgery info" name="Record Controller updateRecord should update existing surgery info" time="0.002">
+    </testcase>
+    <testcase classname="Record Controller updateRecord should remove surgery info if hadSurgery is false" name="Record Controller updateRecord should remove surgery info if hadSurgery is false" time="0.003">
+    </testcase>
+    <testcase classname="Record Controller updateRecord should update lab info" name="Record Controller updateRecord should update lab info" time="0.004">
+    </testcase>
+    <testcase classname="Record Controller updateRecord should return 400 if invalid lab description provided" name="Record Controller updateRecord should return 400 if invalid lab description provided" time="0.001">
+    </testcase>
+    <testcase classname="Record Controller updateRecord should update record with new lab file" name="Record Controller updateRecord should update record with new lab file" time="0.016">
+    </testcase>
+    <testcase classname="Record Controller updateRecord should return 500 if database update fails" name="Record Controller updateRecord should return 500 if database update fails" time="0.004">
+    </testcase>
+    <testcase classname="Record Controller requestDiagnosisAccessCode should generate code, store in session, send email, and return code" name="Record Controller requestDiagnosisAccessCode should generate code, store in session, send email, and return code" time="0.009">
+    </testcase>
+    <testcase classname="Record Controller requestDiagnosisAccessCode should return 500 if session is not initialized" name="Record Controller requestDiagnosisAccessCode should return 500 if session is not initialized" time="0.001">
+    </testcase>
+    <testcase classname="Record Controller requestDiagnosisAccessCode should return 500 if clinic owner email is not set" name="Record Controller requestDiagnosisAccessCode should return 500 if clinic owner email is not set" time="0.002">
+    </testcase>
+    <testcase classname="Record Controller requestDiagnosisAccessCode should return 500 if sending email fails" name="Record Controller requestDiagnosisAccessCode should return 500 if sending email fails" time="0.002">
+    </testcase>
+  </testsuite>
+  <testsuite name="UserModel" errors="0" failures="0" skipped="0" timestamp="2025-04-02T18:17:25" time="0.12" tests="15">
+    <testcase classname="UserModel getUserById should get a user by ID" name="UserModel getUserById should get a user by ID" time="0.001">
+    </testcase>
+    <testcase classname="UserModel getUserById should return null if user not found by ID" name="UserModel getUserById should return null if user not found by ID" time="0.001">
+    </testcase>
+    <testcase classname="UserModel getOwnerByUserId should get owner by user ID" name="UserModel getOwnerByUserId should get owner by user ID" time="0">
+    </testcase>
+    <testcase classname="UserModel getOwnerByUserId should return null if owner not found by user ID" name="UserModel getOwnerByUserId should return null if owner not found by user ID" time="0.001">
+    </testcase>
+    <testcase classname="UserModel getPasswordById should get password by user ID" name="UserModel getPasswordById should get password by user ID" time="0">
+    </testcase>
+    <testcase classname="UserModel getPasswordById should return null if password not found by user ID" name="UserModel getPasswordById should return null if password not found by user ID" time="0.001">
+    </testcase>
+    <testcase classname="UserModel updatePassword should update password" name="UserModel updatePassword should update password" time="0">
+    </testcase>
+    <testcase classname="UserModel findByEmail should find user by email" name="UserModel findByEmail should find user by email" time="0.001">
+    </testcase>
+    <testcase classname="UserModel findByEmail should return null if user not found by email" name="UserModel findByEmail should return null if user not found by email" time="0.002">
+    </testcase>
+    <testcase classname="UserModel isEmailTaken should check if email is taken" name="UserModel isEmailTaken should check if email is taken" time="0">
+    </testcase>
+    <testcase classname="UserModel isEmailTaken should return false if email is not taken" name="UserModel isEmailTaken should return false if email is not taken" time="0.001">
+    </testcase>
+    <testcase classname="UserModel createPetOwner should create a pet owner" name="UserModel createPetOwner should create a pet owner" time="0">
+    </testcase>
+    <testcase classname="UserModel createEmployee should create an employee" name="UserModel createEmployee should create an employee" time="0.001">
+    </testcase>
+    <testcase classname="UserModel updateEmployeeProfile should update employee profile" name="UserModel updateEmployeeProfile should update employee profile" time="0">
+    </testcase>
+    <testcase classname="UserModel updateOwnerProfile should update owner profile" name="UserModel updateOwnerProfile should update owner profile" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="Vaccine Controller" errors="0" failures="0" skipped="0" timestamp="2025-04-02T18:17:24" time="1.506" tests="4">
+    <testcase classname="Vaccine Controller should add a vaccination record successfully" name="Vaccine Controller should add a vaccination record successfully" time="0.081">
+    </testcase>
+    <testcase classname="Vaccine Controller should return error if required fields are missing" name="Vaccine Controller should return error if required fields are missing" time="0.013">
+    </testcase>
+    <testcase classname="Vaccine Controller should return error if vaccine type is invalid" name="Vaccine Controller should return error if vaccine type is invalid" time="0.011">
+    </testcase>
+    <testcase classname="Vaccine Controller should return server error if an exception occurs" name="Vaccine Controller should return server error if an exception occurs" time="0.019">
+    </testcase>
+  </testsuite>
+  <testsuite name="RecordModel" errors="0" failures="0" skipped="0" timestamp="2025-04-02T18:17:25" time="0.099" tests="18">
+    <testcase classname="RecordModel getAllVisitRecords should get all visit records for a pet" name="RecordModel getAllVisitRecords should get all visit records for a pet" time="0.001">
+    </testcase>
+    <testcase classname="RecordModel insertLabInfo should insert lab info and return the lab ID" name="RecordModel insertLabInfo should insert lab info and return the lab ID" time="0.001">
+    </testcase>
+    <testcase classname="RecordModel getLabIdByDescription should get lab ID by description" name="RecordModel getLabIdByDescription should get lab ID by description" time="0.001">
+    </testcase>
+    <testcase classname="RecordModel getLabIdByDescription should return null if lab ID not found by description" name="RecordModel getLabIdByDescription should return null if lab ID not found by description" time="0">
+    </testcase>
+    <testcase classname="RecordModel insertDiagnosis should insert diagnosis and return the diagnosis ID" name="RecordModel insertDiagnosis should insert diagnosis and return the diagnosis ID" time="0">
+    </testcase>
+    <testcase classname="RecordModel insertSurgeryInfo should insert surgery info and return the surgery ID" name="RecordModel insertSurgeryInfo should insert surgery info and return the surgery ID" time="0">
+    </testcase>
+    <testcase classname="RecordModel insertRecord should insert a record and return the record ID" name="RecordModel insertRecord should insert a record and return the record ID" time="0">
+    </testcase>
+    <testcase classname="RecordModel updateRecordInDB should update a record in the database" name="RecordModel updateRecordInDB should update a record in the database" time="0.001">
+    </testcase>
+    <testcase classname="RecordModel getRecordById should get a record by ID" name="RecordModel getRecordById should get a record by ID" time="0">
+    </testcase>
+    <testcase classname="RecordModel getRecordById should return null if record not found by ID" name="RecordModel getRecordById should return null if record not found by ID" time="0.001">
+    </testcase>
+    <testcase classname="RecordModel insertMatchRecLab should insert match record lab" name="RecordModel insertMatchRecLab should insert match record lab" time="0">
+    </testcase>
+    <testcase classname="RecordModel updateMatchRecLab should update match record lab" name="RecordModel updateMatchRecLab should update match record lab" time="0">
+    </testcase>
+    <testcase classname="RecordModel updateDiagnosisText should update diagnosis text" name="RecordModel updateDiagnosisText should update diagnosis text" time="0.001">
+    </testcase>
+    <testcase classname="RecordModel updateSurgeryInfo should update surgery info" name="RecordModel updateSurgeryInfo should update surgery info" time="0">
+    </testcase>
+    <testcase classname="RecordModel removeSurgeryFromRecord should remove surgery from record" name="RecordModel removeSurgeryFromRecord should remove surgery from record" time="0">
+    </testcase>
+    <testcase classname="RecordModel getSurgeryIdForRecord should get surgery ID for record" name="RecordModel getSurgeryIdForRecord should get surgery ID for record" time="0.001">
+    </testcase>
+    <testcase classname="RecordModel getSurgeryIdForRecord should return null if surgery ID not found for record" name="RecordModel getSurgeryIdForRecord should return null if surgery ID not found for record" time="0">
+    </testcase>
+    <testcase classname="RecordModel deleteSurgeryInfo should delete surgery info" name="RecordModel deleteSurgeryInfo should delete surgery info" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="sendEmail Function" errors="0" failures="0" skipped="0" timestamp="2025-04-02T18:17:25" time="0.126" tests="5">
+    <testcase classname="sendEmail Function should call createTransport with correct service and auth" name="sendEmail Function should call createTransport with correct service and auth" time="0.005">
+    </testcase>
+    <testcase classname="sendEmail Function should call sendMail with correct mail options" name="sendEmail Function should call sendMail with correct mail options" time="0.003">
+    </testcase>
+    <testcase classname="sendEmail Function should log error and not call transporter/sendMail if EMAIL_USER is missing" name="sendEmail Function should log error and not call transporter/sendMail if EMAIL_USER is missing" time="0.001">
+    </testcase>
+    <testcase classname="sendEmail Function should log error and not call transporter/sendMail if EMAIL_PASS is missing" name="sendEmail Function should log error and not call transporter/sendMail if EMAIL_PASS is missing" time="0.001">
+    </testcase>
+    <testcase classname="sendEmail Function should log error if sendMail fails" name="sendEmail Function should log error if sendMail fails" time="0.007">
+    </testcase>
+  </testsuite>
+  <testsuite name="PetModel" errors="0" failures="0" skipped="0" timestamp="2025-04-02T18:17:25" time="0.136" tests="12">
+    <testcase classname="PetModel findById should find a pet by ID" name="PetModel findById should find a pet by ID" time="0.003">
+    </testcase>
+    <testcase classname="PetModel findById should return null if pet not found by ID" name="PetModel findById should return null if pet not found by ID" time="0.001">
+    </testcase>
+    <testcase classname="PetModel findByOwnerId should find pets by owner ID" name="PetModel findByOwnerId should find pets by owner ID" time="0">
+    </testcase>
+    <testcase classname="PetModel findSpeciesByDescription should find species by description" name="PetModel findSpeciesByDescription should find species by description" time="0.001">
+    </testcase>
+    <testcase classname="PetModel findSpeciesByDescription should return null if species not found by description" name="PetModel findSpeciesByDescription should return null if species not found by description" time="0.001">
+    </testcase>
+    <testcase classname="PetModel createPet should create a new pet" name="PetModel createPet should create a new pet" time="0">
+    </testcase>
+    <testcase classname="PetModel updatePet should update a pet" name="PetModel updatePet should update a pet" time="0.001">
+    </testcase>
+    <testcase classname="PetModel updatePetSpecies should update pet species" name="PetModel updatePetSpecies should update pet species" time="0">
+    </testcase>
+    <testcase classname="PetModel archivePet should archive a pet" name="PetModel archivePet should archive a pet" time="0.001">
+    </testcase>
+    <testcase classname="PetModel restorePet should restore a pet" name="PetModel restorePet should restore a pet" time="0">
+    </testcase>
+    <testcase classname="PetModel getAllActivePets should get all active pets" name="PetModel getAllActivePets should get all active pets" time="0.001">
+    </testcase>
+    <testcase classname="PetModel getAllArchivedPets should get all archived pets" name="PetModel getAllArchivedPets should get all archived pets" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="VaccineModel" errors="0" failures="0" skipped="0" timestamp="2025-04-02T18:17:26" time="0.089" tests="4">
+    <testcase classname="VaccineModel getAllVaccines should get all vaccines" name="VaccineModel getAllVaccines should get all vaccines" time="0.001">
+    </testcase>
+    <testcase classname="VaccineModel getVaccineByType should get vaccine by type" name="VaccineModel getVaccineByType should get vaccine by type" time="0.001">
+    </testcase>
+    <testcase classname="VaccineModel getVaccineByType should return null if vaccine not found by type" name="VaccineModel getVaccineByType should return null if vaccine not found by type" time="0">
+    </testcase>
+    <testcase classname="VaccineModel addPetVaccinationRecord should add pet vaccination record" name="VaccineModel addPetVaccinationRecord should add pet vaccination record" time="0.001">
+    </testcase>
+  </testsuite>
+  <testsuite name="Direct Database Connection Test" errors="0" failures="0" skipped="0" timestamp="2025-04-02T18:17:25" time="0.417" tests="1">
+    <testcase classname="Direct Database Connection Test should connect to the database successfully" name="Direct Database Connection Test should connect to the database successfully" time="0.077">
     </testcase>
   </testsuite>
 </testsuites>

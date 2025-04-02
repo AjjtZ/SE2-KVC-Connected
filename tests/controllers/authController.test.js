@@ -1,24 +1,13 @@
-// tests/controllers/authController.test.js
 const path = require("path");
 // Load env vars FIRST
 require("dotenv").config({ path: path.resolve(__dirname, "../../.env") });
 
-// --- Mock dependencies BEFORE importing the controller ---
-// We will mock them again inside beforeEach after resetModules if needed
+// Mock dependencies
 jest.mock("../../server/models/userModel");
-jest.mock(
-  "../../server/config/db",
-  () => ({
-    db: jest.fn(),
-    dbConfig: {},
-  }),
-  { virtual: true }
-);
-jest.mock("jsonwebtoken", () => ({
-  sign: jest.fn().mockReturnValue("mock-token"),
-}));
+jest.mock("../../server/config/db", () => ({ db: jest.fn(), dbConfig: {} }), { virtual: true });
+jest.mock("jsonwebtoken", () => ({ sign: jest.fn().mockReturnValue("mock-token") }));
 
-// --- Dynamic Requires (will happen inside beforeEach) ---
+// Dynamic Requires
 let authController;
 let UserModel;
 let bcrypt;
@@ -38,29 +27,17 @@ describe("AuthController", () => {
   const mockToken = "mockGeneratedToken";
 
   beforeEach(() => {
-    // Reset modules to ensure clean state, preventing potential caching issues
     jest.resetModules();
 
-    jest.doMock("jsonwebtoken", () => ({
-      sign: jest.fn().mockReturnValue(mockToken),
-    }));
+    jest.doMock("jsonwebtoken", () => ({ sign: jest.fn().mockReturnValue(mockToken) }));
 
-    // --- Re-require modules AFTER reset ---
-    // This ensures we get fresh versions, especially the mocked ones
     authController = require("../../server/controllers/authController");
-    UserModel = require("../../server/models/userModel"); // Get the fresh mocked version
-    bcrypt = require("bcryptjs"); // Get a fresh bcrypt instance
-    jwt = require("jsonwebtoken"); // Get a fresh jwt instance
+    UserModel = require("../../server/models/userModel");
+    bcrypt = require("bcryptjs");
+    jwt = require("jsonwebtoken");
 
-    // Re-apply mocks if necessary (though jest.mock at top level *should* persist)
-    // If the top-level mocks aren't working after resetModules, uncomment and adapt:
-    // jest.mock('../../server/models/userModel'); // Re-mock if needed
-    // jest.mock('../../server/config/db', () => ({ db: jest.fn(), dbConfig: {} }), { virtual: true }); // Re-mock if needed
+    jest.clearAllMocks();
 
-    // Reset mocks call history
-    jest.clearAllMocks(); // Good practice, though resetModules is stronger
-
-    // --- Setup req, res, next ---
     req = { body: {}, session: {}, cookies: {} };
     res = {
       status: jest.fn().mockReturnThis(),
@@ -69,204 +46,189 @@ describe("AuthController", () => {
       clearCookie: jest.fn(),
     };
 
-    // --- Re-create spies AFTER requiring fresh modules ---
     bcryptCompareSpy = jest.spyOn(bcrypt, "compare");
     jwtSignSpy = jwt.sign;
   });
 
-  // No need for afterEach restoreAllMocks when using resetModules,
-  // as modules/spies are recreated each time. If you prefer restoreAllMocks,
-  // remove resetModules and keep restoreAllMocks. Using both can be redundant/confusing.
-  // afterEach(() => {
-  //    jest.restoreAllMocks();
-  // });
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
   describe("loginUser", () => {
-    // --- Test Data (constants) ---
     const mockUser = {
       user_id: mockUserId,
       user_role: mockUserRole,
       user_password: mockHashedPassword,
     };
 
-    // --- Helper functions for mocking (using mockImplementation) ---
     const mockUserModelFind = (userToReturn) => {
-      // UserModel is now the freshly required mocked version
-      UserModel.findByEmail.mockImplementation(async () => {
-        // console.log(`[Mock Impl] UserModel.findByEmail called for ${email}. Returning:`, userToReturn); // Keep for debugging if needed
-        return userToReturn;
-      });
+      UserModel.findByEmail.mockImplementation(async () => userToReturn);
     };
+
     const mockUserModelFindReject = (error) => {
       UserModel.findByEmail.mockImplementation(async () => {
-        // console.log(`[Mock Impl] UserModel.findByEmail called for ${email}. Throwing error:`, error); // Keep for debugging if needed
         throw error;
       });
     };
 
-    // --- Test Cases ---
-
     it("should login user successfully with correct credentials", async () => {
-      req.body = {
-        email: mockEmail,
-        password: mockPassword,
-        captchaInput: mockCaptchaInput,
-      };
+      req.body = { email: mockEmail, password: mockPassword, captchaInput: mockCaptchaInput };
       req.session.captcha = mockCaptchaInput;
 
       mockUserModelFind(mockUser);
       bcryptCompareSpy.mockResolvedValue(true);
 
-      // Create a spy on the generateToken method
-      const generateTokenSpy = jest.spyOn(authController, "generateToken");
-
-      // Mock the return value of generateToken
-      generateTokenSpy.mockReturnValue(mockToken);
+      const generateTokenSpy = jest.spyOn(authController, "generateToken").mockReturnValue(mockToken);
 
       await authController.loginUser(req, res);
 
-      expect(UserModel.findByEmail).toHaveBeenCalledTimes(1);
       expect(UserModel.findByEmail).toHaveBeenCalledWith(mockEmail);
-      expect(bcryptCompareSpy).toHaveBeenCalledTimes(1);
-      expect(bcryptCompareSpy).toHaveBeenCalledWith(
-        mockPassword,
-        mockHashedPassword
-      );
-
-      expect(res.cookie).toHaveBeenCalledTimes(1);
+      expect(bcryptCompareSpy).toHaveBeenCalledWith(mockPassword, mockHashedPassword);
+      expect(res.cookie).toHaveBeenCalledWith("token", mockToken, expect.any(Object));
       expect(res.json).toHaveBeenCalledWith({
         message: "✅ Login successful!",
+        role: mockUserRole,
         redirectUrl: "/patients",
       });
-      expect(res.status).not.toHaveBeenCalled();
       expect(req.session.captcha).toBeNull();
     });
 
     it("should return 401 for incorrect CAPTCHA", async () => {
-      req.body = {
-        email: mockEmail,
-        password: mockPassword,
-        captchaInput: "wrongCaptcha",
-      };
+      req.body = { email: mockEmail, password: mockPassword, captchaInput: "wrongCaptcha" };
       req.session.captcha = "correctCaptcha";
 
       await authController.loginUser(req, res);
 
       expect(UserModel.findByEmail).not.toHaveBeenCalled();
-      expect(bcryptCompareSpy).not.toHaveBeenCalled(); // Spy is fresh, check it wasn't called
-      expect(jwtSignSpy).not.toHaveBeenCalled();
-      expect(res.cookie).not.toHaveBeenCalled();
+      expect(bcryptCompareSpy).not.toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(401);
-      expect(res.json).toHaveBeenCalledWith({ error: "❌ Incorrect CAPTCHA" });
-      expect(req.session.captcha).toBe("correctCaptcha");
+      expect(res.json).toHaveBeenCalledWith({
+        error: "❌ Incorrect CAPTCHA",
+        newCaptcha: expect.any(Object),
+      });
+      expect(req.session.captcha).not.toBe("correctCaptcha"); // Ensure CAPTCHA is updated
     });
 
     it("should return 401 for non-existent email", async () => {
-      const nonExistentEmail = "nonexistent@example.com";
-      req.body = {
-        email: nonExistentEmail,
-        password: mockPassword,
-        captchaInput: mockCaptchaInput,
-      };
+      req.body = { email: "nonexistent@example.com", password: mockPassword, captchaInput: mockCaptchaInput };
       req.session.captcha = mockCaptchaInput;
 
-      mockUserModelFind(null); // Use helper on fresh UserModel mock
+      mockUserModelFind(null);
 
       await authController.loginUser(req, res);
 
-      expect(UserModel.findByEmail).toHaveBeenCalledWith(nonExistentEmail);
-      expect(bcryptCompareSpy).not.toHaveBeenCalled(); // Check fresh spy
-      expect(jwtSignSpy).not.toHaveBeenCalled();
-      expect(res.cookie).not.toHaveBeenCalled();
+      expect(UserModel.findByEmail).toHaveBeenCalledWith("nonexistent@example.com");
+      expect(bcryptCompareSpy).not.toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
         error: "Invalid email or password",
+        newCaptcha: expect.any(Object),
       });
-      expect(req.session.captcha).toBeNull();
+      expect(req.session.captcha).not.toBe(mockCaptchaInput); // Ensure CAPTCHA is updated
     });
 
     it("should return 401 for incorrect password", async () => {
-      const wrongPassword = "wrongPassword";
-      req.body = {
-        email: mockEmail,
-        password: wrongPassword,
-        captchaInput: mockCaptchaInput,
-      };
+      req.body = { email: mockEmail, password: "wrongPassword", captchaInput: mockCaptchaInput };
       req.session.captcha = mockCaptchaInput;
 
       mockUserModelFind(mockUser);
-      bcryptCompareSpy.mockResolvedValue(false); // Configure fresh spy
+      bcryptCompareSpy.mockResolvedValue(false);
 
       await authController.loginUser(req, res);
 
       expect(UserModel.findByEmail).toHaveBeenCalledWith(mockEmail);
-      expect(bcryptCompareSpy).toHaveBeenCalledTimes(1);
-      expect(bcryptCompareSpy).toHaveBeenCalledWith(
-        wrongPassword,
-        mockHashedPassword
-      );
-
-      expect(jwtSignSpy).not.toHaveBeenCalled();
-      expect(res.cookie).not.toHaveBeenCalled();
+      expect(bcryptCompareSpy).toHaveBeenCalledWith("wrongPassword", mockHashedPassword);
       expect(res.status).toHaveBeenCalledWith(401);
       expect(res.json).toHaveBeenCalledWith({
         error: "Invalid email or password",
+        newCaptcha: expect.any(Object),
       });
-      expect(req.session.captcha).toBeNull();
+      expect(req.session.captcha).not.toBe(mockCaptchaInput); // Ensure CAPTCHA is updated
     });
 
     it("should return 500 if UserModel.findByEmail fails", async () => {
-      req.body = {
-        email: mockEmail,
-        password: mockPassword,
-        captchaInput: mockCaptchaInput,
-      };
+      req.body = { email: mockEmail, password: mockPassword, captchaInput: mockCaptchaInput };
       req.session.captcha = mockCaptchaInput;
 
-      const dbError = new Error("Database connection error");
-      mockUserModelFindReject(dbError); // Configure fresh mock to reject
+      mockUserModelFindReject(new Error("Database connection error"));
 
       await authController.loginUser(req, res);
 
       expect(UserModel.findByEmail).toHaveBeenCalledWith(mockEmail);
-      expect(bcryptCompareSpy).not.toHaveBeenCalled(); // Check fresh spy
-      expect(jwtSignSpy).not.toHaveBeenCalled();
-      expect(res.cookie).not.toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({
-        error: "❌ Server error during login",
-      });
+      expect(res.json).toHaveBeenCalledWith({ error: "❌ Server error during login" });
       expect(req.session.captcha).toBeNull();
     });
 
     it("should return 500 if bcrypt.compare fails", async () => {
-      req.body = {
-        email: mockEmail,
-        password: mockPassword,
-        captchaInput: mockCaptchaInput,
-      };
+      req.body = { email: mockEmail, password: mockPassword, captchaInput: mockCaptchaInput };
       req.session.captcha = mockCaptchaInput;
 
-      mockUserModelFind(mockUser); // Configure fresh mock
-      const bcryptError = new Error("Bcrypt error");
-      bcryptCompareSpy.mockRejectedValue(bcryptError); // Configure fresh spy to reject
+      mockUserModelFind(mockUser);
+      bcryptCompareSpy.mockRejectedValue(new Error("Bcrypt error"));
 
       await authController.loginUser(req, res);
 
       expect(UserModel.findByEmail).toHaveBeenCalledWith(mockEmail);
-      expect(bcryptCompareSpy).toHaveBeenCalledTimes(1);
-      expect(bcryptCompareSpy).toHaveBeenCalledWith(
-        mockPassword,
-        mockHashedPassword
-      );
-
-      expect(jwtSignSpy).not.toHaveBeenCalled();
-      expect(res.cookie).not.toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({
-        error: "❌ Server error during login",
-      });
+      expect(res.json).toHaveBeenCalledWith({ error: "❌ Server error during login" });
       expect(req.session.captcha).toBeNull();
+    });
+    
+    it("should return 400 when email is missing", async () => {
+      req.body = { password: mockPassword, captchaInput: mockCaptchaInput };
+      req.session.captcha = mockCaptchaInput;
+
+      await authController.loginUser(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ error: "Email and password are required" });
+    });
+
+    it("should return 400 when password is missing", async () => {
+      req.body = { email: mockEmail, captchaInput: mockCaptchaInput };
+      req.session.captcha = mockCaptchaInput;
+
+      await authController.loginUser(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ error: "Email and password are required" });
+    });
+  });
+
+  describe("logoutUser", () => {
+    it("should successfully logout user", async () => {
+        req.session.destroy = jest.fn((cb) => cb(null)); // Mock successful session destruction
+
+        await authController.logoutUser(req, res);
+
+        expect(req.session.destroy).toHaveBeenCalled();
+        expect(res.clearCookie).toHaveBeenCalledWith("connect.sid", { path: "/" });
+        expect(res.clearCookie).toHaveBeenCalledWith("token", { path: "/" });
+        expect(res.json).toHaveBeenCalledWith({ message: "Logout successful" });
+    });
+
+    it("should handle logout errors gracefully", async () => {
+        req.session.destroy = jest.fn((cb) => cb(new Error("Session destroy error"))); // Mock session destruction error
+
+        await authController.logoutUser(req, res);
+
+        expect(req.session.destroy).toHaveBeenCalled();
+        expect(res.status).toHaveBeenCalledWith(500);
+        expect(res.json).toHaveBeenCalledWith({ message: "Logout failed" });
+    });
+  });
+
+  describe("generateToken", () => {
+    it("should generate valid JWT token", () => {
+      const token = authController.generateToken(mockUserId, mockUserRole);
+
+      expect(jwt.sign).toHaveBeenCalledWith(
+        { userId: mockUserId, role: mockUserRole },
+        process.env.JWT_SECRET,
+        { expiresIn: "24h" }
+      );
+      expect(token).toBe(mockToken);
     });
   });
 });

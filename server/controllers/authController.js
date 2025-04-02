@@ -6,9 +6,16 @@ const UserModel = require("../models/userModel");
 const PetModel = require("../models/petModel");
 const { generateCaptcha, generateCaptchaImage } = require("../utils/captchaUtility");
 const { hashPassword } = require("../utils/passwordUtility");
-const { generateToken } = require("../utils/authUtility");
 const { sendEmail } = require("../utils/emailUtility");
 const db = require("../config/db");
+
+const generateToken = (userId, role) => {
+    return jwt.sign(
+        { userId, role },
+        process.env.JWT_SECRET,
+        { expiresIn: "24h" }
+    );
+};
 
 exports.getCaptcha = (req, res) => {
     const captchaText = generateCaptcha();
@@ -21,6 +28,10 @@ exports.getCaptcha = (req, res) => {
 exports.loginUser = async (req, res) => {
     try {
         const { email, password, captchaInput } = req.body;
+
+        if (!email || !password) {
+            return res.status(400).json({ error: "Email and password are required" });
+        }
 
         // Validate CAPTCHA
         if (!req.session.captcha || captchaInput !== req.session.captcha) {
@@ -335,3 +346,5 @@ exports.logoutUser = (req, res) => {
         return res.status(500).json({ error: "❌ Server error during logout" });
     }
 };
+
+exports.generateToken = generateToken;
