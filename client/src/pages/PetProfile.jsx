@@ -1,16 +1,3 @@
-<<<<<<< HEAD
-"use client";
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { Pencil } from "lucide-react";
-import "../css/PetProfile.css";
-import VisitHistory from "./VisitHistory";
-import { useConfirmDialog } from "../contexts/ConfirmDialogContext";
-import { calculateAge } from "../components/DateCalculator";
-import { useUserRole } from "../contexts/UserRoleContext";
-import { useCallback } from "react";
-import VaccinationRecord from "./VaccinationRecord";
-=======
 "use client"
 import { useState, useEffect } from "react"
 import { useParams } from "react-router-dom"
@@ -22,7 +9,6 @@ import { calculateAge } from "../components/DateCalculator"
 import { useUserRole } from "../contexts/UserRoleContext"
 import { useCallback } from "react"
 import VaccinationRecord from "./VaccinationRecord"
->>>>>>> origin/iahs-railway
 
 export default function PetProfile() {
   const { pet_id } = useParams()
@@ -35,18 +21,6 @@ export default function PetProfile() {
 
   const fetchVaccinationRecords = useCallback(async (petId) => {
     try {
-<<<<<<< HEAD
-      const response = await fetch(
-        `http://localhost:5000/vax/pets/${petId}/viewVaccines`,
-        {
-          method: "GET",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-=======
       const response = await fetch(`http://localhost:5000/vax/pets/${petId}/viewVaccines`, {
         method: "GET",
         credentials: "include",
@@ -55,22 +29,15 @@ export default function PetProfile() {
         },
       })
 
->>>>>>> origin/iahs-railway
 
       if (!response.ok) {
         throw new Error("Failed to fetch vaccination records")
       }
 
-<<<<<<< HEAD
-      const data = await response.json();
-      console.log("Fetched vaccination records:", data);
-      setVaccinations(data);
-=======
 
       const data = await response.json()
       console.log("Fetched vaccination records:", data)
       setVaccinations(data)
->>>>>>> origin/iahs-railway
     } catch (error) {
       console.error("Error fetching vaccination records:", error)
     }
@@ -79,22 +46,14 @@ export default function PetProfile() {
   useEffect(() => {
     const fetchPetData = async () => {
       try {
-<<<<<<< HEAD
-        console.log("Fetching pet data for pet_id:", pet_id);
-=======
         console.log("Fetching pet data for pet_id:", pet_id)
->>>>>>> origin/iahs-railway
         const response = await fetch(`http://localhost:5000/pets/${pet_id}`, {
           method: "GET",
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
           },
-<<<<<<< HEAD
-        });
-=======
         })
->>>>>>> origin/iahs-railway
 
         if (!response.ok) {
           throw new Error("Failed to fetch pet data");
@@ -206,51 +165,6 @@ export default function PetProfile() {
         }
       );
 
-<<<<<<< HEAD
-      if (!response.ok) {
-        throw new Error("Failed to update pet profile");
-      }
-
-      const data = await response.json();
-      console.log("Pet profile updated:", data);
-      const newAge = calculateAge(editedPetData.birthday);
-      const updatedPetData = {
-        ...editedPetData,
-        age: newAge,
-        status: editedPetData.status,
-      };
-      setPetData(updatedPetData);
-
-      const fetchUpdatedPetData = async () => {
-        try {
-          const response = await fetch(`http://localhost:5000/pets/${pet_id}`, {
-            method: "GET",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          });
-
-          if (!response.ok) {
-            throw new Error("Failed to fetch updated pet data");
-          }
-
-          const data = await response.json();
-          console.log("Fetched updated pet data:", data);
-          const age = calculateAge(data.birthday);
-          setPetData({ ...data, age });
-        } catch (error) {
-          console.error("Error fetching updated pet data:", error);
-        }
-      };
-      fetchUpdatedPetData();
-
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Error updating pet profile:", error);
-    }
-  };
-=======
         if (!response.ok) {
           throw new Error("Failed to fetch pet data")
         }
@@ -424,7 +338,6 @@ export default function PetProfile() {
     }
   }
 
->>>>>>> origin/iahs-railway
 
   const handleCancel = () => {
     setIsEditing(false);
@@ -497,15 +410,7 @@ export default function PetProfile() {
                 <div className="detail-item">
                   <label>Species</label>
                   {isEditing ? (
-<<<<<<< HEAD
-                    <select
-                      name="species"
-                      value={editedPetData.species || ""}
-                      onChange={handleInputChange}
-                    >
-=======
                     <select name="species" value={editedPetData.species || ""} onChange={handleInputChange}>
->>>>>>> origin/iahs-railway
                       <option value="Dog (Standard)">Dog (Standard)</option>
                       <option value="Cat (Standard)">Cat (Standard)</option>
                       <option value="Snake (Exotic)">Snake (Exotic)</option>
@@ -541,14 +446,7 @@ export default function PetProfile() {
                           type="radio"
                           name="gender"
                           id="Male"
-<<<<<<< HEAD
-                          checked={
-                            editedPetData.gender === "Male" ||
-                            editedPetData.gender === "male"
-                          }
-=======
                           checked={editedPetData.gender === "Male" || editedPetData.gender === "male"}
->>>>>>> origin/iahs-railway
                           onChange={handleInputChange}
                         />
                         Male
@@ -558,32 +456,16 @@ export default function PetProfile() {
                           type="radio"
                           name="gender"
                           id="Female"
-<<<<<<< HEAD
-                          checked={
-                            editedPetData.gender === "Female" ||
-                            editedPetData.gender === "female"
-                          }
-=======
                           checked={editedPetData.gender === "Female" || editedPetData.gender === "female"}
->>>>>>> origin/iahs-railway
                           onChange={handleInputChange}
                         />
                         Female
                       </label>
                     </div>
                   ) : (
-<<<<<<< HEAD
-                    <span>
-                      {typeof petData.gender === "string"
-                        ? petData.gender.charAt(0).toUpperCase() +
-                          petData.gender.slice(1)
-                        : petData.gender}
-                    </span>
-=======
                     <span>{typeof petData.gender === "string"
                       ? petData.gender.charAt(0).toUpperCase() + petData.gender.slice(1)
                       : petData.gender}</span>
->>>>>>> origin/iahs-railway
                   )}
                 </div>
                 <div className="detail-item">
@@ -655,15 +537,7 @@ export default function PetProfile() {
                       </label>
                     </div>
                   ) : (
-<<<<<<< HEAD
-                    <span>
-                      {petData.status === 1 || petData.status === "1"
-                        ? "Alive"
-                        : "Deceased"}
-                    </span>
-=======
                     <span>{petData.status === 1 || petData.status === "1" ? "Alive" : "Deceased"}</span>
->>>>>>> origin/iahs-railway
                   )}
                 </div>
               </div>

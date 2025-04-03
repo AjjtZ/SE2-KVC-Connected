@@ -1,5 +1,4 @@
 const db = require("../config/db");
-const bcrypt = require("bcrypt");
 
 class UserModel {
     static async getUserById(userId) {

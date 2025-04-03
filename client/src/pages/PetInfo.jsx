@@ -49,38 +49,6 @@ const PetInfo = () => {
     console.log("Pet Info Submitted:", formData);
 
     try {
-<<<<<<< HEAD
-      const response = await fetch(
-        "http://localhost:5000/auth/signup/petowner-step2",
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (data.newCaptcha) {
-          // Update the CAPTCHA image
-          setCaptcha({
-            image: data.newCaptcha.image,
-            captchaKey: data.newCaptcha.captchaKey,
-          });
-        }
-        throw new Error(data.error || "An error occurred during signup.");
-      }
-
-      console.log(data.message);
-      window.location.replace(data.redirectUrl);
-    } catch (error) {
-      console.error("Error:", error.message);
-      setMessage(error.message);
-=======
         const response = await fetch("http://localhost:5000/auth/signup/petowner-step2", {
             method: "POST",
             credentials: "include",
@@ -107,7 +75,6 @@ const PetInfo = () => {
     } catch (error) {
         console.error("Error:", error.message);
         setMessage(error.message);
->>>>>>> origin/iahs-railway
     }
 };
 

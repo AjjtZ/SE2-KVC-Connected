@@ -4,12 +4,9 @@ import { useState, useEffect } from "react";
 import { Button } from "../components/Button";
 import FormGroup from "../components/FormGroup";
 import "../css/Forms.css";
-<<<<<<< HEAD
-=======
 import { useUserRole } from "../contexts/UserRoleContext";
 import { useNavigate } from "react-router-dom";
 
->>>>>>> origin/iahs-railway
 
 function LoginForm() {
   const [currentStep, setCurrentStep] = useState("login");
@@ -55,27 +52,11 @@ function LoginForm() {
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
-<<<<<<< HEAD
-        },
-=======
           },
->>>>>>> origin/iahs-railway
         body: JSON.stringify(formData),
       });
 
       const data = await response.json();
-<<<<<<< HEAD
-      if (!response.ok) {
-        if (data.newCaptcha) {
-          console.log("Refreshing CAPTCHA..."); // Debug log
-          setCaptcha({
-            image: data.newCaptcha.image,
-            captchaKey: data.newCaptcha.captchaKey,
-          }); // Update CAPTCHA
-        }
-        throw new Error(data.error || "Login failed");
-      }
-=======
 
       if (!response.ok) {
             if (data.newCaptcha) {
@@ -84,7 +65,6 @@ function LoginForm() {
             }
 throw new Error(data.error || "Login failed");
 }
->>>>>>> origin/iahs-railway
 
       const token =
         response.headers.get("Authorization")?.split(" ")[1] || data.token;
@@ -94,11 +74,7 @@ throw new Error(data.error || "Login failed");
 
       setCurrentRole(data.role);
       setMessage(data.message);
-<<<<<<< HEAD
-      window.location.replace(data.redirectUrl);
-=======
       navigate(getLandingPage(data.role)); 
->>>>>>> origin/iahs-railway
     } catch (error) {
 console.error("Error:", error.message);
       setMessage(error.message);
