@@ -1,734 +1,1347 @@
 .hero-section-wrapper,
 .about-section-wrapper,
 .contact-section-wrapper {
-    display: flex;
-    flex-direction: column; 
-    width: 100%; 
+   display: flex;
+   flex-direction: column;
+   width: 100%;
 }
+
 
 .hero {
-    width: 100vw;
-    min-height: 100vh;
-    padding-top: 2rem;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-image: url('/landingbg.png'); /* Path to your image */
-    background-size: cover; /* Cover the entire section */
-    background-position: center; /* Center the image */
-    background-repeat: no-repeat; /* Prevent repeating */
-    position: relative;
+   width: 100vw;
+   min-height: 100vh;
+   padding-top: 2rem;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   background-image: url('/landingbg.png'); /* Path to your image */
+   background-size: cover; /* Cover the entire section */
+   background-position: center; /* Center the image */
+   background-repeat: no-repeat; /* Prevent repeating */
+   position: relative;
 }
 
-  .hero-content {
-    position: relative;
-    text-align: center;
-    justify-content: center;
+
+ .hero-content {
+   position: relative;
+   text-align: center;
+   justify-content: center;
 }
 
-  .hero h1 {
-    font-family: 'Chelsea Market';
-    font-size: 80px;
-    margin: 0;
-    padding: 0;
-    color: #FFFEF1; 
-    font-weight: 100;
-    -webkit-text-stroke: #ff8c00 1px;
-  }
 
-  .hero p {
-    font-family: 'Chelsea Market';
-    font-size: 30px;
-    margin: 1rem;
-    padding: 1rem;
-    color: #FFFEF1;
-    text-shadow: 2px 2px 5px gray;
-  }
+ .hero h1 {
+   font-family: 'Chelsea Market';
+   font-size: 80px;
+   margin: 0;
+   padding: 0;
+   color: #FFFEF1;
+   font-weight: 100;
+   -webkit-text-stroke: #ff8c00 1px;
+   transition: all 0.3s ease;
+ }
 
-  .hero a {
-    padding: 0.8rem 5.5rem;
-    font-size: 15px;
-    font-weight: bold;
-  }
 
-  .cat2 {
-    padding-left: 200px;
-    position: relative;
-    z-index: 1;
-    bottom: 35px;
-  }
+ .hero h1:hover {
+   transform: scale(1.05);
+   text-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
+ }
 
-  .cat2 img {
-    width: 350px;
-    height: 250px;
-  }
 
-  .about {
-    position: relative;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-right: 2rem;
-    margin-left: 2rem;
-    margin-top: -9rem;
-  }
+ .hero p {
+   font-family: 'Chelsea Market';
+   font-size: 30px;
+   margin: 1rem;
+   padding: 1rem;
+   color: #FFFEF1;
+   text-shadow: 2px 2px 5px gray;
+   transition: all 0.3s ease;
+ }
 
-  .about-text-images {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-  }
 
-  .about-images {
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
-    width: 500px;
-  }
+ .hero p:hover {
+   transform: translateY(-5px);
+   text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.4);
+ }
 
-  .about-images-cat-dog {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem; 
-  }
 
-  .about-images-bird {
-    display: flex;
-  }
+ .hero a {
+   padding: 0.8rem 5.5rem;
+   font-size: 15px;
+   font-weight: bold;
+   transition: all 0.3s ease;
+ }
 
-  .about-images-cat-dog img {
-    width: 150px;
-    height: auto;
-    border-radius: 15px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
-    margin-left: 20px;
-  }
 
-  .about-images-bird img {
-    width: 150px;
-    height: auto;
-    border-radius: 15px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);  
-  }
+ .hero a:hover {
+   transform: translateY(-3px);
+   box-shadow: 0 5px 15px rgba(255, 140, 0, 0.3);
+ }
 
-  .about-text {
-    flex: 2;
-    padding: 0 1rem;
-    text-align: justify;
-  }
-  
+
+ .cat2 {
+   padding-left: 200px;
+   position: relative;
+   z-index: 1;
+   bottom: 35px;
+ }
+
+
+ .cat2 img {
+   width: 350px;
+   height: 250px;
+ }
+
+
+ .about {
+   position: relative;
+   display: flex;
+   justify-content: space-between;
+   align-items: flex-start;
+   margin-right: 2rem;
+   margin-left: 2rem;
+   margin-top: -9rem;
+   margin-bottom: 0;
+ }
+
+
+ .about-text-images {
+   display: flex;
+   flex-direction: column;
+   width: 100%;
+ }
+
+
+ .about-images {
+   display: flex;
+   flex-direction: row;
+   gap: 1rem;
+   width: 500px;
+ }
+
+
+ .about-images-cat-dog {
+   display: flex;
+   flex-direction: column;
+   gap: 1rem;
+ }
+
+
+ .about-images-bird {
+   display: flex;
+ }
+
+
+ .about-images-cat-dog img {
+   width: 170px;
+   height: auto;
+   border-radius: 15px;
+   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+   margin-left: 20px;
+   transition: all 0.3s ease;
+ }
+
+
+ .about-images-cat-dog img:hover {
+   transform: scale(1.1) translateY(-5px);
+   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+ }
+
+
+ .about-images-bird img {
+   width: 170px;
+   height: auto;
+   border-radius: 15px;
+   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+   transition: all 0.3s ease;
+ }
+
+
+ .about-images-bird img:hover {
+   transform: scale(1.1) translateY(-5px);
+   box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+ }
+
+
+ .about-text {
+   flex: 2;
+   padding: 0 1rem;
+   text-align: justify;
+ }
   .about-text h2 {
-    color: #ff8c00;
-    font-size: 3rem;
-    text-align: left;
-    margin-bottom: 1rem;
-  }
-  
+   color: #ff8c00;
+   font-size: 3rem;
+   text-align: left;
+   margin-bottom: 1rem;
+   transition: all 0.3s ease;
+ }
+  .about-text h2:hover {
+   transform: translateX(10px);
+   text-shadow: 2px 2px 4px rgba(255, 140, 0, 0.2);
+ }
   .about-text p {
-    font-size: 1.3rem;
-    color: #333;
-    line-height: 1.5;
-    margin-top: -25px;
-    margin-left: -90px;
-  }
+   font-size: 1.1rem;
+   color: #333;
+   line-height: 1.6;
+   margin-top: -15px;
+   margin-left: -60px;
+   transition: all 0.3s ease;
+   text-align: justify;
+   padding: 0 0.8rem;
+ }
 
-  .dog2 {
-    padding-right: 40px;
-  }
 
-  .dog2 img {
-    width: 255px;
-    height: auto;
-  }
+ .about-text p strong em {
+   color: #FF8C00;
+   font-size: 1.3rem;
+   line-height: 1.4;
+   display: block;
+   margin-bottom: 1rem;
+   text-shadow: 1px 1px 2px rgba(255, 140, 0, 0.1);
+   border-left: 3px solid #FF8C00;
+   padding-left: 0.8rem;
+   transition: all 0.3s ease;
+   font-family: 'Chelsea Market';
+   font-weight: 300;
+ }
 
-  .dog-text {
-    display: flex;
-    flex-direction: row;
-  }
-  
+
+ .about-text p strong em:hover {
+   transform: translateX(5px);
+   text-shadow: 2px 2px 4px rgba(255, 140, 0, 0.2);
+ }
+
+
+ .about-text p br {
+   display: block;
+   margin: 0.8rem 0;
+ }
+
+
+ .about-text p:hover {
+   transform: translateX(5px);
+   color: #444;
+ }
+
+
+ .dog2 {
+   padding-right: 40px;
+ }
+
+
+ .dog2 img {
+   width: 255px;
+   height: auto;
+ }
+
+
+ .dog-text {
+   display: flex;
+   flex-direction: row;
+ }
   .about-services {
-    flex: 1;
-    text-align: right; 
-  }
-  
+   flex: 1;
+   text-align: right;
+ }
   .about-services h2 {
-    color: #ff8c00;
-    font-size: 3rem;
-    line-height: 1.2;
-    font-weight: bold;
-  }
+   color: #ff8c00;
+   font-size: 3rem;
+   line-height: 1.2;
+   font-weight: bold;
+   transition: all 0.3s ease;
+ }
 
-  .contact {
-    text-align: center;
-    background-color: #FFFEF1; 
-  }
-  
+
+ .about-services h2:hover {
+   transform: translateX(-10px);
+   text-shadow: 2px 2px 4px rgba(255, 140, 0, 0.2);
+ }
+
+
+ .contact {
+   text-align: center;
+   background-color: #FFFEF1;
+   padding-top: 2rem;
+   margin-top: 2rem;
+ }
   .contact h2 {
-    font-size: 2.5rem;
-    color:#FF8C00;
-    margin-bottom: 1.5rem;
-  }
-  
+   font-size: 2.5rem;
+   color:#FF8C00;
+   margin-bottom: 1.5rem;
+   transition: all 0.3s ease;
+ }
+  .contact h2:hover {
+   transform: scale(1.05);
+   text-shadow: 2px 2px 4px rgba(255, 140, 0, 0.2);
+ }
   .map-place {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 3rem;
-    margin-left:0;
-    margin-right:0;
-  }
-  
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   margin-bottom: 3rem;
+   margin-left:0;
+   margin-right:0;
+ }
   .google-map iframe {
-    border: 2px solid #FF8C00;
-  }
-  
+   border: 2px solid #FF8C00;
+   transition: all 0.3s ease;
+ }
+  .google-map iframe:hover {
+   transform: scale(1.02);
+   box-shadow: 0 5px 15px rgba(255, 140, 0, 0.2);
+ }
   .clinicplace img {
-    width: 540px;
-    height: auto;
-  }
-  
+   width: 540px;
+   height: auto;
+   transition: all 0.3s ease;
+ }
+  .clinicplace img:hover {
+   transform: scale(1.02);
+   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+ }
   .contact-details {
-    display: flex;
-    justify-content: space-evenly;
-    flex-wrap: wrap;
-    margin-bottom: 3rem;
-  }
-  
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+   gap: 2.5rem;
+   padding: 0 1em;
+   max-width: 1200px;
+   margin: 0 auto 3rem;
+ }
   .contact-detail-item {
-    background-color: #FFF;
-    border: 3px solid #FF8C00;
-    border-radius: 25px;
-    padding: 1rem;
-    text-align: center;
-    width: 100%;
-    max-width: 250px;
-  }
-  
-  .contact-detail-item p {
-    margin: 0.5rem 0;
-    color: #FF8C00;
-  }
-  
-  .contact-detail-item strong {
-    color: #FF8C00;
-    font-size: 1.1rem;
-  }
+   background-color: #FFF;
+   border: 3px solid #FF8C00;
+   border-radius: 25px;
+   padding: 2rem;
+   text-align: center;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   min-height: 250px;
+   transition: all 0.3s ease;
+ }
 
-  .contact-icon {
-    font-size: 3rem;
-    color: #FF8C00;
-    margin-bottom: 1rem;
-  }
 
-  @media screen and (max-width: 1180px) {
+ .contact-detail-item:hover {
+   transform: translateY(-10px);
+   box-shadow: 0 10px 25px rgba(255, 140, 0, 0.2);
+   border-color: #FFA500;
+ }
 
-    .cat2 {
-      padding-left: 205px;
-      z-index: 1;
-    }
-  
+
+ .contact-detail-item p {
+   margin: 0.5rem 0;
+   color: #FF8C00;
+   font-size: 1.1rem;
+   transition: all 0.3s ease;
+ }
+
+
+ .contact-detail-item:hover p {
+   color: #FFA500;
+   transform: translateY(-2px);
+ }
+
+
+ .contact-detail-item strong {
+   color: #FF8C00;
+   font-size: 1.3rem;
+   margin-bottom: 0.5rem;
+   transition: all 0.3s ease;
+ }
+
+
+ .contact-detail-item:hover strong {
+   color: #FFA500;
+   transform: translateY(-2px);
+ }
+
+
+ .contact-icon {
+   font-size: 3rem;
+   color: #FF8C00;
+   margin-bottom: 1.5rem;
+   transition: all 0.3s ease;
+ }
+
+
+ .contact-detail-item:hover .contact-icon {
+   transform: scale(1.2);
+   color: #FFA500;
+ }
+
+
+ @media screen and (max-width: 1180px) {
+
+
+   .cat2 {
+     padding-left: 205px;
+     z-index: 1;
+   }
     .cat2 img {
-      width: 350px;
-      height: 250px;
-    }
-    
-    .about-text h2 {
-      color: #ff8c00;
-      font-size: 2.3rem;
-      margin-bottom: 1rem;
-    }
-    
-    .about-text p {
-      font-size: 1.2rem;
-      color: #333;
-      line-height: 1.5;
-      margin-top: 10px;
-    }
-
-    .about-services h2 {
-      color: #ff8c00;
-      font-size: 2.3rem;
-      line-height: 1.2;
-      font-weight: bold;
-    }
-
-    .contact h2 {
-      font-size: 2.3rem;
-      margin-top: 1rem;
-    }
-
-    .google-map iframe {
-      width: 800px;
-      height: 350px;
-    }
-
-    .dog-text {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .dog2 img {
-      width: 200px;
-      height: auto;
-      margin-left: 100px;
-    }
-
-    .contact-details {
-      gap: 1.5rem;
-    }
-    
-  }
-
-  @media screen and (max-width: 1000px) {
-
-    .cat2 {
-      padding-left: 180px;
-      z-index: 1;
-    }
+     width: 350px;
+     height: 250px;
+   }
   
+   .about-text h2 {
+     color: #ff8c00;
+     font-size: 2.3rem;
+     margin-bottom: 1rem;
+   }
+  
+   .about-text p {
+     font-size: 1rem;
+     line-height: 1.5;
+     margin-top: 5px;
+   }
+
+
+   .about-text p strong em {
+     font-size: 1.1rem;
+     font-family: 'Chelsea Market';
+     font-weight: 300;
+   }
+
+
+   .about-services h2 {
+     color: #ff8c00;
+     font-size: 2.3rem;
+     line-height: 1.2;
+     font-weight: bold;
+   }
+
+
+   .contact h2 {
+     font-size: 2.3rem;
+     margin-top: 1rem;
+   }
+
+
+   .google-map iframe {
+     width: 800px;
+     height: 350px;
+   }
+
+
+   .dog-text {
+     display: flex;
+     flex-direction: column;
+   }
+
+
+   .dog2 img {
+     width: 200px;
+     height: auto;
+     margin-left: 100px;
+   }
+
+
+   .contact-details {
+     gap: 1.5rem;
+   }
+  
+ }
+
+
+ @media screen and (max-width: 1000px) {
+
+
+   .cat2 {
+     padding-left: 180px;
+     z-index: 1;
+   }
     .cat2 img {
-      width: 350px;
-      height: 250px;
-    }
+     width: 350px;
+     height: 250px;
+   }
 
-    .about-images-cat-dog img {
-      width: 150px;
-    }
 
-    .about-images-bird img {
-      width: 150px;
-    }
-    
-    .about-text h2 {
-      color: #ff8c00;
-      font-size: 2.3rem;
-      margin-bottom: 1rem;
-    }
-    
-    .about-text p {
-      font-size: 1rem;
-      color: #333;
-      line-height: 1.5;
-      margin-top: 1rem;
-    }
+   .about-images-cat-dog img {
+     width: 160px;
+   }
 
-    .about-services h2 {
-      color: #ff8c00;
-      font-size: 2.3rem;
-      line-height: 1.2;
-      font-weight: bold;
-    }
 
-    .about-text-images {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem; 
-    }
+   .about-images-bird img {
+     width: 160px;
+   }
   
+   .about-text h2 {
+     color: #ff8c00;
+     font-size: 2.3rem;
+     margin-bottom: 1rem;
+   }
+  
+   .about-text p {
+     font-size: 0.95rem;
+     line-height: 1.5;
+     margin-top: 0;
+   }
+
+
+   .about-text p strong em {
+     font-size: 1rem;
+     font-family: 'Chelsea Market';
+     font-weight: 300;
+   }
+
+
+   .about-text-images {
+     display: flex;
+     flex-direction: column;
+     gap: 1rem;
+   }
     .about-images {
-      display: flex;
-      flex-direction: row;
-      gap: 1rem; 
-    }
-
-    .about-images-cat-dog {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem; 
-    }
-
-    .dog-text {
-      display: flex;
-      flex-direction: column;
-    } 
-
-    .dog2 img {
-      width: 210px;
-      height: auto;
-      margin-left: -150px;
-    }
-
-    .contact-details {
-      gap: 1.5rem;
-    }
-    
-  }
+     display: flex;
+     flex-direction: row;
+     gap: 1rem;
+   }
 
 
-  @media screen and (max-width: 960px) {
-    .hero h1 {
-      margin-top: 70px;
-      font-size: 65px;
-    }
+   .about-images-cat-dog {
+     display: flex;
+     flex-direction: column;
+     gap: 1rem;
+   }
 
-    .hero p {
-      font-size: 25px;
-    }
 
-    .hero-content .btn--primary {
-      padding: 0.5rem 3rem;
-      font-size: 18px;
-    }
+   .dog-text {
+     display: flex;
+     flex-direction: column;
+   }
 
-    .cat2 {
-      padding-left: 205px;
-      z-index: 1;
-    }
+
+   .dog2 img {
+     width: 210px;
+     height: auto;
+     margin-left: -150px;
+   }
+
+
+   .contact-details {
+     gap: 1.5rem;
+   }
   
+ }
+
+
+
+
+ @media screen and (max-width: 960px) {
+   .hero h1 {
+     margin-top: 70px;
+     font-size: 65px;
+   }
+
+
+   .hero p {
+     font-size: 25px;
+   }
+
+
+   .hero-content .btn--primary {
+     padding: 0.5rem 3rem;
+     font-size: 18px;
+   }
+
+
+   .cat2 {
+     padding-left: 205px;
+     z-index: 1;
+   }
     .cat2 img {
-      width: 350px;
-      height: 250px;
-    }
-    
-    .about-text h2 {
-      font-size: 2.3rem;
-    }
-
-    .about-text p {
-      font-size: 1rem;
-    }
-
-    .about-services h2 {
-      font-size: 2rem;
-    }
-
-    .about-text-images {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem; 
-    }
+     width: 350px;
+     height: 250px;
+   }
   
+   .about-text h2 {
+     font-size: 2.3rem;
+   }
+
+
+   .about-text p {
+     font-size: 0.9rem;
+     line-height: 1.4;
+   }
+
+
+   .about-text p strong em {
+     font-size: 0.95rem;
+     font-family: 'Chelsea Market';
+     font-weight: 300;
+   }
+
+
+   .about-services h2 {
+     font-size: 2rem;
+   }
+
+
+   .about-text-images {
+     display: flex;
+     flex-direction: column;
+     gap: 1rem;
+   }
     .about-images {
-      flex-direction: row;
-      gap: 1rem; 
-    }
-    
-    .dog2 img {
-      width: 200px;
-      height: auto;
-    }
-
-    .google-map iframe {
-      width: 600px;
-      height: 345px;
-    }
-
-    .contact-details {
-      gap: 1.5rem;
-    }
-  }
-
+     flex-direction: row;
+     gap: 1rem;
+   }
   
-@media screen and (max-width: 760px) {
-  .hero h1 {
-    font-size: 60px;
-  }
+   .dog2 img {
+     width: 200px;
+     height: auto;
+   }
 
-  .hero p {
-    font-size: 20px;
-  }
 
-  .hero a {
-    padding: 0.4rem 2.5rem; 
-    font-size: 12px; 
-  }
+   .google-map iframe {
+     width: 600px;
+     height: 345px;
+   }
 
-  .about {
-    flex-direction: column;
-  }
 
-  .about-text-images {
-    margin-left: 80px;
-  }
+   .contact-details {
+       grid-template-columns: repeat(2, 1fr);
+       gap: 1.5rem;
+       padding: 0 1rem;
+   }
 
-  .about-images-bird img {
-    width: 160px;
-  }
 
-  .about-images-cat-dog img {
-    width: 160px;
-  }
-  .cat2 {
-    padding-left: 340px;
-    z-index: 1;
-  }
+   .contact-detail-item {
+       min-height: 220px;
+       padding: 1.5rem;
+   }
 
-  .cat2 img {
-    width: 350px;
-    height: 250px;
-  }
 
-  .about-text p {
-    margin-left: 10px;
-  }
+   .contact-detail-item p {
+       font-size: 1rem;
+   }
 
-  .about-services h2 {
-    margin-top: 50px;
-  }
 
-  .dog2 img {
-    width: 200px;
-    height: auto;
-    margin-left: 200px;
-  }
+   .contact-detail-item strong {
+       font-size: 1.2rem;
+   }
 
-  .google-map iframe {
-    width: 500px;
-    height: 290px;
-  }
-  .contact-details {
-    gap: 1.5rem;
-  }
+
+   .contact-icon {
+       font-size: 2.5rem;
+       margin-bottom: 1rem;
+   }
+ }
+
+
+ @media screen and (max-width: 760px) {
+ .hero h1 {
+   font-size: 60px;
+ }
+
+
+ .hero p {
+   font-size: 20px;
+ }
+
+
+ .hero a {
+   padding: 0.4rem 2.5rem;
+   font-size: 12px;
+ }
+
+
+ .about {
+   flex-direction: column;
+ }
+
+
+ .about-text-images {
+   margin-left: 80px;
+ }
+
+
+ .about-images-bird img {
+   width: 170px;
+ }
+
+
+ .about-images-cat-dog img {
+   width: 170px;
+ }
+ .cat2 {
+   padding-left: 340px;
+   z-index: 1;
+ }
+
+
+ .cat2 img {
+   width: 350px;
+   height: 250px;
+ }
+
+
+ .about-text p {
+   margin-left: 5px;
+   font-size: 0.85rem;
+ }
+
+
+ .about-text p strong em {
+   font-size: 0.9rem;
+   font-family: 'Chelsea Market';
+   font-weight: 300;
+ }
+
+
+ .about-services h2 {
+   margin-top: 50px;
+ }
+
+
+ .dog2 img {
+   width: 200px;
+   height: auto;
+   margin-left: 200px;
+ }
+
+
+ .google-map iframe {
+   width: 500px;
+   height: 290px;
+ }
+ .contact-details {
+   gap: 1.5rem;
+ }
+
 
 }
+
 
 @media screen and (max-width: 600px) {
-  .hero h1 {
-    font-size: 50px;
-  }
+ .hero h1 {
+   font-size: 50px;
+ }
 
-  .hero p {
-    font-size: 18px;
-  }
 
-  .hero a {
-    padding: 0.3rem 2rem; 
-    font-size: 10px; 
-  }
-  
+ .hero p {
+   font-size: 18px;
+ }
+
+
+ .hero a {
+   padding: 0.3rem 2rem;
+   font-size: 10px;
+ }
   .cat2 {
-    padding-left: 300px;
-  }
+   padding-left: 300px;
+ }
 
-  .cat2 img {
-    width: 300px;
-    height: auto;
-  }
 
-  .about {
-    flex-direction: column;
-  }
+ .cat2 img {
+   width: 300px;
+   height: auto;
+ }
 
-  .about-text-images {
-    margin-left: 30px;
-  }
 
-  .about-images-bird img {
-    width: 160px;
-  }
+ .about {
+   flex-direction: column;
+ }
 
-  .about-images-cat-dog img {
-    width: 160px;
-  }
-  
+
+ .about-text-images {
+   margin-left: 30px;
+ }
+
+
+ .about-images-bird img {
+   width: 160px;
+ }
+
+
+ .about-images-cat-dog img {
+   width: 160px;
+ }
   .dog2 img {
-    width: 160px;
-    height: auto;
-    margin-left: 160px;
-  }
+   width: 160px;
+   height: auto;
+   margin-left: 160px;
+ }
 
-  .map-place {
-    flex-direction: column;
-  }
 
-  .google-map iframe {
-    width: 400px;
-    height: 300px;
-  }
-  
+ .map-place {
+   flex-direction: column;
+ }
+
+
+ .google-map iframe {
+   width: 400px;
+   height: 300px;
+ }
   .clinicplace img {
-    width: 400px;
-    height: auto;
-  }
-  
+   width: 400px;
+   height: auto;
+ }
   .contact-details {
-    gap: 1.5rem;
-  }
+   grid-template-columns: 1fr;
+   max-width: 400px;
+   gap: 1rem;
+ }
 
+
+ .contact-detail-item {
+   min-height: 200px;
+   padding: 1.2rem;
+ }
+
+
+ .contact-detail-item p {
+   font-size: 0.95rem;
+ }
+
+
+ .contact-detail-item strong {
+   font-size: 1.1rem;
+ }
+
+
+ .contact-icon {
+   font-size: 2.2rem;
+   margin-bottom: 0.8rem;
+ }
 }
+
 
 @media screen and (max-width: 480px) {
-  .hero h1 {
-    font-size: 50px;
-  }
+ .hero h1 {
+   font-size: 50px;
+ }
 
-  .hero p {
-    font-size: 18px;
-  }
 
-  .hero a {
-    padding: 0.3rem 2rem; 
-    font-size: 10px; 
-  }
+ .hero p {
+   font-size: 18px;
+ }
 
-  .hero-section-wrapper {
-    margin-top: -50px;
-  }
 
-  .cat2 {
-    padding-left: 200px;
-    z-index: 1;
-  }
+ .hero a {
+   padding: 0.3rem 2rem;
+   font-size: 10px;
+ }
 
-  .cat2 img {
-    width: 250px;
-    height: auto;
-  }
 
-  .about {
-    flex-direction: column;
-  }
+ .hero-section-wrapper {
+   margin-top: -50px;
+ }
 
-  .about-text-images {
-    margin-top: 20px;
-    margin-left: 20px;
-  }
 
-  .about-images-bird img {
-    width: 125px;
-  }
+ .cat2 {
+   padding-left: 200px;
+   z-index: 1;
+ }
 
-  .about-images-cat-dog img {
-    width: 122px;
-  }
 
-  .about-text h2 {
-    font-size: 2rem;
-  }
+ .cat2 img {
+   width: 250px;
+   height: auto;
+ }
 
-  .about-text p {
-    font-size: 1rem;
-  }
 
-  .about-services {
-   padding-top: 5px;
-   padding-bottom: 10px;
-  }
+ .about {
+   flex-direction: column;
+ }
 
-  .about-services h2 {
-    font-size: 2rem;
-  }
-  
+
+ .about-text-images {
+   margin-top: 20px;
+   margin-left: 20px;
+ }
+
+
+ .about-images-bird img {
+   width: 140px;
+ }
+
+
+ .about-images-cat-dog img {
+   width: 140px;
+ }
+
+
+ .about-text h2 {
+   font-size: 2rem;
+ }
+
+
+ .about-text p {
+   font-size: 0.8rem;
+   line-height: 1.4;
+   margin-left: 0;
+   padding: 0 0.4rem;
+ }
+
+
+ .about-text p strong em {
+   font-size: 0.85rem;
+   font-family: 'Chelsea Market';
+   font-weight: 300;
+   padding-left: 0.6rem;
+ }
+
+
+ .about-services {
+  padding-top: 5px;
+  padding-bottom: 10px;
+ }
+
+
+ .about-services h2 {
+   font-size: 2rem;
+ }
   .dog2 img {
-    width: 150px;
-    height: auto;
-    margin-left: 60px;
-  }
+   width: 150px;
+   height: auto;
+   margin-left: 60px;
+ }
 
-  .map-place {
-    flex-direction: column;
-  }
 
-  .google-map iframe {
-    width: 300px;
-    height: 200px;
-  }
-  
+ .map-place {
+   flex-direction: column;
+ }
+
+
+ .google-map iframe {
+   width: 300px;
+   height: 200px;
+ }
   .clinicplace img {
-    width: 300px;
-    height: auto;
-  }
-  
+   width: 300px;
+   height: auto;
+ }
   .contact-details {
-    gap: 1.5rem;
-  }
+   max-width: 350px;
+   gap: 0.8rem;
+ }
 
-  .contact h2 {
-    font-size: 2rem;
-  }
-  
 
+ .contact-detail-item {
+   min-height: 180px;
+   padding: 1rem;
+ }
+
+
+ .contact-detail-item p {
+   font-size: 0.9rem;
+ }
+
+
+ .contact-detail-item strong {
+   font-size: 1rem;
+ }
+
+
+ .contact-icon {
+   font-size: 2rem;
+   margin-bottom: 0.6rem;
+ }
+
+
+ .contact h2 {
+   font-size: 2rem;
+ }
+  .footer {
+   padding: 1.2rem 1rem;
+ }
+  .footer p {
+   font-size: 0.9rem;
+   letter-spacing: 0.4px;
+ }
+
+
+ .hero h1:hover {
+   transform: scale(1.03);
+ }
+
+
+ .hero p:hover {
+   transform: translateY(-3px);
+ }
+
+
+ .about-images-cat-dog img:hover,
+ .about-images-bird img:hover {
+   transform: scale(1.05) translateY(-3px);
+ }
+
+
+ .contact-detail-item:hover {
+   transform: translateY(-5px);
+ }
 }
+
 
 @media screen and (max-width: 320px) {
-  .hero h1 {
-    font-size: 45px;
-  }
+ .hero h1 {
+   font-size: 45px;
+ }
 
-  .hero p {
-    font-size: 18px;
-  }
 
-  .hero a {
-    padding: 0.3rem 2rem; 
-    font-size: 10px; 
-  }
-  
+ .hero p {
+   font-size: 18px;
+ }
+
+
+ .hero a {
+   padding: 0.3rem 2rem;
+   font-size: 10px;
+ }
   .cat2 {
-    top: 3px;
-    padding-left: 130px;
-  }
+   top: 3px;
+   padding-left: 130px;
+ }
 
-  .cat2 img {
-    width: 200px;
-    height: auto;
-  }
 
-  .about {
-    flex-direction: column;
-    padding: 0;
-    margin: 0;
-  }
+ .cat2 img {
+   width: 200px;
+   height: auto;
+ }
 
-  .about-text-images {
-    margin-top: -85px;
-    margin-left: 10px;
-  }
 
-  .about-images-bird img {
-    width: 95px;
-  }
+ .about {
+   flex-direction: column;
+   padding: 0;
+   margin: 0;
+ }
 
-  .about-images-cat-dog img {
-    width: 95px;
-    margin-left: 25px;
-  }
 
-  .about-text h2 {
-    font-size: 2rem;
-  }
+ .about-text-images {
+   margin-top: -85px;
+   margin-left: 10px;
+ }
 
-  .about-text p {
-    font-size: 1rem;
-  }
 
-  .about-services {
-   padding-top: 5px;
-   padding-bottom: 10px;
-   text-align: center;
-  }
+ .about-images-bird img {
+   width: 110px;
+ }
 
-  .about-services h2 {
-    font-size: 1.5rem;
-  }
 
-  .dog2 img {
-    width: 150px;
-    height: auto;
-    margin-left: 60px;
-  }
+ .about-images-cat-dog img {
+   width: 110px;
+   margin-left: 25px;
+ }
 
-  .map-place {
-    flex-direction: column;
-  }
 
-  .contact h2 {
-    font-size: 2rem;
-  }
+ .about-text h2 {
+   font-size: 2rem;
+ }
 
-  .google-map iframe {
-    width: 250px;
-    height: 150px;
-  }
-  
+
+ .about-text p {
+   font-size: 0.75rem;
+   line-height: 1.3;
+   padding: 0 0.3rem;
+ }
+
+
+ .about-text p strong em {
+   font-size: 0.8rem;
+   font-family: 'Chelsea Market';
+   font-weight: 300;
+   padding-left: 0.5rem;
+ }
+
+
+ .about-services {
+  padding-top: 5px;
+  padding-bottom: 10px;
+  text-align: center;
+ }
+
+
+ .about-services h2 {
+   font-size: 1.5rem;
+ }
+
+
+ .dog2 img {
+   width: 150px;
+   height: auto;
+   margin-left: 60px;
+ }
+
+
+ .map-place {
+   flex-direction: column;
+ }
+
+
+ .contact h2 {
+   font-size: 2rem;
+ }
+
+
+ .google-map iframe {
+   width: 250px;
+   height: 150px;
+ }
   .clinicplace img {
-    width: 250px;
-    height: auto;
-  }
-  
+   width: 250px;
+   height: auto;
+ }
   .contact-details {
-    gap: 1.5rem;
-  }
+   max-width: 300px;
+   gap: 0.6rem;
+ }
 
+
+ .contact-detail-item {
+   min-height: 160px;
+   padding: 0.8rem;
+ }
+
+
+ .contact-detail-item p {
+   font-size: 0.85rem;
+ }
+
+
+ .contact-detail-item strong {
+   font-size: 0.95rem;
+ }
+
+
+ .contact-icon {
+   font-size: 1.8rem;
+   margin-bottom: 0.5rem;
+ }
+
+
+ .footer {
+   padding: 1rem 0.5rem;
+ }
+  .footer p {
+   font-size: 0.9rem;
+ }
+
+
+ .hero h1:hover {
+   transform: scale(1.02);
+ }
+
+
+ .about-images-cat-dog img:hover,
+ .about-images-bird img:hover {
+   transform: scale(1.03) translateY(-2px);
+ }
+
+
+ .contact-detail-item:hover {
+   transform: translateY(-3px);
+ }
 }
+
+
+.footer {
+   background-color: #FF8C00;
+   padding: 1.5rem 0;
+   text-align: center;
+   margin-top: auto;
+   box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+   width: 100%;
+}
+
+
+.footer p {
+   font-family: 'Chelsea Market';
+   color: #FFFFFF;
+   font-size: 0.9rem;
+   margin: 0;
+   letter-spacing: 0.6px;
+   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+   position: relative;
+   display: inline-block;
+   padding: 0 1rem;
+   max-width: 90%;
+   word-wrap: break-word;
+}
+
+
+.footer p::after {
+   content: '';
+   position: absolute;
+   width: 0;
+   height: 1.5px;
+   bottom: -3px;
+   left: 50%;
+   background: #FFFFFF;
+   transition: all 0.3s ease;
+   transform: translateX(-50%);
+   border-radius: 2px;
+   opacity: 0.8;
+}
+
+
+.footer p:hover::after {
+   width: 100%;
+}
+
+
+@media screen and (max-width: 480px) {
+   .footer {
+       padding: 1rem 0.5rem;
+   }
+  
+   .footer p {
+       font-size: 0.85rem;
+       letter-spacing: 0.4px;
+       padding: 0 0.5rem;
+       max-width: 95%;
+   }
+}
+
+
+@media screen and (max-width: 320px) {
+   .footer {
+       padding: 0.8rem 0.3rem;
+   }
+  
+   .footer p {
+       font-size: 0.8rem;
+       letter-spacing: 0.3px;
+       padding: 0 0.3rem;
+       max-width: 100%;
+   }
+}
+
+
+.services-section-wrapper {
+   width: 100%;
+   background-color: #FFFEF1;
+   padding: 2rem 1rem;
+   margin-top: 1rem;
+}
+
+
+.services {
+   max-width: 1200px;
+   margin: 0 auto;
+   text-align: center;
+}
+
+
+.services h2 {
+   color: #FF8C00;
+   font-size: 2.5rem;
+   margin-bottom: 3rem;
+   transition: all 0.3s ease;
+}
+
+
+.services h2:hover {
+   transform: scale(1.05);
+   text-shadow: 2px 2px 4px rgba(255, 140, 0, 0.2);
+}
+
+
+.services-grid {
+   display: grid;
+   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+   gap: 2rem;
+   padding: 0 1rem;
+   max-width: 1200px;
+   margin: 0 auto;
+}
+
+
+.service-item {
+   background-color: #FFF;
+   border: 2px solid #FF8C00;
+   border-radius: 15px;
+   padding: 2rem;
+   text-align: center;
+   transition: all 0.3s ease;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   min-height: 250px;
+}
+
+
+.service-item:hover {
+   transform: translateY(-5px);
+   box-shadow: 0 10px 25px rgba(255, 140, 0, 0.15);
+   border-color: #FFA500;
+}
+
+
+.service-icon {
+   font-size: 3rem;
+   color: #FF8C00;
+   margin-bottom: 1.5rem;
+   transition: all 0.3s ease;
+}
+
+
+.service-item:hover .service-icon {
+   transform: scale(1.1);
+   color: #FFA500;
+}
+
+
+.service-item h3 {
+   color: #FF8C00;
+   font-size: 1.3rem;
+   margin-bottom: 1rem;
+   transition: all 0.3s ease;
+}
+
+
+.service-item:hover h3 {
+   color: #FFA500;
+}
+
+
+.service-item p {
+   color: #666;
+   font-size: 1rem;
+   line-height: 1.5;
+   margin: 0;
+   transition: all 0.3s ease;
+}
+
+
+.service-item:hover p {
+   color: #444;
+}
+
+
+@media screen and (max-width: 960px) {
+   .services-grid {
+       grid-template-columns: repeat(2, 1fr);
+       gap: 1.5rem;
+       max-width: 900px;
+   }
+}
+
+
+@media screen and (max-width: 600px) {
+   .services-grid {
+       grid-template-columns: 1fr;
+       max-width: 400px;
+       gap: 1rem;
+   }
+}
+
+
+@media screen and (max-width: 480px) {
+   .services-grid {
+       max-width: 350px;
+       gap: 0.8rem;
+   }
+}
+
+
+@media screen and (max-width: 320px) {
+   .services-grid {
+       max-width: 300px;
+       gap: 0.6rem;
+   }
+}
+
+
+
+
 

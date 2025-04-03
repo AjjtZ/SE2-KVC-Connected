@@ -94,19 +94,96 @@ router.post("/:pet_id/vaccines", authenticateToken, authenticate, authorize({ ro
     },
   )
 
+  router.put("/edit/:pet_id", authenticateToken, authenticate, authorize({ roles: ["clinician", "doctor"] }), async (req, res) => {
+    const { pet_id } = req.params;
+    const updatedData = req.body;
 
+
+    console.log("API called to update pet profile for pet ID:", pet_id, "with data:", updatedData); // Debugging line
+
+
+    try {
+        // Provide default values for missing fields
+        const {
+            pet_name = "",
+            pet_breed = "",
+            pet_gender = "Unknown", // Default to "Unknown" if gender is missing
+            pet_birthday = null,
+            pet_age_month = "",
+            pet_age_year = "",
+            pet_color = "",
+            pet_status = "1", // Default to "Alive" if status is missing
+            spec_id
+        } = updatedData;
+
+
+        const result = await db.query(
+            `UPDATE pet_info
+             SET pet_name = ?, pet_breed = ?, pet_gender = ?, pet_birthday = ?, pet_age_month = ?, pet_age_year = ?, pet_color = ?, pet_status = ?
+             WHERE pet_id = ?`,
+            [pet_name, pet_breed, pet_gender, pet_birthday, pet_age_month, pet_age_year, pet_color, pet_status, pet_id]
+        );
+
+
+        let speciesUpdateResult = null;
+       
+        // Then update the match_pet_species table if spec_id is provided
+        if (spec_id) {
+            console.log("Updating species for pet:", pet_id, "to spec_id:", spec_id);
+            try {
+                speciesUpdateResult = await db.query(
+                    "UPDATE match_pet_species SET spec_id = ? WHERE pet_id = ?",
+                    [spec_id, pet_id]
+                );
+                console.log("Species update result:", speciesUpdateResult);
+               
+                // If no rows affected, the pet might not have a species entry, try to insert instead
+                if (speciesUpdateResult[0].affectedRows === 0) {
+                    console.log("No rows affected for UPDATE, attempting INSERT instead");
+                    speciesUpdateResult = await db.query(
+                        "INSERT INTO match_pet_species (pet_id, spec_id) VALUES (?, ?) ON DUPLICATE KEY UPDATE spec_id = VALUES(spec_id)",
+                        [pet_id, spec_id]
+                    );
+                    console.log("Species insert result:", speciesUpdateResult);
+                }
+            } catch (speciesError) {
+                console.error("Error updating species:", speciesError);
+                // Continue with the response even if species update fails
+            }
+        }
+
+
+        console.log("Database query results - Pet info:", result, "Species update:", speciesUpdateResult);
+
+
+        // Even if no rows were affected in pet_info, the species might have been updated
+        const success = (result[0].affectedRows > 0) ||
+                       (speciesUpdateResult && (speciesUpdateResult[0].affectedRows > 0 || speciesUpdateResult[0].insertId > 0));
+       
+        if (!success) {
+            console.log("No rows affected in any table");
+            return res.status(404).json({ error: "Pet not found or no changes made" });
+        }
+
+
+        res.status(200).json({ message: "Pet profile updated successfully", speciesUpdated: speciesUpdateResult ? true : false });
+    } catch (error) {
+        console.error("Error updating pet profile:", error);
+        res.status(500).json({ error: "Failed to update pet profile" });
+    }
+});
+
+//IAHS-ques: delete ba tong route na to? since same sa nasa taas?
 router.put("/edit/:pet_id", authenticateToken, authenticate, authorize({ roles: ["clinician", "doctor"] }), petController.updatePetProfile);
+
 router.put("/archive/:pet_id", authenticateToken, authenticate, authorize({ roles: ["clinician", "doctor"] }), petController.archivePet);
 router.put("/restore/:pet_id", authenticateToken, authenticate, authorize({ roles: ["clinician", "doctor"] }), petController.restorePet);
 
 
 
 // Route for logged-in owners to add a pet
-//put authorize?
 router.post("/add", authenticateToken, authenticate, authorize({ roles: ["owner"] }), petController.addPetForOwner);
-
 router.get("/mypets", authenticateToken, authenticate, authorize({ roles: ["owner"] }), petController.getPetsByOwner);
-//router.get("/pets/:user_id", authenticateToken, authenticate, authorize({ roles: ["owner"], userIdParam: "userId" }), petController.getPetsByOwner);
 
 // Routes accessible to all authenticated users
 router.get("/active", authenticateToken, authenticate, petController.getAllActivePets);

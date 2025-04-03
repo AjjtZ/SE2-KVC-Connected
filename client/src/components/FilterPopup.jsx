@@ -1,9 +1,12 @@
 "use client"
 
+
 import { useState } from "react"
-import { X, Calendar } from "lucide-react"
+import { X  } from "lucide-react"
 import "../css/FilterModal.css"
 import React from 'react';
+import ReactDOM from 'react-dom';
+
 
 const FilterModal = ({ isOpen, onClose, onApply, onReset, type = "patient" }) => {
   const [filters, setFilters] = useState(
@@ -21,6 +24,7 @@ const FilterModal = ({ isOpen, onClose, onApply, onReset, type = "patient" }) =>
           dateTo: "",
         },
   )
+
 
   const handleReset = () => {
     setFilters(
@@ -42,11 +46,12 @@ const FilterModal = ({ isOpen, onClose, onApply, onReset, type = "patient" }) =>
     onClose()
   }
 
+
   const handleApply = () => {
     console.log("Before applying filters:", filters); // Debugging
-  
+ 
     const updatedFilters = { ...filters };
-  
+ 
     if (filters.sortBy) {
       if (!filters.sortOrder) {
         updatedFilters.sortOrder = "ASC"; // Default value if undefined
@@ -64,27 +69,31 @@ const FilterModal = ({ isOpen, onClose, onApply, onReset, type = "patient" }) =>
           delete updatedFilters.sortBy;
         }
     }
-  
+ 
     console.log("Updated Filters (before sending):", updatedFilters); // Debugging
-  
+ 
     onApply(updatedFilters);
     onClose();
   };
-  
-  
-  
-  
-  
+ 
+ 
+ 
+ 
+ 
 
-  if (!isOpen) return null
 
-  return (
+  if (!isOpen) return null;
+
+
+  // Use React Portal to render the modal outside the normal DOM hierarchy
+  const modalContent = (
     <div className="filter-modal-overlay">
       <div className={`filter-modal ${type}-filter`}>
         <button className="close-button" onClick={onClose} aria-label="close">
           <X size={20} />
         </button>
         <h2>Filters</h2>
+
 
         {type === "patient" ? (
           <>
@@ -97,7 +106,7 @@ const FilterModal = ({ isOpen, onClose, onApply, onReset, type = "patient" }) =>
                   value={filters.idFrom}
                   onChange={(e) => setFilters({ ...filters, idFrom: e.target.value })}
                 />
-                <span>to</span>
+                <span>-</span>
                 <input
                   type="text"
                   placeholder="To"
@@ -106,6 +115,7 @@ const FilterModal = ({ isOpen, onClose, onApply, onReset, type = "patient" }) =>
                 />
               </div>
             </div>
+
 
             <div className="filter-section">
               <div className="sort-options">
@@ -135,6 +145,7 @@ const FilterModal = ({ isOpen, onClose, onApply, onReset, type = "patient" }) =>
                   </div>
                 </div>
 
+
                 <div className="sort-option">
                   <label>Pet Owner</label>
                   <div className="sort-order">
@@ -162,6 +173,7 @@ const FilterModal = ({ isOpen, onClose, onApply, onReset, type = "patient" }) =>
                 </div>
               </div>
             </div>
+
 
             <div className="filter-section">
               <label>Species</label>
@@ -206,6 +218,7 @@ const FilterModal = ({ isOpen, onClose, onApply, onReset, type = "patient" }) =>
               </div>
             </div>
 
+
             <div className="filter-section">
               <h3>Date Range</h3>
               <div className="date-range">
@@ -215,22 +228,26 @@ const FilterModal = ({ isOpen, onClose, onApply, onReset, type = "patient" }) =>
                     value={filters.dateFrom}
                     onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })}
                     placeholder="From"
+                    className="date-input"
                   />
-                  <Calendar size={20} />
+                  <span className="date-placeholder">From</span>
                 </div>
+                <span>-</span>
                 <div className="date-input-container">
                   <input
                     type="date"
                     value={filters.dateTo}
                     onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })}
                     placeholder="To"
+                    className="date-input"
                   />
-                  <Calendar size={20} />
+                  <span className="date-placeholder">To</span>
                 </div>
               </div>
             </div>
           </>
         )}
+
 
         <div className="filter-actions">
           <button className="reset-button" onClick={handleReset}>
@@ -242,7 +259,16 @@ const FilterModal = ({ isOpen, onClose, onApply, onReset, type = "patient" }) =>
         </div>
       </div>
     </div>
-  )
+  );
+
+
+  // Use portal to render the modal at the end of the document body
+  return ReactDOM.createPortal(
+    modalContent,
+    document.body
+  );
 }
 
+
 export default FilterModal
+

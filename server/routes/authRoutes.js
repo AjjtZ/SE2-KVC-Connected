@@ -6,6 +6,8 @@ const { authenticate } = require("../middleware/authMiddleware");
 const db = require("../config/db");
 const bcrypt = require('bcrypt');
 const crypto = require("crypto");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 console.log("DB module:", db);
 
@@ -13,6 +15,51 @@ console.log("DB module:", db);
 const router = express.Router();
 const captchaStore = new Map();
 const pendingSignups = new Map();
+
+router.use(cookieParser());
+
+router.get('/verify-token', async (req, res) => { // Matches GET request
+    console.log('GET /auth/verify-token hit'); // Log entry
+
+    const token = req.cookies.token; // Read the token cookie
+    console.log('Token from cookie:', token);
+
+    if (!token) {
+        console.log('No token cookie found.');
+        return res.status(401).json({ error: 'Not authenticated: No token provided.' });
+    }
+
+    try {
+        // Verify the token using your secret key
+        const decoded = jwt.verify(token, process.env.JWT_SECRET); // Use YOUR secret key
+        console.log('Token decoded successfully:', decoded);
+
+        // Optional: Check if user still exists (good practice)
+        // const user = await yourUserModel.findById(decoded.userId);
+        // if (!user) {
+        //     console.log('User from token not found in DB.');
+        //     res.clearCookie('token', { path: '/' }); // Clear invalid cookie
+        //     return res.status(401).json({ error: 'Not authenticated: User not found.' });
+        // }
+
+        // Make sure the role exists in the decoded token payload
+        if (!decoded.role) {
+             console.log('Role missing in token payload.');
+             res.clearCookie('token', { path: '/' }); // Clear potentially bad cookie
+             return res.status(401).json({ error: 'Not authenticated: Role missing in token.' });
+        }
+
+        console.log('Verification successful. Sending back role:', decoded.role);
+        // Send back the role confirmed from the valid token
+        res.status(200).json({ role: decoded.role });
+
+    } catch (error) {
+        console.error('Token verification error:', error.message);
+        // Handle specific JWT errors if needed (e.g., TokenExpiredError)
+        res.clearCookie('token', { path: '/' }); // Clear invalid/expired cookie
+        return res.status(401).json({ error: 'Not authenticated: Invalid or expired token.' });
+    }
+});
 
 // Postman test: verify captcha
 router.post("/captcha/verify", (req, res) => {

@@ -1,4 +1,5 @@
 const db = require("../config/db");
+const dayjs = require("dayjs");
 
 class PetModel {
     static async findByOwnerId(ownerId) {
@@ -49,12 +50,13 @@ class PetModel {
         return result.length ? result[0] : null;
     }
 
-    static async createPet({ petname, gender, speciesId, breed, birthdate, userId }, connection) {
+    static async createPet({ petname, gender, speciesId, breed, birthdate, petAgeYear, petAgeMonth, userId }, connection) {
         try {
+            const finalBirthdate = birthdate ? birthdate : dayjs().format('YYYY-MM-DD');
             // Use the provided connection for the transaction
             const [result] = await connection.query(
-                "INSERT INTO pet_info (pet_name, pet_gender, pet_breed, pet_birthday, pet_vitality, pet_status, user_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                [petname, gender, breed, birthdate, true, true, userId] // pet_status = 1 (active)
+                "INSERT INTO pet_info (pet_name, pet_gender, pet_breed, pet_birthday, pet_age_year, pet_age_month, pet_vitality, pet_status, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                [petname, gender, breed, finalBirthdate, petAgeYear, petAgeMonth, true, true, userId] // pet_status = 1 (active)
             );
             const petId = result.insertId;
 

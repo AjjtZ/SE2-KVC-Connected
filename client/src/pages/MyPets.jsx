@@ -2,13 +2,51 @@
 
 import { Search, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "../css/PatientDirectory.css";
 
 export default function MyPets() {
   const navigate = useNavigate();
   const [originalPets, setOriginalPets] = useState([]);
   const [pets, setPets] = useState([]);
+
+  const logout = useCallback(async () => {
+    console.log("Attempting logout due to session issue...");
+    try {
+      // Optional: Inform the backend about the logout attempt
+      await fetch("http://localhost:5000/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (error) {
+      console.error("Error during server logout request:", error);
+      // Proceed with client-side logout even if server request fails
+    } finally {
+        console.log("Redirecting to /login");
+        navigate("/login", { replace: true }); // Use replace to prevent going back to the expired page
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    const handleBackButton = () => {
+      if (
+        window.location.pathname === "/login" ||
+        window.location.pathname === "/signup-petowner-petinfo" ||
+        window.location.pathname === "/signup-petowner"
+      ) {
+        logout();
+      }
+    };
+
+
+    window.onpopstate = handleBackButton;
+
+
+    return () => {
+      window.onpopstate = null;
+    };
+  }, [logout]);
+
 
   useEffect(() => {
     const fetchMyPets = async () => {
@@ -20,6 +58,12 @@ export default function MyPets() {
             "Content-Type": "application/json",
           },
         });
+
+        if (response.status === 401) {
+            console.warn("Session expired (401 Unauthorized) during password change. Logging out...");
+            await logout(); // Call logout function
+            return; // Stop further processing in this function
+          }
 
         if (!response.ok) {
           throw new Error("Failed to fetch my pets");
@@ -37,7 +81,7 @@ export default function MyPets() {
     };
 
     fetchMyPets();
-  }, []);
+  }, [logout]);
 
   const handleViewProfile = (petId) => {
     console.log("Navigating to PetProfile with petId:", petId);

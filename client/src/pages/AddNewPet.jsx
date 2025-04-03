@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import "../css/AddNewPet.css";
 
@@ -14,6 +14,23 @@ export default function AddNewPet() {
   });
 
   const navigate = useNavigate(); // Initialize navigate
+
+  const logout = useCallback(async () => {
+    console.log("Attempting logout due to session issue...");
+    try {
+      // Optional: Inform the backend about the logout attempt
+      await fetch("http://localhost:5000/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (error) {
+      console.error("Error during server logout request:", error);
+      // Proceed with client-side logout even if server request fails
+    } finally {
+        console.log("Redirecting to /login");
+        navigate("/login", { replace: true }); // Use replace to prevent going back to the expired page
+    }
+  }, [navigate]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -36,6 +53,12 @@ export default function AddNewPet() {
         body: JSON.stringify(petData),
       });
 
+      if (response.status === 401) {
+        console.warn("Session expired (401 Unauthorized) during password change. Logging out...");
+        await logout(); // Call logout function
+        return; // Stop further processing in this function
+      }
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Error adding pet:", errorData.error);
@@ -45,7 +68,7 @@ export default function AddNewPet() {
 
       const result = await response.json();
       console.log("Pet added successfully:", result);
-      alert("Pet added successfully!");
+      //alert("Pet added successfully!");
 
       // Redirect to MyPets page
       navigate("/MyPets");
@@ -127,13 +150,12 @@ export default function AddNewPet() {
               </div>
             </div>
             <div className="form-field">
-              <label>Breed</label>
+              <label>Breed (Optional)</label>
               <input
                 type="text"
                 name="breed"
                 value={petData.breed}
                 onChange={handleInputChange}
-                required
               />
             </div>
           </div>

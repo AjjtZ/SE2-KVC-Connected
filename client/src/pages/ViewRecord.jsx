@@ -1,7 +1,9 @@
-"use client";
+"use client"
 
 
-import { useState, useEffect } from "react"
+
+
+import { useState, useEffect, useCallback } from "react"
 import { ArrowLeft, Pencil, Save } from "lucide-react"
 import "../css/ViewRecord.css"
 import { useDiagnosisLock } from "../contexts/DiagnosisLockContext"
@@ -10,6 +12,9 @@ import { useConfirmDialog } from "../contexts/ConfirmDialogContext"
 import MedicalRecordForm from "../components/MedicalRecordForm"
 import { useUserRole } from "../contexts/UserRoleContext"
 import { useParams } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
+
+
 
 
 const ViewRecord = ({ record, onBack, onUpdate }) => {
@@ -21,20 +26,40 @@ const ViewRecord = ({ record, onBack, onUpdate }) => {
  const [isEditing, setIsEditing] = useState(false);
  const [editedRecord, setEditedRecord] = useState(record);
  const [loading, setLoading] = useState(true);
- const [error, setErrors] = useState({});
+ const [errors, setErrors] = useState({});
+ const navigate = useNavigate();
+
+const logout = useCallback(async () => {
+    console.log("Attempting logout due to session issue...");
+    try {
+      // Optional: Inform the backend about the logout attempt
+      await fetch("http://localhost:5000/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (error) {
+      console.error("Error during server logout request:", error);
+      // Proceed with client-side logout even if server request fails
+    } finally {
+        console.log("Redirecting to /login");
+        navigate("/login", { replace: true }); // Use replace to prevent going back to the expired page
+    }
+  }, [navigate]);
 
  const formatDateForDisplay = (dateString) => {
   if (!dateString) return ""
-
-
   try {
     const date = new Date(dateString)
     if (isNaN(date.getTime())) return dateString // Return original if invalid
 
 
+
+
     const month = String(date.getMonth() + 1).padStart(2, "0")
     const day = String(date.getDate()).padStart(2, "0")
     const year = date.getFullYear()
+
+
 
 
     return `${month}/${day}/${year}`
@@ -45,9 +70,13 @@ const ViewRecord = ({ record, onBack, onUpdate }) => {
 }
 
 
+
+
 // to convert MM/DD/YYYY to YYYY-MM-DD for input fields
 const formatDateForInput = (dateString) => {
   if (!dateString) return ""
+
+
 
 
   try {
@@ -57,6 +86,8 @@ const formatDateForInput = (dateString) => {
     }
 
 
+
+
     // If in MM/DD/YYYY format, convert to YYYY-MM-DD
     if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateString)) {
       const [month, day, year] = dateString.split("/")
@@ -64,14 +95,20 @@ const formatDateForInput = (dateString) => {
     }
 
 
+
+
     // Otherwise, try to parse as date and format
     const date = new Date(dateString)
     if (isNaN(date.getTime())) return "" // Return empty if invalid
 
 
+
+
     const year = date.getFullYear()
     const month = String(date.getMonth() + 1).padStart(2, "0")
     const day = String(date.getDate()).padStart(2, "0")
+
+
 
 
     return `${year}-${month}-${day}`
@@ -80,6 +117,8 @@ const formatDateForInput = (dateString) => {
     return ""
   }
 }
+
+
 
 
 // Format dates for display when record changes
@@ -94,6 +133,8 @@ useEffect(() => {
     setEditedRecord(formattedRecord)
   }
 }, [record])
+
+
 
 
 // Convert dates to YYYY-MM-DD format when entering edit mode
@@ -117,6 +158,8 @@ useEffect(() => {
 }, [isEditing])
 
 
+
+
  useEffect(() => {
    const fetchRecord = async () => {
      try {
@@ -129,10 +172,18 @@ useEffect(() => {
          },
        });
 
+       if (response.status === 401) {
+        console.warn("Session expired (401 Unauthorized) during password change. Logging out...");
+        await logout(); // Call logout function
+        return; // Stop further processing in this function
+      }
+
 
        if (!response.ok) {
          throw new Error("Failed to fetch record");
        }
+
+
 
 
        const data = await response.json();
@@ -150,10 +201,15 @@ useEffect(() => {
        }
 
 
+
+
        console.log("Processed record data:", processedData) // Debugging
 
 
+
+
        setEditedRecord({ ...processedData, file: data.record_lab_file || "" }); // Set the fetched record data
+
 
      } catch (err) {
        setErrors(err.message);
@@ -163,38 +219,46 @@ useEffect(() => {
    };
 
 
+
+
    fetchRecord();
- }, [pet_id]);
+ }, [pet_id, logout]);
+
+
 
 
  const validateForm = () => {
    const newErrors = {}
+   
+   // Required fields validation
+   if (!editedRecord.date) newErrors.date = "Date is required"
+   if (!editedRecord.weight) newErrors.weight = "Weight is required"
+   if (!editedRecord.temperature) newErrors.temperature = "Temperature is required"
+   if (!editedRecord.conditions) newErrors.conditions = "Conditions is required"
+   if (!editedRecord.symptoms) newErrors.symptoms = "Symptoms is required"
+   if (!editedRecord.recentVisit) newErrors.recentVisit = "Recent visit date is required"
+   if (!editedRecord.recentPurchase) newErrors.recentPurchase = "Recent purchase is required"
    if (!editedRecord.purposeOfVisit) newErrors.purposeOfVisit = "Purpose of visit is required"
 
+
    // Validate surgery fields if hadSurgery is true
-   if (editedRecord.hadSurgery) {
-    if (!editedRecord.surgeryDate) newErrors.surgeryDate = "Surgery date is required when 'Had past surgeries' is Yes"
-    if (!editedRecord.surgeryType) newErrors.surgeryType = "Surgery type is required when 'Had past surgeries' is Yes"
-  }
+   if (editedRecord.hadSurgery === true) {
+     if (!editedRecord.surgeryDate) newErrors.surgeryDate = "Surgery date is required"
+     if (!editedRecord.surgeryType) newErrors.surgeryType = "Surgery type is required"
+   }
 
-  if (!editedRecord.date) newErrors.date = "Date is required";
-  if (!editedRecord.weight) newErrors.weight = "Weight is required";
-  if (!editedRecord.temperature) newErrors.temperature = "Temperature is required";
-  if (!editedRecord.conditions) newErrors.conditions = "Conditions are required";
-  if (!editedRecord.symptoms) newErrors.symptoms = "Symptoms are required";
-  if (!editedRecord.recentVisit) newErrors.recentVisit = "Recent visit date is required";
-  if (!editedRecord.recentPurchase) newErrors.recentPurchase = "Recent purchase date is required";
 
-   setErrors(newErrors) // Use setErrors to update the error state
+   setErrors(newErrors)
    return Object.keys(newErrors).length === 0
  }
+
+
 
 
  const handleInputChange = (e) => {
    const { name, value, type } = e.target;
    console.log("Input Change Triggered:", { name, value, type })
    if (name === "hadSurgery") {
-    // Convert string "true"/"false" to boolean
     const boolValue = value === "true" || value === true
     console.log("Setting hadSurgery to:", boolValue)
 
@@ -202,40 +266,63 @@ useEffect(() => {
     setEditedRecord((prev) => ({
       ...prev,
       hadSurgery: boolValue,
-      // Clear surgery fields if hadSurgery is set to false
       ...(boolValue === false ? { surgeryDate: "", surgeryType: "" } : {}),
+    }));
+   
+    // Clear any hadSurgery error when user makes a selection (either yes or no)
+    setErrors(prev => ({
+      ...prev,
+      hadSurgery: "",
+      // Also clear surgery related errors when setting to false
+      ...(boolValue === false ? { surgeryDate: "", surgeryType: "" } : {})
     }));
   } else if (type === "file") {
     const file = e.target.files[0];
     setEditedRecord((prev) => ({
         ...prev,
-        [name]: file || prev[name], // ✅ Keep existing file if no new file is selected
-        filePreview: file ? URL.createObjectURL(file) : prev.filePreview, // ✅ Maintain preview
+        [name]: file || prev[name],
+        filePreview: file ? URL.createObjectURL(file) : prev.filePreview,
     }));
-} else {
+  } else {
     setEditedRecord((prev) => ({
         ...prev,
-        [name]: e.target.value,
+        [name]: value,
     }));
+  }
+
+
+  // Clear error for the field if it exists
+  if (errors[name]) {
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
+    }));
+  }
+
+
+  // Validate immediately if the field is empty
+  if (!value && name !== 'file' && name !== 'laboratories' && name !== 'latestDiagnosis' && name !== 'hadSurgery') {
+    setErrors(prev => ({
+      ...prev,
+      [name]: `${name.charAt(0).toUpperCase() + name.slice(1).replace(/([A-Z])/g, ' $1')} is required`
+    }));
+  }
 }
 
 
-  // Clear errors for the field if it exists
-    if (error[name]) {
-     setErrors((prev) => ({
-       ...prev,
-       [name]: "",
-     }))
-   }
- }
+const handleSave = () => {
+  // Validate form first
+  if (!validateForm()) {
+    // Errors will be displayed through the errors state
+    return;
+  }
+ 
+  showConfirmDialog("Do you want to save your changes?", () => {
+    handleSubmit();
+  });
+};
 
-  const handleSave = () => {
-   if (validateForm()) {
-     showConfirmDialog("Do you want to save your changes?", () => {
-       handleSubmit(); // Call handleSubmit to send the data to the backend
-     });
-   }
- };
+
 
 
  // Function to request access code and open the modal
@@ -249,13 +336,23 @@ useEffect(() => {
        },
      });
 
+     if (response.status === 401) {
+      console.warn("Session expired (401 Unauthorized) during password change. Logging out...");
+      await logout(); // Call logout function
+      return; // Stop further processing in this function
+    }
+
 
      if (!response.ok) {
        throw new Error("Failed to request access code");
      }
 
 
+
+
      const data = await response.json();
+
+
 
 
      // Store the access code in the state
@@ -265,11 +362,15 @@ useEffect(() => {
      }));
 
 
+
+
      setIsModalOpen(true); // Open the modal after requesting the code
    } catch (error) {
      console.error("Error requesting access code:", error);
    }
  };
+
+
 
 
  const handleUnlockDiagnosis = (accessCode) => {
@@ -280,15 +381,20 @@ useEffect(() => {
    }))
  }
 
+
  // Add this helper function to format dates for the server (YYYY-MM-DD)
  const formatDateForServer = (dateString) => {
   if (!dateString) return null
+
+
 
 
   // If already in YYYY-MM-DD format, return as is
   if (/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
     return dateString
   }
+
+
 
 
   try {
@@ -300,9 +406,13 @@ useEffect(() => {
     }
 
 
+
+
     // Otherwise, try to parse as date and format
     const date = new Date(dateString)
     if (isNaN(date.getTime())) return dateString // Return original if invalid
+
+
 
 
     return date.toISOString().split("T")[0]
@@ -313,15 +423,24 @@ useEffect(() => {
 }
 
 
+
+
  const handleSubmit = async (e) => {
    if (e) e.preventDefault();
+
+
+   // Validate form first
+   if (!validateForm()) {
+     return; // Stop submission if validation fails
+   }
 
 
    console.log("Record ID in handleSubmit:", record?.id);
    if (!record || !record.id) {
      console.error("Record ID is missing. Cannot update record.");
-     return
+     return;
    }
+
 
    console.log("Edited Record:", editedRecord);
 
@@ -337,6 +456,7 @@ useEffect(() => {
      }
    };
 
+
    appendField("record_date", editedRecord.date ? formatDateForServer(editedRecord.date) : null);
    appendField("record_weight", editedRecord.weight);
    appendField("record_temp", editedRecord.temperature);
@@ -345,16 +465,25 @@ useEffect(() => {
    appendField("record_recent_visit", editedRecord.recentVisit ? formatDateForServer(editedRecord.recentVisit) : null);
    appendField("record_purchase", editedRecord.recentPurchase);
    appendField("record_purpose", editedRecord.purposeOfVisit);
-   appendField("diagnosis_text", editedRecord.latestDiagnosis);
    appendField("lab_description", editedRecord.laboratories);
    appendField("surgery_type", editedRecord.hadSurgery ? editedRecord.surgeryType : null);
    appendField("surgery_date", editedRecord.hadSurgery && editedRecord.surgeryDate ? formatDateForServer(editedRecord.surgeryDate) : null);
-   appendField("accessCode", editedRecord.accessCode); // Include access code for clinicians
    appendField("hadSurgery", editedRecord.hadSurgery);
 
-     
+
+  //Ensure Diagnosis Text and Access Code are Sent
+    if (hasPermission("canAlwaysEditDiagnosis") || !isDiagnosisLocked) {
+      appendField("diagnosis_text", editedRecord.latestDiagnosis);
+      if (!hasPermission("canAlwaysEditDiagnosis")) {
+        appendField("accessCode", editedRecord.accessCode);
+      }
+    }
+
+
     // ✅ Fix for File Handling
-    if (editedRecord.file instanceof File) {
+    if (editedRecord.file === null) {
+      appendField("removeFile", "true"); //ADDED THIS
+    } else if (editedRecord.file instanceof File) {
       formDataPayload.append("record_lab_file", editedRecord.file);
     } else if (typeof editedRecord.file === "string" && editedRecord.file.startsWith("http")) {
       formDataPayload.append("record_lab_file", editedRecord.file);
@@ -368,16 +497,7 @@ useEffect(() => {
     for (let pair of formDataPayload.entries()) {
       console.log(pair[0] + ": ", pair[1]);
     }
- 
- 
-    // ✅ Ensure Diagnosis Text and Access Code Are Sent
-    if (hasPermission("canAlwaysEditDiagnosis") || !isDiagnosisLocked) { 
-      formDataPayload.append("diagnosis_text", editedRecord.latestDiagnosis);
-      if (!hasPermission("canAlwaysEditDiagnosis")) { 
-        formDataPayload.append("accessCode", editedRecord.accessCode);
-      }
-    }
-    
+   
      
    console.log("Access Code Sent:", editedRecord.accessCode);
    
@@ -391,51 +511,71 @@ useEffect(() => {
      });
 
 
+     if (response.status === 401) {
+      console.warn("Session expired (401 Unauthorized) during password change. Logging out...");
+      await logout(); // Call logout function
+      return; // Stop further processing in this function
+    }
+
      if (!response.ok) {
        throw new Error("Failed to update the record");
      }
 
 
-    //  const responseData = await response.json();
-    //  console.log("Record updated successfully:", responseData);
-
-    //  const updatedRecord = {
-    //   id: record.id,
-    //   date: responseData.date,
-    //   purposeOfVisit: responseData.purposeOfVisit,
-    //   weight: responseData.weight,
-    //   temperature: responseData.temperature,
-    //   conditions: responseData.conditions,
-    //   symptoms: responseData.symptoms,
-    //   recentVisit: responseData.recentVisit,
-    //   recentPurchase: responseData.recentPurchase,
-    //   lab_description: responseData.laboratories,
-    //   surgeryType: responseData.surgeryType,
-    //   surgeryDate: responseData.surgeryDate,
-    //   latestDiagnosis: responseData.latestDiagnosis,
-    //   hadSurgery: responseData.hadSurgery,
-    //   record_lab_file: responseData.file, // Add this line
-    // }
 
 
-    // Format dates for display
-    // const formattedRecord = {
-    //   ...updatedRecord,
-    //   date: formatDateForDisplay(updatedRecord.date),
-    //   recentVisit: formatDateForDisplay(updatedRecord.recentVisit),
-    //   surgeryDate: formatDateForDisplay(updatedRecord.surgeryDate),
-      
-    // }
+     const responseData = await response.json();
+     console.log("Record updated successfully:", responseData);
 
 
-    // setEditedRecord(formattedRecord) // 10. ADDED THIS
-    // onUpdate(formattedRecord) // 11. EDITED THIS
+     const updatedRecord = {
+      id: record.id,
+      date: responseData.date,
+      purposeOfVisit: responseData.purposeOfVisit,
+      weight: responseData.weight,
+      temperature: responseData.temperature,
+      conditions: responseData.conditions,
+      symptoms: responseData.symptoms,
+      recentVisit: responseData.recentVisit,
+      recentPurchase: responseData.recentPurchase,
+      lab_description: responseData.laboratories,
+      surgeryType: responseData.surgeryType,
+      surgeryDate: responseData.surgeryDate,
+      latestDiagnosis: responseData.latestDiagnosis,
+      hadSurgery: responseData.hadSurgery,
+      record_lab_file: responseData.file, // Add this line
+    }
+
+
+
+
+    //Format dates for display
+    const formattedRecord = {
+      ...updatedRecord,
+      date: formatDateForDisplay(updatedRecord.date),
+      recentVisit: formatDateForDisplay(updatedRecord.recentVisit),
+      surgeryDate: formatDateForDisplay(updatedRecord.surgeryDate),
+     
+    }
+
+
+
+
+    // setEditedRecord(formattedRecord)
+    // onUpdate(formattedRecord)
+
 
      // Fetch the updated record immediately after saving
      const fetchUpdatedRecord = async () => {
       const updatedResponse = await fetch(`http://localhost:5000/recs/records/${record.id}`);
+      if (updatedResponse.status === 401) {
+        console.warn("Session expired (401 Unauthorized) during password change. Logging out...");
+        await logout(); // Call logout function
+        return; // Stop further processing in this function
+      }
       if (!updatedResponse.ok) throw new Error("Failed to fetch updated record");
       const updatedData = await updatedResponse.json();
+
 
       setEditedRecord({
           ...updatedData,
@@ -445,19 +585,25 @@ useEffect(() => {
           file: updatedData.record_lab_file || "",
       });
 
+
       onUpdate(updatedData); // Update parent component
   };
 
+
   fetchUpdatedRecord();
-    
+   
     lockDiagnosis()
     setIsEditing(false)
    // alert("Record updated successfully!")
-    
+   
    } catch (error) {
      console.error("Error updating record:", error);
    }
  }
+
+
+
+
 
 
 
@@ -475,10 +621,18 @@ useEffect(() => {
          {hasPermission("canUpdateRecord") && (
            <>
          {isEditing ? (
-           <button className="save-button" onClick={handleSave}>
-             <Save size={16} />
-             Save
-           </button>
+           <div className="button-group">
+             <button className="save-button" onClick={handleSave}>
+               Save
+             </button>
+             <button className="cancel-button" onClick={() => {
+               setIsEditing(false);
+               setEditedRecord(record); // Reset to original record data
+               setErrors({}); // Clear any errors
+             }}>
+               Cancel
+             </button>
+           </div>
          ) : (
            <button className="update-button" onClick={() => setIsEditing(true)}>
              <Pencil size={16} />
@@ -490,6 +644,8 @@ useEffect(() => {
        </div>
 
 
+
+
        <div className="record-content">
          <div className="scrollable-content">
            <MedicalRecordForm
@@ -497,10 +653,11 @@ useEffect(() => {
              isEditing={isEditing}
              isDiagnosisLocked={!hasPermission("canAlwaysEditDiagnosis") && isDiagnosisLocked}
              onInputChange={handleInputChange}
-             onUnlockDiagnosis={handleRequestAccessCode} // Request access code
+             onUnlockDiagnosis={handleRequestAccessCode}
              isAddRecord={false}
-             error={error}
+             errors={errors}
            />
+
 
            
          </div>
@@ -508,10 +665,12 @@ useEffect(() => {
      </div>
 
 
+
+
      <UnlockModal
        isOpen={isModalOpen}
        onClose={() => setIsModalOpen(false)}
-       onUnlock={(accessCode) => handleUnlockDiagnosis(accessCode)} // Pass the access code
+       onUnlock={(accessCode) => handleUnlockDiagnosis(accessCode)}
        recordId={editedRecord.id}
        generatedAccessCode={editedRecord.accessCode}
      />
@@ -520,4 +679,9 @@ useEffect(() => {
 }
 
 
+
+
 export default ViewRecord
+
+
+

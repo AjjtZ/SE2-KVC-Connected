@@ -170,44 +170,144 @@ exports.getPetById = async (req, res) => {
 };
 
 exports.addPetForOwner = async (req, res) => {
-    const { name, speciesDescription, gender, breed, birthday } = req.body;
-    const userId = req.user.userId; // Assuming the authenticated user's ID is available in req.user
+    const { name, speciesDescription, gender, breed } = req.body;
+    let birthday = req.body.birthday;
+    // --- Make sure userId is reliably obtained ---
+    // Check if req.user and req.user.userId exist. Adjust if your auth middleware sets it differently.
+    if (!req.user || typeof req.user.userId === 'undefined') {
+        console.error("Error adding pet: User ID not found in request. req.user:", req.user);
+        return res.status(401).json({ error: "❌ Unauthorized or User ID missing." });
+    }
+    const userId = req.user.userId;
+    // --- End userId check ---
 
+    let connection; // Declare connection here to access it in finally block
 
-    console.log("Authenticated User:", req.user);
-    console.log("User ID:", userId);
     try {
-        // Validate required fields
+        // Validate required fields *before* getting a connection
         if (!name || !speciesDescription || !gender) {
             return res.status(400).json({ error: "❌ Name, species, and gender are required." });
         }
 
+        if (!birthday) {
+            birthday = dayjs().format('YYYY-MM-DD'); // Set to today's date in SQL-friendly format
+            console.log(`[addPetForOwner] Birthday was empty, defaulting to today: ${birthday}`);
+        } else {
+            // Optional: Validate the provided date format if needed
+            if (!dayjs(birthday, 'YYYY-MM-DD', true).isValid()) {
+                 // If you want strict YYYY-MM-DD format
+                 return res.status(400).json({ error: "❌ Invalid birthday format. Please use YYYY-MM-DD." });
+            }
+             // No need for an else block if you just use the provided valid date
+        }
+
+        // 1. Get connection from the pool
+        connection = await db.getConnection();
+        console.log(`[addPetForOwner] DB Connection obtained for user ${userId}`);
+
+        // 2. Start transaction
+        await connection.beginTransaction();
+        console.log(`[addPetForOwner] Transaction started for user ${userId}`);
 
         // Find the species ID based on the species description
+        // Note: findSpeciesByDescription uses the global pool (db.execute),
+        // which is usually okay here, but ideally, for strict transaction control,
+        // it might also accept a connection. For now, this should work.
         const species = await PetModel.findSpeciesByDescription(speciesDescription);
         if (!species) {
-            return res.status(400).json({ error: "❌ Invalid species selected." });
+            // If species not found, rollback before sending error
+            await connection.rollback();
+            console.log(`[addPetForOwner] Transaction rolled back - species not found: ${speciesDescription}`);
+            connection.release(); // Release connection even on handled errors
+            console.log(`[addPetForOwner] DB Connection released after species not found`);
+            return res.status(400).json({ error: `❌ Species '${speciesDescription}' not found.` });
+        }
+        const speciesId = species.spec_id;
+        console.log(`[addPetForOwner] Found speciesId ${speciesId} for description ${speciesDescription}`);
+
+         // Function to calculate pet age in years and months
+         const calculatePetAge = (birthdate) => {
+            const birth = new Date(birthdate);
+            const today = new Date();
+
+
+            let years = today.getFullYear() - birth.getFullYear();
+            let months = today.getMonth() - birth.getMonth();
+
+
+            if (months < 0) {
+                years--;
+                months += 12;
+            }
+
+
+            return { years, months };
+        };
+
+
+        // Calculate pet age before creating a pet entry
+        let petAgeYear = null;
+        let petAgeMonth = null;
+
+
+        if (birthday) {
+            const age = calculatePetAge(birthday);
+            petAgeYear = age.years;
+            petAgeMonth = age.months;
         }
 
 
-        const speciesId = species.spec_id;
-
-
-        // Add the pet to the database
-        const petId = await PetModel.createPet({
+        // Prepare data object matching the model's expected parameters
+        const petData = {
             petname: name,
             gender,
             speciesId,
-            breed,
-            birthdate: birthday || null, // Birthday is optional
+            breed: breed || null, // Handle optional breed
+            birthdate: birthday || null, // Handle optional birthday
+            petAgeYear,
+            petAgeMonth,
             userId,
-        });
+        };
 
+        // 3. Call PetModel.createPet, passing the data object AND the connection
+        console.log(`[addPetForOwner] Calling PetModel.createPet with data:`, petData);
+        const newPetId = await PetModel.createPet(petData, connection); // <-- PASS CONNECTION HERE
+        console.log(`[addPetForOwner] PetModel.createPet successful, newPetId: ${newPetId}`);
 
-        res.status(201).json({ message: "✅ Pet added successfully!", petId });
+        // 4. Commit transaction
+        await connection.commit();
+        console.log(`[addPetForOwner] Transaction committed for user ${userId}, petId ${newPetId}`);
+
+        res.status(201).json({ message: "✅ Pet added successfully!", petId: newPetId });
+
     } catch (error) {
-        console.error("Error adding pet:", error);
+        console.error(`[addPetForOwner] Error adding pet for user ${userId}:`, error);
+
+        // 5. Rollback transaction if connection exists and an error occurred
+        if (connection) {
+            try {
+                await connection.rollback();
+                console.log(`[addPetForOwner] Transaction rolled back for user ${userId} due to error.`);
+            } catch (rollbackError) {
+                console.error(`[addPetForOwner] Error rolling back transaction for user ${userId}:`, rollbackError);
+                // Log rollback error but proceed with sending original error response
+            }
+        }
+
+        // Send error response
+        // Avoid sending detailed internal errors to the client in production
         res.status(500).json({ error: "❌ Server error while adding pet." });
+
+    } finally {
+        // 6. Always release the connection back to the pool
+        if (connection) {
+            try {
+                connection.release();
+                console.log(`[addPetForOwner] DB Connection released for user ${userId}`);
+            } catch (releaseError) {
+                console.error(`[addPetForOwner] Error releasing connection for user ${userId}:`, releaseError);
+            }
+        }
     }
 };
 

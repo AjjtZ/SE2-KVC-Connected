@@ -1,67 +1,127 @@
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-  }
-  
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modal-content h2 {
+  color: var(--orange-color);
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.modal-content p {
+  color: #444;
+  margin-bottom: 1.5rem;
+}
+
+
+.access-code-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+
+.access-code-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  padding: 0 12px;
+  height: 48px;
+  color: #6c757d;
+  border-right: 1px solid #ddd;
+}
+
+
+.access-code-input {
+  flex: 1;
+  height: 48px;
+  padding: 0 15px;
+  border: none;
+  font-size: 1rem;
+  outline: none;
+}
+
+
+.access-code-input:focus {
+  box-shadow: 0 0 0 2px rgba(255, 127, 17, 0.25);
+}
+
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.cancel-button {
+  padding: 0.6rem 1.2rem;
+  border: 1px solid var(--orange-color);
+  border-radius: 4px;
+  background: white;
+  color: var(--orange-color);
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.cancel-button:hover {
+  background-color: #fff8f3;
+}
+
+.unlock-button {
+  padding: 0.6rem 1.2rem;
+  background: var(--orange-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.unlock-button:hover {
+  background-color: #ff6b00;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 576px) {
   .modal-content {
-    background-color: white;
-    padding: 2rem;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 500px;
+    width: 95%;
+    padding: 1.5rem;
   }
-  
-  .modal-content h2 {
-    color: #ff7f11;
-    color: var(--orange-color);
-    margin-bottom: 1rem;
-  }
-  
-  .modal-content textarea {
-    width: 100%;
-    min-height: 100px;
-    padding: 0.5rem;
-    margin: 1rem 0;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
-  
-  .modal-buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-  
-  .cancel-button {
-    padding: 0.5rem 1rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background: white;
-    cursor: pointer;
-  }
-  
-  .unlock-button {
-    padding: 0.5rem 1rem;
-    background: #ff7f11;
-    background: var(--orange-color);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .unlock-button:hover {
-    background: #ff6b00;
-    background: var(--lorange-color);
-  }
-  
-  
+}
+
+
+
+
+

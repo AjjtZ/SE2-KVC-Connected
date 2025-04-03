@@ -204,8 +204,9 @@ const getCompleteRecordById = async (recordId) => {
         const {
             record_date, record_weight, record_temp, record_condition, record_symptom,
             lab_description, diagnosis_text, surgery_type, surgery_date,
-            record_recent_visit, record_purchase, record_purpose, accessCode, hadSurgery
+            record_recent_visit, record_purchase, record_purpose, accessCode, hadSurgery, removeFile
         } = req.body;
+        const hadSurgeryBool = hadSurgery === "true" || hadSurgery === true;
         const record_lab_file = req.file ? req.file.filename : null;
  
         const currentRecord = await getRecordById(recordId);
@@ -213,6 +214,35 @@ const getCompleteRecordById = async (recordId) => {
             console.error(`❌ Record with ID ${recordId} not found.`);
             return res.status(404).json({ error: "Record not found." });
         }
+
+        const updatedRecordData = {
+            record_date: record_date || currentRecord.record_date,
+            record_weight: record_weight || currentRecord.record_weight,
+            record_temp: record_temp || currentRecord.record_temp,
+            record_condition: record_condition || currentRecord.record_condition,
+            record_symptom: record_symptom || currentRecord.record_symptom,
+            record_recent_visit: record_recent_visit || currentRecord.record_recent_visit,
+            record_purchase: record_purchase || currentRecord.record_purchase,
+            record_purpose: record_purpose || currentRecord.record_purpose,
+            lab_id: currentRecord.lab_id,
+            diagnosis_id: currentRecord.diagnosis_id,
+            surgery_id: currentRecord.surgery_id,
+            record_lab_file: record_lab_file || currentRecord.record_lab_file
+        };
+
+        if (removeFile === 'true') {
+            // Set record_lab_file to null in the database
+            await db.query("UPDATE record_info SET record_lab_file = NULL WHERE record_id = ?", [recordId]);
+            updatedRecordData.record_lab_file = null;
+            console.log(`File removed from record ${recordId}`);
+        } else if (record_lab_file) {
+            // If a new file is uploaded, use it
+            updatedRecordData.record_lab_file = record_lab_file;
+        }
+ 
+ 
+        console.log("DEBUG: Updated Record Data:", updatedRecordData);
+        console.log("DEBUG: req.file:", req.file);
  
  
         if (role === "clinician" && diagnosis_text) {
@@ -231,25 +261,6 @@ const getCompleteRecordById = async (recordId) => {
  
         // Doctors can update without an access code
  
- 
-        const updatedRecordData = {
-            record_date: record_date || currentRecord.record_date,
-            record_weight: record_weight || currentRecord.record_weight,
-            record_temp: record_temp || currentRecord.record_temp,
-            record_condition: record_condition || currentRecord.record_condition,
-            record_symptom: record_symptom || currentRecord.record_symptom,
-            record_recent_visit: record_recent_visit || currentRecord.record_recent_visit,
-            record_purchase: record_purchase || currentRecord.record_purchase,
-            record_purpose: record_purpose || currentRecord.record_purpose,
-            lab_id: currentRecord.lab_id,
-            diagnosis_id: currentRecord.diagnosis_id,
-            surgery_id: currentRecord.surgery_id,
-            record_lab_file: record_lab_file || currentRecord.record_lab_file
-        };
- 
- 
-        console.log("DEBUG: Updated Record Data:", updatedRecordData);
-        console.log("DEBUG: req.file:", req.file);
  
  
         if (lab_description) {
@@ -300,7 +311,7 @@ const getCompleteRecordById = async (recordId) => {
 
 
 // 13. ADDED THIS —------------------
-    if (hadSurgery === false) {
+    if (hadSurgeryBool === false) {
       if (currentRecord.surgery_id) {
         console.log(`Deleting surgery with ID: ${currentRecord.surgery_id}`)
 
@@ -321,7 +332,7 @@ const getCompleteRecordById = async (recordId) => {
           console.error("Error deleting surgery:", error)
         }
       }
-    } else if (surgery_type !== undefined || surgery_date !== undefined) {
+    } else if (hadSurgeryBool === true) {
       if (surgery_type && surgery_date) {
         if (currentRecord.surgery_id) {
           // update existing surgery record

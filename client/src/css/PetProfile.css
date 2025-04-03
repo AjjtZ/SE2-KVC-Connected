@@ -9,10 +9,12 @@
   position: fixed;
 }
 
+
 .tabs {
   display: flex;
   z-index: 10;
 }
+
 
 .tab {
   padding: 0.6rem 5rem;
@@ -24,10 +26,12 @@
   color: #666;
 }
 
+
 .tab.active {
   background-color: var(--orange-color);
   color: white;
 }
+
 
 .content-area {
   flex: 1;
@@ -39,6 +43,7 @@
   flex-direction: column;
 }
 
+
 .profile-content {
   flex: 1;
   overflow-y: auto;
@@ -48,19 +53,23 @@
   grid-template-columns: 1fr 2fr;
 }
 
+
 .pet-details {
   flex: 1;
 }
 
+
 .vaccination-record {
   flex: 4;
 }
+
 
 .separator {
   width: 1px;
   background-color: #e0e0e0;
   margin: 0 1rem;
 }
+
 
 .section-header {
   display: flex;
@@ -72,11 +81,13 @@
   gap: 1rem;
 }
 
+
 .section-header h2 {
   color: #333;
   margin: 0;
   font-size: 1rem;
 }
+
 
 .edit-button {
   background: none;
@@ -86,11 +97,13 @@
   padding: 0.5rem;
 }
 
+
 .details-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0.5rem;
 }
+
 
 .detail-item {
   display: grid;
@@ -98,14 +111,17 @@
   align-items: center;
 }
 
+
 .detail-item label {
   color: #666;
   font-size: 0.9rem;
 }
 
+
 .detail-item span {
   color: #333;
 }
+
 
 .age-unit {
   color: #666;
@@ -113,10 +129,12 @@
   margin-right: 0.5rem;
 }
 
+
 .age-value {
   color: #333;
   margin-right: 1rem;
 }
+
 
 .contact-header {
   margin: 1.5rem 0 1rem;
@@ -127,12 +145,14 @@
   border-bottom: 1px solid #e0e0e0;
 }
 
+
 .vaccination-record h2 {
   color: var(--orange-color);
   margin-bottom: 1rem;
   text-align: center;
   font-size: 2rem;
 }
+
 
 .vaccination-form {
   display: grid;
@@ -144,9 +164,11 @@
   text-align: center;
 }
 
+
 .vaccination-table tr:nth-child(odd) {
   background-color: var(--lblue-color);
 }
+
 
 .form-group {
   display: flex;
@@ -154,11 +176,13 @@
   gap: 0.5rem;
 }
 
+
 .form-group label {
   font-size: 0.9rem;
   color: var(--orange-color);
   font-weight: bold;
 }
+
 
 .form-group input,
 .form-group select,
@@ -171,11 +195,13 @@
   background-color: white;
 }
 
+
 .date-input {
   position: relative;
   display: flex;
   align-items: center;
 }
+
 
 .date-input input {
   width: 100%;
@@ -184,11 +210,13 @@
   border-radius: 0.25rem;
 }
 
+
 .date-input svg {
   position: absolute;
   right: 0.5rem;
   color: #666;
 }
+
 
 .add-button {
   align-self: flex-end;
@@ -203,6 +231,7 @@
   cursor: pointer;
 }
 
+
 .vaccination-table {
   width: 100%;
   overflow-y: auto;
@@ -210,11 +239,13 @@
   min-height: 0;
 }
 
+
 .vaccination-table table {
   width: 100%;
   border-collapse: collapse;
   min-width: 600px;
 }
+
 
 .vaccination-table th {
   text-align: center;
@@ -225,10 +256,12 @@
   border-bottom: 2px solid #eee;
 }
 
+
 .vaccination-table td {
   padding: 0.5rem;
   border-bottom: 1px solid #eee;
 }
+
 
 .add-dose {
   background: #82b1da;
@@ -243,6 +276,7 @@
   cursor: pointer;
 }
 
+
 /*
   .pet-details input {
     width: 100%;
@@ -252,6 +286,7 @@
     font-size: 1rem;
   }
     */
+
 
 .save-button {
   display: flex;
@@ -267,6 +302,7 @@
   width: 100%;
 }
 
+
 .cancell-button {
   display: flex;
   align-items: center;
@@ -281,6 +317,7 @@
   width: 100%;
 }
 
+
 .edit-actions {
   display: flex;
   justify-content: center;
@@ -288,19 +325,23 @@
   margin-top: 1.5rem;
 }
 
+
 .profile-content::-webkit-scrollbar {
   display: none;
 }
 
+
 @media (max-width: 1200px) {
   .vaccination-form {
     grid-template-columns: 1fr;
+
 
     .content-area {
       overflow-y: auto !important;
     }
   }
 }
+
 
 @media (max-width: 1158px) {
   .profile-content {
@@ -310,15 +351,18 @@
   }
 }
 
+
 @media (max-width: 768px) {
   .content-area {
     padding: 1rem;
   }
 
+
   .pet-profile-page {
     padding-left: 1rem;
     height: calc(100vh - 80px);
   }
+
 
   .save-button,
   .cancel-button {
@@ -327,10 +371,12 @@
     padding: 0.4rem 0.8rem;
   }
 
+
   .tabs {
     flex-wrap: wrap;
     justify-content: center;
   }
+
 
   .tab {
     flex: 1;
@@ -338,33 +384,80 @@
     padding: 0.6rem 1rem;
   }
 
+
   .vaccination-table th,
   .vaccination-table td {
     padding: 0.5rem;
     text-align: left;
   }
 
+
   .add-button {
     width: 100%;
     justify-content: center;
   }
+
 
   .profile-content {
     grid-template-columns: 1fr;
     padding: 1rem;
   }
 
+
   .vaccination-form {
     grid-template-columns: 1fr;
   }
 
+
   .vaccination-table {
     margin-top: 1rem;
   }
+
 
   .vaccination-form {
     display: flex;
     flex-direction: column;
   }
 }
+
+
+.required-field::after {
+  content: "*";
+  color: #ff4444;
+  margin-left: 0.25rem;
+  font-weight: bold;
+}
+
+
+.error-message {
+  color: #ff4444;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+  text-align: left;
+  justify-self: start;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+
+
+
+.detail-item input[type="date"] {
+  position: relative;
+  width: 100%;
+}
+
+
+.detail-item input[type="date"]::-webkit-calendar-picker-indicator {
+  position: absolute;
+  right: 0px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+
+
+
 

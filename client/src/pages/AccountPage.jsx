@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Pencil, Save, Eye, EyeOff } from "lucide-react";
 import "../css/AccountPage.css";
+import { useNavigate } from "react-router-dom";
 
 const AccountPage = ({ title, displayData, initialUserData, isEditing, setIsEditing, onSave, children }) => {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -18,6 +19,25 @@ const AccountPage = ({ title, displayData, initialUserData, isEditing, setIsEdit
     confirm: false,
   });
 
+  const navigate = useNavigate()
+
+ const logout = useCallback(async () => {
+  console.log("Attempting logout due to session issue...");
+  try {
+    // Optional: Inform the backend about the logout attempt
+    await fetch("http://localhost:5000/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+  } catch (error) {
+    console.error("Error during server logout request:", error);
+    // Proceed with client-side logout even if server request fails
+  } finally {
+      console.log("Redirecting to /login");
+      navigate("/login", { replace: true }); // Use replace to prevent going back to the expired page
+  }
+}, [navigate]);
+
   useEffect(() => {
     console.log("AccountPage - displayData updated:", displayData);
   }, [displayData]);
@@ -26,6 +46,7 @@ const AccountPage = ({ title, displayData, initialUserData, isEditing, setIsEdit
     console.log("AccountPage - initialUserData updated:", initialUserData);
     setUserData(initialUserData);
   }, [initialUserData]);
+
 
   const handleEdit = () => {
     console.log("AccountPage - Entering edit mode");
@@ -69,6 +90,13 @@ const AccountPage = ({ title, displayData, initialUserData, isEditing, setIsEdit
         },
         body: JSON.stringify(passwordData),
       });
+
+      if (response.status === 401) {
+        console.warn("Session expired (401 Unauthorized) during password change. Logging out...");
+        await logout(); // Call logout function
+        return; // Stop further processing in this function
+      }
+
 
       if (!response.ok) {
         const errorData = await response.json();

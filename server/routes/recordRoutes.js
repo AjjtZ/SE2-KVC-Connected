@@ -42,23 +42,23 @@ const upload = multer({
 });
 
 
-router.get("/visit-records", authenticate, recordController.getVisitRecords);
+router.get("/visit-records", authenticateToken, authenticate, recordController.getVisitRecords);
 router.post(
-    "/records/:petId",
+    "/records/:petId", authenticateToken,
     authenticate,
     authorize({ roles: ["doctor", "clinician"] }),
     upload.single("record_lab_file"),
     recordController.addRecord
  );
  router.put(
-    "/records/:recordId",
+    "/records/:recordId", authenticateToken,
     authenticate,
     authorize({ roles: ["doctor", "clinician"] }),
     upload.single("record_lab_file"),
     recordController.updateRecord
  );
  
-router.get("/records/request-access-code", authenticate, authorize({roles: ["clinician"]}), recordController.requestDiagnosisAccessCode);
+router.get("/records/request-access-code", authenticateToken, authenticate, authorize({roles: ["clinician"]}), recordController.requestDiagnosisAccessCode);
 
 // GET records with sorting and filtering by date
 router.get("/search-records", authenticateToken, async (req, res) => {

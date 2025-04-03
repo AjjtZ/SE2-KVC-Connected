@@ -1,8 +1,8 @@
 "use client";
 
 
-import { useState } from "react"
-import { useParams } from "react-router-dom" // Import useParams
+import { useState, useCallback } from "react"
+import { useParams, useNavigate } from "react-router-dom" // Import useParams
 import { ArrowLeft } from "lucide-react"
 import "../css/AddRecord.css"
 import { useDiagnosisLock } from "../contexts/DiagnosisLockContext"
@@ -58,25 +58,50 @@ const AddRecord = ({ onClose, onSubmit }) => {
 
 
  const [errors, setErrors] = useState({})
+ const navigate = useNavigate()
 
+ const logout = useCallback(async () => {
+  console.log("Attempting logout due to session issue...");
+  try {
+    // Optional: Inform the backend about the logout attempt
+    await fetch("http://localhost:5000/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+  } catch (error) {
+    console.error("Error during server logout request:", error);
+    // Proceed with client-side logout even if server request fails
+  } finally {
+      console.log("Redirecting to /login");
+      navigate("/login", { replace: true }); // Use replace to prevent going back to the expired page
+  }
+}, [navigate]);
 
  const validateForm = () => {
    const newErrors = {}
-   if (!formData.date) newErrors.date = "Date is required"
-   if (!formData.purposeOfVisit) newErrors.purposeOfVisit = "Purpose of visit is required"
-
-   // Validate surgery fields if hadSurgery is true
-   if (formData.hadSurgery) {
-    if (!formData.surgeryDate) newErrors.surgeryDate = "Surgery date is required when 'Had past surgeries' is Yes"
-    if (!formData.surgeryType) newErrors.surgeryType = "Surgery type is required when 'Had past surgeries' is Yes"
-  }
+     // Required fields validation
+     if (!formData.date) newErrors.date = "Date is required"
+     if (!formData.weight) newErrors.weight = "Weight is required"
+     if (!formData.temperature) newErrors.temperature = "Temperature is required"
+     if (!formData.conditions) newErrors.conditions = "Conditions are required"
+     if (!formData.symptoms) newErrors.symptoms = "Symptoms are required"
+     if (!formData.recentVisit) newErrors.recentVisit = "Recent visit date is required"
+     if (!formData.recentPurchase) newErrors.recentPurchase = "Recent purchase is required"
+     if (!formData.purposeOfVisit) newErrors.purposeOfVisit = "Purpose of visit is required"
+  
+  
+     // Validate surgery fields if hadSurgery is true
+     if (formData.hadSurgery) {
+       if (!formData.surgeryDate) newErrors.surgeryDate = "Surgery date is required"
+       if (!formData.surgeryType) newErrors.surgeryType = "Surgery type is required"
+     }
+  
 
 
    setErrors(newErrors)
    return Object.keys(newErrors).length === 0
  }
-
-
+ 
  const handleSubmit = async (e) => {
    e.preventDefault();
    if (validateForm()) {
@@ -119,6 +144,12 @@ const AddRecord = ({ onClose, onSubmit }) => {
            credentials: "include",
            body: formDataPayload,
          });
+
+         if (response.status === 401) {
+          console.warn("Session expired (401 Unauthorized) during password change. Logging out...");
+          await logout(); // Call logout function
+          return; // Stop further processing in this function
+        }
 
 
          if (!response.ok) {

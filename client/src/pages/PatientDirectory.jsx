@@ -2,7 +2,7 @@
 
 import { Search, Archive, ArrowRight, Filter } from "lucide-react"
 import { useNavigate } from "react-router-dom"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import "../css/PatientDirectory.css"
 import { useConfirmDialog } from "../contexts/ConfirmDialogContext"
 import FilterModal from "../components/FilterPopup"
@@ -15,6 +15,46 @@ export default function PatientDirectory() {
   const [originalPatients, setOriginalPatients] = useState([]);
   const [patients, setPatients] = useState([]);
 
+  const logout = useCallback(async () => {
+    console.log("Attempting logout due to session issue...");
+    try {
+      // Optional: Inform the backend about the logout attempt
+      await fetch("http://localhost:5000/auth/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (error) {
+      console.error("Error during server logout request:", error);
+      // Proceed with client-side logout even if server request fails
+    } finally {
+        console.log("Redirecting to /login");
+        navigate("/login", { replace: true }); // Use replace to prevent going back to the expired page
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    const handleBackButton = () => {
+      if (
+        window.location.pathname === "/login" ||
+        window.location.pathname === "/signup-employee" ||
+        window.location.pathname === "/signup-employee-accesscode"
+
+
+      ) {
+        logout();
+      }
+    };
+
+
+    window.onpopstate = handleBackButton;
+
+
+    return () => {
+      window.onpopstate = null;
+    };
+  }, [logout]);
+
+
   useEffect(() => {
     const fetchActivePets = async () => {
       try {
@@ -25,6 +65,12 @@ export default function PatientDirectory() {
             "Content-Type": "application/json",
           },
         });
+
+        if (response.status === 401) {
+          console.warn("Session expired (401 Unauthorized) during password change. Logging out...");
+          await logout(); // Call logout function
+          return; // Stop further processing in this function
+        }
 
         if (!response.ok) {
           throw new Error("Failed to fetch active pets");
@@ -42,7 +88,7 @@ export default function PatientDirectory() {
     };
 
     fetchActivePets();
-  }, []);
+  }, [logout]);
 
   const handleArchive = (petId) => {
   showConfirmDialog("Are you sure you want to archive this record?", async () => {
@@ -54,6 +100,12 @@ export default function PatientDirectory() {
           "Content-Type": "application/json",
         },
       });
+
+      if (response.status === 401) {
+        console.warn("Session expired (401 Unauthorized) during password change. Logging out...");
+        await logout(); // Call logout function
+        return; // Stop further processing in this function
+      }
 
       if (!response.ok) {
         throw new Error("Failed to archive pet.");
@@ -119,6 +171,12 @@ export default function PatientDirectory() {
           "Content-Type": "application/json",
         },
       });
+
+      if (response.status === 401) {
+        console.warn("Session expired (401 Unauthorized) during password change. Logging out...");
+        await logout(); // Call logout function
+        return; // Stop further processing in this function
+      }
   
       if (!response.ok) {
         throw new Error("Failed to search and filter pets");

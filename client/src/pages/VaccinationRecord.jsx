@@ -1,8 +1,9 @@
 "use client"
 
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { Plus } from "lucide-react"
+import { useNavigate } from "react-router-dom"
 
 
 export default function VaccinationRecord({ pet_id, hasPermission }) {
@@ -23,6 +24,24 @@ export default function VaccinationRecord({ pet_id, hasPermission }) {
     "Anti-rabies (3 months start or succeeding ages)",
   ]
 
+  const navigate = useNavigate()
+
+  const logout = useCallback(async () => {
+      console.log("Attempting logout due to session issue...");
+      try {
+        // Optional: Inform the backend about the logout attempt
+        await fetch("http://localhost:5000/auth/logout", {
+          method: "POST",
+          credentials: "include",
+        });
+      } catch (error) {
+        console.error("Error during server logout request:", error);
+        // Proceed with client-side logout even if server request fails
+      } finally {
+          console.log("Redirecting to /login");
+          navigate("/login", { replace: true }); // Use replace to prevent going back to the expired page
+      }
+    }, [navigate]);
 
   // Fetch vaccination records when component mounts
   useEffect(() => {
@@ -36,6 +55,11 @@ export default function VaccinationRecord({ pet_id, hasPermission }) {
           credentials: "include",
         })
 
+        if (response.status === 401) {
+            console.warn("Session expired (401 Unauthorized) during password change. Logging out...");
+            await logout(); // Call logout function
+            return; // Stop further processing in this function
+          }
 
         if (!response.ok) {
           throw new Error("Failed to fetch vaccination records")
@@ -67,7 +91,7 @@ export default function VaccinationRecord({ pet_id, hasPermission }) {
 
 
     fetchVaccinations()
-  }, [pet_id])
+  }, [pet_id, logout])
 
 
   const getCurrentDate = () => {
@@ -163,6 +187,12 @@ export default function VaccinationRecord({ pet_id, hasPermission }) {
         }),
       })
 
+      if (response.status === 401) {
+        console.warn("Session expired (401 Unauthorized) during password change. Logging out...");
+        await logout(); // Call logout function
+        return; // Stop further processing in this function
+      }
+
 
       if (!response.ok) {
         throw new Error("Failed to update vaccination record")
@@ -221,6 +251,11 @@ export default function VaccinationRecord({ pet_id, hasPermission }) {
         }),
       })
 
+      if (response.status === 401) {
+        console.warn("Session expired (401 Unauthorized) during password change. Logging out...");
+        await logout(); // Call logout function
+        return; // Stop further processing in this function
+      }
 
       if (!response.ok) {
         throw new Error("Failed to add vaccination record")

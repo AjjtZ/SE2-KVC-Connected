@@ -18,7 +18,7 @@ const requestPasswordReset = async (req, res) => {
 
         // Check if user exists
         const [user] = await db.query("SELECT * FROM users WHERE user_email = ?", [email]);
-        if (!user) return res.status(404).json({ error: "User not found." });
+        if (!user || user.length === 0) return res.status(404).json({ error: "User not found." });
 
         // Generate secure alphanumeric reset code
         const resetToken = generateResetToken();

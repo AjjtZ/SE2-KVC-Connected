@@ -1,157 +1,195 @@
 .view-record-container {
-    display: flex;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: white;
+  border-radius: 1rem;
+  width: 100%;
+}
+
+.view-record {
+  background-color: white;
+  padding: 2rem;
+  height: 100%;
+  overflow-y: auto;
+  border-radius: 1rem;
+}
+
+.record-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #eee;
+  background-color: white;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.back-button {
+  background: none;
+  border: none;
+  color: var(--orange-color);
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-left span {
+  color: var(--orange-color);
+  font-size: 1.2rem;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+
+.cancel-button,
+.update-button,
+.save-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  border-radius: 2rem;
+  cursor: pointer;
+  font-size: 1rem;
+  min-width: 120px;
+  width: 120px;
+  height: 40px;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  box-sizing: border-box;
+}
+
+
+.save-button,
+.update-button {
+  background-color: var(--orange-color);
+  color: white;
+  border: none;
+  border: 1px solid var(--orange-color);
+}
+
+
+.cancel-button {
+  background-color: white;
+  color: var(--orange-color);
+  border: 1px solid var(--orange-color) !important;
+}
+
+
+.cancel-button:hover {
+  background-color: #fff8f3;
+}
+
+.update-button:hover,
+.save-button:hover {
+  background-color: var(--blue-color);
+  border-color: var(--blue-color);
+  box-shadow: 0 2px 5px rgba(0, 113, 188, 0.3);
+}
+
+.record-content {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.scrollable-content {
+  height: 100%;
+  overflow-y: auto;
+  padding-top: 1rem;
+  padding-left: 3rem;
+  padding-right: 3rem;
+  padding-bottom: 7rem;
+}
+
+section {
+  margin-bottom: 2rem;
+}
+
+
+.file-preview {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.attached-file-preview {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top: 0.5rem;
+}
+
+
+@media (max-width: 1024px) {
+  .form-row {
     flex-direction: column;
-    height: 100vh;
-    background-color: white;
-    border-radius: 1rem;
-    width: 100%;
-  }
-  
-  .view-record {
-    background-color: white;
-    padding: 2rem;
-    height: 100%;
-    overflow-y: auto;
-    border-radius: 1rem;
-  }
-  
-  .record-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem 2rem;
-    border-bottom: 1px solid #eee;
-    background-color: white;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #eee;
-  }
-  
-  .header-left {
-    display: flex;
-    align-items: center;
     gap: 1rem;
   }
-  
-  .back-button {
-    background: none;
-    border: none;
-    color: var(--orange-color);
-    cursor: pointer;
-    padding: 0.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .header-left span {
-    color: var(--orange-color);
-    font-size: 1.2rem;
-  }
-  
-  .update-button,
-  .save-button {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background-color: var(--orange-color);
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 2rem;
-    cursor: pointer;
-    font-size: 1rem;
-    transition: background-color 0.3s ease;
-  }
-  
-  .update-button:hover,
-  .save-button:hover {
-    background-color: var(--blue-color);
-  }
-  
-  .record-content {
-    flex: 1;
-    overflow: hidden;
-    display: flex;
+
+  .form-field {
     flex-direction: column;
-    gap: 2rem;
-  }
-  
-  .scrollable-content {
-    height: 100%;
-    overflow-y: auto;
-    padding-top: 1rem;
-    padding-left: 3rem;
-    padding-right: 3rem;
-    padding-bottom: 7rem;
-  }
-  
-  section {
-    margin-bottom: 2rem;
+    align-items: flex-start;
   }
 
-  .file-preview {
-    margin-top: 1rem;
-    text-align: center;
+  .form-field label {
+    min-width: auto;
   }
-  
-  .attached-file-preview {
-    max-width: 100%;
-    height: auto;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+
+  .radio-group {
     margin-top: 0.5rem;
   }
-  
-  
-  @media (max-width: 1024px) {
-    .form-row {
-      flex-direction: column;
-      gap: 1rem;
-    }
-  
-    .form-field {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-  
-    .form-field label {
-      min-width: auto;
-    }
-  
-    .radio-group {
-      margin-top: 0.5rem;
-    }
+}
+
+@media (max-width: 768px) {
+  .view-record {
+    padding: 1rem;
   }
-  
-  @media (max-width: 768px) {
-    .view-record {
-      padding: 1rem;
-    }
-  
-    .record-header {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 1rem;
-      padding: 1rem;
-    }
-  
-    .update-button,
-    .save-button {
-      width: 100%;
-      justify-content: center;
-    }
-  
-    .scrollable-content {
-      padding: 1rem;
-    }
-  
-    h2 {
-      font-size: 1.25rem;
-      margin-bottom: 1.5rem;
-    }
-  
-    .visit-details {
-      margin-bottom: 4rem; 
-    }
+
+  .record-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
   }
-  
+
+  .update-button,
+  .save-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .scrollable-content {
+    padding: 1rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .visit-details {
+    margin-bottom: 4rem;
+  }
+}
+
+
+
+
