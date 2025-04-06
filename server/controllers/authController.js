@@ -89,6 +89,17 @@ exports.signupPetOwnerStep1 = async (req, res) => {
         return res.status(400).json({ error: "❌ Passwords do not match!" });
     }
 
+    // Password validation regex
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+
+    if (!passwordRegex.test(password)) {
+        return res.status(400).json({
+            error: "❌ Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character."
+        });
+    }
+
+
     try {
         if (await UserModel.isEmailTaken(email)) {
             return res.status(400).json({ error: "❌ Email already in use." });
@@ -289,6 +300,17 @@ exports.signupEmployeeRequest = async (req, res) => {
             newCaptcha: newCaptcha, // Send new captcha
         });
     }
+
+    // Password validation regex
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+
+    if (!passwordRegex.test(password)) {
+        return res.status(400).json({
+            error: "❌ Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character."
+        });
+    }
+
 
     try {
         const existingUser = await UserModel.findByEmail(email);

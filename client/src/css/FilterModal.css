@@ -12,6 +12,8 @@
 }
 
 
+
+
 .filter-modal {
   background-color: white;
   padding: 2rem;
@@ -20,7 +22,9 @@
   max-width: 400px;
   position: relative;
   z-index: 2000 !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
+
 
 .close-button {
   position: absolute;
@@ -32,9 +36,11 @@
   color: #666;
 }
 
+
 .close-button:hover {
   color: var(--orange-color);
 }
+
 
 .filter-modal h2 {
   color: var(--orange-color);
@@ -43,15 +49,18 @@
   font-size: 1.5rem;
 }
 
+
 .filter-section {
   margin-bottom: 1.5rem;
 }
+
 
 .filter-section h3 {
   color: var(--orange-color);
   margin-bottom: 1rem;
   font-size: 1.1rem;
 }
+
 
 .filter-modal label {
   display: block;
@@ -60,14 +69,17 @@
 }
 
 
+
+
 .sort-order label {
   color: black;
 }
 
-/* Add spacing between radio buttons and labels */
+
 .filter-modal input[type="radio"] {
   margin-right: 0.5rem;
 }
+
 
 /*  for patient directory */
 .patient-filter .id-range {
@@ -75,6 +87,7 @@
   align-items: center;
   gap: 1rem;
 }
+
 
 .patient-filter .id-range input {
   flex: 1;
@@ -84,26 +97,32 @@
   width: 50%
 }
 
+
 .patient-filter .sort-options {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
+
 .patient-filter .sort-option {
   margin-bottom: 1rem;
 }
+
+
 
 
 .sort-options label {
   color: black;
 }
 
+
 .patient-filter .sort-order {
   display: flex;
   gap: 2rem;
   margin-top: 0.5rem;
 }
+
 
 .patient-filter select {
   width: 100%;
@@ -112,12 +131,14 @@
   border-radius: 0.5rem;
 }
 
+
 /* for visit history */
 .visit-filter .sort-options {
   display: flex;
   gap: 2rem;
   margin-bottom: 1rem;
 }
+
 
 .visit-filter .date-range {
   display: flex;
@@ -127,6 +148,7 @@
   align-items: center;
 }
 
+
 .visit-filter .date-input-container {
   flex: 1;
   position: relative;
@@ -134,12 +156,15 @@
   align-items: center;
 }
 
+
 .visit-filter .date-input-container input {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 0.5rem;
 }
+
+
 
 
 .date-input-container .date-placeholder {
@@ -150,28 +175,33 @@
 }
 
 
-/* Hide default placeholder when value exists */
+
+
 .date-input-container input.date-input:not([value=""]) + .date-placeholder,
 .date-input-container input.date-input:focus + .date-placeholder {
   display: none;
 }
 
 
-/* Hide default date input text placeholder */
+
+
 .date-input-container input.date-input::-webkit-datetime-edit-fields-wrapper {
   opacity: 0;
 }
+
 
 .date-input-container input.date-input:not([value=""])::-webkit-datetime-edit-fields-wrapper,
 .date-input-container input.date-input:focus::-webkit-datetime-edit-fields-wrapper {
   opacity: 1;
 }
 
+
 .filter-actions {
   display: flex;
   gap: 1rem;
   margin-top: 2rem;
 }
+
 
 .reset-button,
 .apply-button {
@@ -184,46 +214,166 @@
   transition: background-color 0.3s ease;
 }
 
+
 .reset-button {
   border: 1px solid var(--orange-color);
   background-color: white;
   color: var(--orange-color);
 }
 
+
 .apply-button {
   background-color: var(--orange-color);
   color: white;
 }
 
+
 .reset-button:hover {
   background-color: var(--lyellow-color);
 }
+
 
 .apply-button:hover {
   background-color: var(--blue-color);
 }
 
+
 @media (max-width: 768px) {
   .filter-modal {
     width: 95%;
     padding: 1.5rem;
+    max-width: 350px;
   }
 
+
+  .filter-modal h2 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+ 
+  .filter-section {
+    margin-bottom: 0.75rem;
+  }
+ 
+  .filter-section h3 {
+    font-size: 0.95rem;
+    margin-bottom: 0.5rem;
+  }
+ 
+  .filter-modal label {
+    font-size: 0.9rem;
+    margin-bottom: 0.3rem;
+  }
+
+
   .patient-filter .sort-order {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+ 
+  .patient-filter .id-range input,
+  .date-input-container input,
+  .patient-filter select {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+    height: 32px;
+  }
+
+
+  .visit-filter .date-range {
     flex-direction: column;
     gap: 0.5rem;
   }
 
-  .visit-filter .date-range {
-    flex-direction: column;
-    gap: 1rem;
+
+  .filter-actions {
+    margin-top: 1.5rem;
+  }
+ 
+  .reset-button,
+  .apply-button {
+    padding: 0.5rem;
+    font-size: 0.9rem;
   }
 }
+
+
+@media (max-width: 480px) {
+  .filter-modal {
+    width: 100%;
+    padding: 1rem;
+    max-width: 320px;
+  }
+ 
+  .close-button {
+    top: 0.75rem;
+    right: 0.75rem;
+  }
+ 
+  .filter-modal h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+  }
+ 
+  .filter-section {
+    margin-bottom: 0.6rem;
+  }
+ 
+  .filter-section h3 {
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+  }
+ 
+  .filter-modal label {
+    font-size: 0.85rem;
+    margin-bottom: 0.2rem;
+  }
+ 
+  .patient-filter .id-range input,
+  .date-input-container input,
+  .patient-filter select {
+    padding: 0.4rem;
+    font-size: 0.85rem;
+    height: 30px;
+  }
+ 
+  .filter-actions {
+    gap: 0.4rem;
+    margin-top: 1rem;
+  }
+ 
+  .reset-button,
+  .apply-button {
+    padding: 0.4rem;
+    font-size: 0.85rem;
+    height: 32px;
+  }
+ 
+  .sort-options label {
+    font-size: 0.85rem;
+  }
+ 
+  .date-input-container .date-placeholder {
+    font-size: 0.85rem;
+    left: 0.5rem;
+  }
+}
+
+
+@media (min-width: 1200px) {
+  .filter-modal {
+    max-width: 450px;
+    padding: 2.5rem;
+  }
+}
+
 
 .patient-filter .sort-option label {
   color: var(--orange-color);
 }
 
+
 .patient-filter .sort-order label {
   color: black;
 }
+

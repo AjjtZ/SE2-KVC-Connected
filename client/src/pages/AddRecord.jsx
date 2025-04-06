@@ -32,6 +32,23 @@ const formatDateForDisplay = (dateString) => {
   }
 }
 
+const validateDate = (dateString) => {
+  if (!dateString) return "";
+ 
+  const selectedDate = new Date(dateString);
+  const currentDate = new Date();
+ 
+  // Reset the time portion to compare just the dates
+  selectedDate.setHours(0, 0, 0, 0);
+  currentDate.setHours(0, 0, 0, 0);
+ 
+  if (selectedDate > currentDate) {
+    return "Future dates not allowed";
+  }
+  return "";
+}
+
+
 
 const AddRecord = ({ onClose, onSubmit }) => {
  const { pet_id } = useParams()
@@ -80,13 +97,28 @@ const AddRecord = ({ onClose, onSubmit }) => {
  const validateForm = () => {
    const newErrors = {}
      // Required fields validation
-     if (!formData.date) newErrors.date = "Date is required"
+     if (!formData.date) {
+      newErrors.date = "Date is required"
+    } else {
+      const dateError = validateDate(formData.date);
+      if (dateError) {
+        newErrors.date = dateError;
+      }
+    }
      if (!formData.weight) newErrors.weight = "Weight is required"
      if (!formData.temperature) newErrors.temperature = "Temperature is required"
      if (!formData.conditions) newErrors.conditions = "Conditions are required"
      if (!formData.symptoms) newErrors.symptoms = "Symptoms are required"
-     if (!formData.recentVisit) newErrors.recentVisit = "Recent visit date is required"
-     if (!formData.recentPurchase) newErrors.recentPurchase = "Recent purchase is required"
+      // Validate recent visit date
+      if (!formData.recentVisit) {
+        newErrors.recentVisit = "Recent visit date is required"
+      } else {
+        const dateError = validateDate(formData.recentVisit);
+        if (dateError) {
+          newErrors.recentVisit = dateError;
+        }
+      }
+  if (!formData.recentPurchase) newErrors.recentPurchase = "Recent purchase is required"
      if (!formData.purposeOfVisit) newErrors.purposeOfVisit = "Purpose of visit is required"
   
   
@@ -104,8 +136,13 @@ const AddRecord = ({ onClose, onSubmit }) => {
  
  const handleSubmit = async (e) => {
    e.preventDefault();
-   if (validateForm()) {
-     showConfirmDialog("Are you sure you want to add this record?", async () => {
+   if (!validateForm()) {
+    // Stop submission but show errors
+    console.log("Form validation failed", errors);
+    return;
+  }
+  
+  showConfirmDialog("Are you sure you want to add this record?", async () => {
        try {
         const formattedDate = formData.date ? new Date(formData.date).toISOString().split("T")[0] : ""
           const formattedRecentVisit = formData.recentVisit
@@ -176,7 +213,6 @@ const AddRecord = ({ onClose, onSubmit }) => {
         }
       })
     }
-  }
 
 
 
@@ -193,6 +229,18 @@ const AddRecord = ({ onClose, onSubmit }) => {
       // Clear surgery fields if hadSurgery is set to false
       ...(boolValue === false ? { surgeryDate: "", surgeryType: "" } : {}),
     }))
+    // Clear related errors when changing this field
+    if (errors.hadSurgery || errors.surgeryDate || errors.surgeryType) {
+      setErrors(prev => {
+        const newErrors = {...prev};
+        delete newErrors.hadSurgery;
+        if (boolValue === false) {
+          delete newErrors.surgeryDate;
+          delete newErrors.surgeryType;
+        }
+        return newErrors;
+      });
+    }
   }
    else if (type === "file") {
     const file = e.target.files[0];
@@ -207,12 +255,32 @@ const AddRecord = ({ onClose, onSubmit }) => {
        ...prev,
        [name]: value,
      }))
+     // Validate dates for future dates immediately
+     if (name === "date" && value) {
+      const dateError = validateDate(value);
+      if (dateError) {
+        setErrors(prev => ({
+          ...prev,
+          date: dateError
+        }));
+      }
+    }
+     if (name === "recentVisit" && value) {
+      const dateError = validateDate(value);
+      if (dateError) {
+        setErrors(prev => ({
+          ...prev,
+          recentVisit: dateError
+        }));
+      }
+    }
    }
    if (errors[name]) {
-     setErrors((prev) => ({
-       ...prev,
-       [name]: "",
-     }))
+     setErrors((prev) => {
+      const newErrors = {...prev};
+      delete newErrors[name];
+      return newErrors;
+    })
    }
  }
 
@@ -236,8 +304,7 @@ const AddRecord = ({ onClose, onSubmit }) => {
              className={errors.date ? "error" : ""}
            />
          </div>
-         {errors.date && <span className="error-message">{errors.date}</span>}
-       </div>
+         {errors.date && <span className="error-message-record">{errors.date}</span>}       </div>
        <button className="submit-button" onClick={handleSubmit}>
          Add Record
        </button>

@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import "../css/AddNewPet.css";
+import { useConfirmDialog } from "../contexts/ConfirmDialogContext";
 
 export default function AddNewPet() {
   const [petData, setPetData] = useState({
@@ -13,7 +14,16 @@ export default function AddNewPet() {
     birthday: "",
   });
 
+  const [errors, setErrors] = useState({
+    name: "",
+    speciesDescription: "",
+    gender: "",
+    birthday: ""
+  });
+
+
   const navigate = useNavigate(); // Initialize navigate
+  const { showConfirmDialog } = useConfirmDialog();
 
   const logout = useCallback(async () => {
     console.log("Attempting logout due to session issue...");
@@ -32,17 +42,96 @@ export default function AddNewPet() {
     }
   }, [navigate]);
 
+  // to prevent future dates
+  const validateDate = (dateString) => {
+    if (!dateString) return ""; // Birthday is optional, so empty is valid
+   
+    const selectedDate = new Date(dateString);
+    const currentDate = new Date();
+   
+    // Reset the time portion to compare just the dates
+    selectedDate.setHours(0, 0, 0, 0);
+    currentDate.setHours(0, 0, 0, 0);
+   
+    if (selectedDate > currentDate) {
+      return "Future dates not allowed";
+    }
+    return "";
+  };
+
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setPetData((prev) => ({
       ...prev,
       [name]: value,
     }));
+     // Clear error for this field when user types
+     if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ""
+      }));
+    }
+    // Validate birthday if that's the field being changed
+    if (name === "birthday" && value) {
+      const dateError = validateDate(value);
+      if (dateError) {
+        setErrors(prev => ({
+          ...prev,
+          birthday: dateError
+        }));
+      }
+    }
+  };
+
+
+  const validateForm = () => {
+    let valid = true;
+    const newErrors = { name: "", speciesDescription: "", gender: "",
+      birthday: "" };
+   
+    if (!petData.name.trim()) {
+      newErrors.name = "Name is required";
+      valid = false;
+    }
+   
+    if (!petData.speciesDescription) {
+      newErrors.speciesDescription = "Species is required";
+      valid = false;
+    }
+   
+    if (!petData.gender) {
+      newErrors.gender = "Gender is required";
+      valid = false;
+    }
+
+    // Validate birthday for future dates
+    if (petData.birthday) {
+      const dateError = validateDate(petData.birthday);
+      if (dateError) {
+        newErrors.birthday = dateError;
+        valid = false;
+      }
+    }
+
+   
+    setErrors(newErrors);
+    return valid;
+
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!validateForm()) {
+      return; 
+    }
+
+
+    showConfirmDialog("Do you want to add this pet?", submitPet);
+  };
+  const submitPet = async () => {
     try {
       const response = await fetch("http://localhost:5000/pets/add", {
         method: "POST",
@@ -93,22 +182,27 @@ export default function AddNewPet() {
         <form onSubmit={handleSubmit} className="pet-form">
           <div className="form-row">
             <div className="form-field">
-              <label>Name</label>
+            <label>Name<span className="required">*</span>
+                {errors.name && <span className="error-message-pet">{errors.name}</span>}
+              </label>
               <input
                 type="text"
                 name="name"
                 value={petData.name}
                 onChange={handleInputChange}
-                required
+                className={errors.name ? "input-error-pet" : ""}
               />
             </div>
             <div className="form-field">
-              <label>Species</label>
+            <label>Species<span className="required">*</span>
+                {errors.speciesDescription && <span className="error-message-pet">{errors.speciesDescription}</span>}
+              </label>
               <select
                 name="speciesDescription"
                 value={petData.speciesDescription}
                 onChange={handleInputChange}
-                required
+                className={errors.speciesDescription ? "input-error-pet" : ""}
+
               >
                 <option value="">Select species</option>
                 <option value="Dog (Standard)">Dog</option>
@@ -125,7 +219,9 @@ export default function AddNewPet() {
 
           <div className="form-row">
             <div className="form-field">
-              <label>Gender</label>
+            <label>Gender<span className="required">*</span>
+                {errors.gender && <span className="error-message-pet">{errors.gender}</span>}
+              </label>
               <div className="radio-group">
                 <label className="radio-label">
                   <input
@@ -162,13 +258,16 @@ export default function AddNewPet() {
 
           <div className="form-row birthday-row">
             <div className="form-field">
-              <label>Birthday (Optional)</label>
+            <label>Birthday (Optional)
+                {errors.birthday && <span className="error-message-pet">{errors.birthday}</span>}
+              </label>
               <div className="date-input">
                 <input
                   type="date"
                   name="birthday"
                   value={petData.birthday}
                   onChange={handleInputChange}
+                  className={errors.birthday ? "input-error-pet" : ""} 
                 />
               </div>
             </div>

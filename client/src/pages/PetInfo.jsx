@@ -53,11 +53,28 @@ const PetInfo = () => {
       }
   };
 
+  // to prevent future dates
+  const validateBirthday = (dateString) => {
+    if (!dateString) return true; // Birthday is optional
+   
+    const selectedDate = new Date(dateString);
+    const currentDate = new Date();
+   
+    // Reset the time portion to compare just the dates
+    selectedDate.setHours(0, 0, 0, 0);
+    currentDate.setHours(0, 0, 0, 0);
+   
+    return selectedDate <= currentDate;
+  };
+
+
 
   const handleChange = (e) => {
     const newFormData = { ...formData, [e.target.name]: e.target.value };
     setFormData(newFormData);
     sessionStorage.setItem("signupStep2", JSON.stringify(newFormData)); // Save to sessionStorage
+    // Clear error if a new value is entered
+    if (error) setError("");
   };
 
 
@@ -101,6 +118,13 @@ const PetInfo = () => {
     fetchCaptcha(); // Refresh CAPTCHA
     return;
   }
+  // Validate birthday if it's provided
+  if (formData.birthdate && !validateBirthday(formData.birthdate)) {
+    setError("Future dates not allowed");
+    fetchCaptcha(); // Refresh CAPTCHA
+    return;
+  }
+
   if (!formData.altPerson1.trim()) {
     setError("Emergency contact person is required");
     fetchCaptcha(); // Refresh CAPTCHA
@@ -185,7 +209,11 @@ const getLandingPage = (role) => {
       <div className="right-section">
         <h2>Create Account</h2>
         <p>Your pet's care starts here!</p>
-        {error && <div className="auth-error-message">{error}</div>}
+        {error && (
+          <div className={`auth-error-message ${error === "Future dates not allowed" ? "future-date-error" : ""}`}>
+            {error}
+          </div>
+        )}
         <form onSubmit={handleSubmit}>
           <div className="signup-form-row">
             <FormGroup
@@ -257,7 +285,16 @@ const getLandingPage = (role) => {
             type="date"
             name="birthdate"
             value={formData.birthdate}
-            onChange={handleChange}
+            onChange={(e) => {
+              // Call handleChange to update state
+              handleChange(e);
+             
+              // Check if it's a future date and set an error
+              if (e.target.value && !validateBirthday(e.target.value)) {
+                setError("Future dates not allowed");
+              }
+            }}
+
           />
 
 

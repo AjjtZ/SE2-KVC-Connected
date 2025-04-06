@@ -172,6 +172,13 @@
   font-size: 1rem;
   font-weight: bold;
   text-align: center;
+  font-style: italic;
+ }
+ 
+ 
+
+ .future-date-error {
+  font-style: italic;
  }
  
  
@@ -1036,3 +1043,4 @@
  
  
  
+

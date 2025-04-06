@@ -22,6 +22,7 @@ export default function PetProfile() {
   const [editedPetData, setEditedPetData] = useState({})
   const [petData, setPetData] = useState(null)
   const [nameError, setNameError] = useState("")
+  const [birthdayError, setBirthdayError] = useState("")
 
   const navigate = useNavigate()
   const logout = useCallback(async () => {
@@ -40,6 +41,15 @@ export default function PetProfile() {
         navigate("/login", { replace: true }); // Use replace to prevent going back to the expired page
     }
   }, [navigate]);
+
+  useEffect(() => {
+    if (activeTab !== "profile" && isEditing) {
+      setIsEditing(false)
+      setEditedPetData({})
+      setNameError("")
+      setBirthdayError("")
+    }
+  }, [activeTab, isEditing])
 
 
   const fetchVaccinationRecords = useCallback(async (petId) => {
@@ -225,6 +235,11 @@ export default function PetProfile() {
       return
     }
 
+    // Check for birthday errors
+    if (birthdayError) {
+      return
+    }
+
 
     // Show confirmation dialog before saving
     showConfirmDialog("Do you want to save your changes?", async () => {
@@ -325,6 +340,21 @@ export default function PetProfile() {
     setIsEditing(false)
     setEditedPetData({})
     setNameError("")
+    setBirthdayError("")
+  }
+
+  const validateBirthday = (date) => {
+    const selectedDate = new Date(date);
+    const currentDate = new Date();
+   
+    // Reset the time portion to compare just the dates
+    selectedDate.setHours(0, 0, 0, 0);
+    currentDate.setHours(0, 0, 0, 0);
+   
+    if (selectedDate > currentDate) {
+      return "Future dates not allowed";
+    }
+    return "";
   }
 
 
@@ -341,6 +371,13 @@ export default function PetProfile() {
         setNameError("")
       }
     }
+
+    // Validate birthday when changed
+    if (name === 'birthday') {
+      const error = validateBirthday(value);
+      setBirthdayError(error);
+    }
+
    
     setEditedPetData((prev) => {
       const updatedData = { ...prev, [name]: type === "radio" ? e.target.id : value }
@@ -395,11 +432,11 @@ export default function PetProfile() {
                   {isEditing ? (
                     <>
                       <input type="text" name="name" value={editedPetData.name || ""} onChange={handleInputChange} />
-                      {nameError && <div className="error-message">{nameError}</div>}
                     </>
                   ) : (
                     <span>{petData.name}</span>
                   )}
+                  {isEditing && nameError && <div className="error-message-profile">{nameError}</div>}
                 </div>
                 <div className="detail-item">
                   <label className={isEditing ? "required-field" : ""}>Species</label>
@@ -460,12 +497,17 @@ export default function PetProfile() {
                 <div className="detail-item">
                   <label>Birthday</label>
                   {isEditing ? (
+                    <>
                     <input
                       type="date"
                       name="birthday"
                       value={editedPetData.birthday || ""}
                       onChange={handleInputChange}
+                      className={birthdayError ? "input-error-pet" : ""}
                     />
+                    {birthdayError && <div className="error-message-profile">{birthdayError}</div>}
+                  </>
+
                   ) : (
                     <span>{new Date(petData.birthday).toLocaleDateString()}</span>
                   )}

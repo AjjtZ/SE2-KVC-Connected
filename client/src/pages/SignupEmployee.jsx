@@ -126,6 +126,7 @@ const SignupEmployee = () => {
         } catch (error) {
             console.error("Error:", error.message);
             setError(error.message);
+            fetchCaptcha(); // Refresh CAPTCHA
         }
     };
 

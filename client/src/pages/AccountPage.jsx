@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Pencil, Save, Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import "../css/AccountPage.css";
 import { useNavigate } from "react-router-dom";
+import { useConfirmDialog } from "../contexts/ConfirmDialogContext";
 
-const AccountPage = ({ title, displayData, initialUserData, isEditing, setIsEditing, onSave, children }) => {
+const AccountPage = ({ title, displayData, initialUserData, isEditing, setIsEditing, onSave, onCancelEdit, children }) => {
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [userData, setUserData] = useState(initialUserData);
   const [passwordData, setPasswordData] = useState({
@@ -18,8 +19,13 @@ const AccountPage = ({ title, displayData, initialUserData, isEditing, setIsEdit
     new: false,
     confirm: false,
   });
-
-  const navigate = useNavigate()
+  const [passwordError, setPasswordError] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const { showConfirmDialog } = useConfirmDialog();
+  const navigate = useNavigate();
 
  const logout = useCallback(async () => {
   console.log("Attempting logout due to session issue...");
@@ -54,6 +60,16 @@ const AccountPage = ({ title, displayData, initialUserData, isEditing, setIsEdit
     setUserData(initialUserData);
   };
 
+  const handleCancel = () => {
+    console.log("AccountPage - Canceling edit mode");
+    setUserData(initialUserData);
+    if (onCancelEdit) {
+      onCancelEdit();
+    } else {
+      setIsEditing(false);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     console.log(`AccountPage - Input changed: ${name} = ${value}`);
@@ -69,7 +85,16 @@ const AccountPage = ({ title, displayData, initialUserData, isEditing, setIsEdit
       ...prev,
       [name]: value,
     }))
+    if (passwordError[name]) {
+      setPasswordError(prev => ({
+        ...prev,
+        [name]: ""
+      }));
+    }
+
   }
+
+
 
   const togglePasswordVisibility = (field) => {
     setShowPasswords((prev) => ({
@@ -78,7 +103,78 @@ const AccountPage = ({ title, displayData, initialUserData, isEditing, setIsEdit
     }))
   }
 
+  const handleCancelPasswordChange = () => {
+    // Reset password data
+    setPasswordData({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+   
+    // Clear all password errors
+    setPasswordError({
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
+    });
+   
+    // Exit password change mode
+    setIsChangingPassword(false);
+  }
+
+
+  const validatePasswordFields = () => {
+    const errors = {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: ""
+    };
+    let isValid = true;
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRequirementsMessage = "Password must be 8+ chars with uppercase, lowercase, number, & special char (@$!%*?&).";
+
+
+    if (!passwordData.currentPassword) {
+      errors.currentPassword = "Current Password is required";
+      isValid = false;
+    }
+
+
+    if (!passwordData.newPassword) {
+      errors.newPassword = "New Password is required";
+      isValid = false;
+    } else if (!passwordRegex.test(passwordData.newPassword)) { // <-- The new check
+      errors.newPassword = passwordRequirementsMessage; // Set the specific error
+      isValid = false;
+    }
+
+
+    if (!passwordData.confirmPassword) {
+      errors.confirmPassword = "Confirm Password is required";
+      isValid = false;
+    } else if (passwordData.newPassword !== passwordData.confirmPassword) {
+      errors.confirmPassword = "Passwords do not match";
+      isValid = false;
+    }
+
+
+    setPasswordError(errors);
+    return isValid;
+  }
+
+
   const handleSavePassword = async () => {
+    if (!validatePasswordFields()) {
+      return;
+    }
+
+
+    showConfirmDialog("Do you want to save your password changes?", savePasswordChanges);
+  };
+
+
+  const savePasswordChanges = async () => {
     try {
       console.log("Password Data:", passwordData);
 
@@ -101,6 +197,15 @@ const AccountPage = ({ title, displayData, initialUserData, isEditing, setIsEdit
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Backend Error:", errorData);
+        // Handle specific backend errors
+        if (errorData.error && errorData.error.includes("current password")) {
+          setPasswordError(prev => ({
+            ...prev,
+            currentPassword: "Current password is incorrect"
+          }));
+          return;
+        }
+
         throw new Error(errorData.error || "Failed to change password");
       }
 
@@ -108,16 +213,22 @@ const AccountPage = ({ title, displayData, initialUserData, isEditing, setIsEdit
       console.log("Password changed successfully:", data);
 
       setIsChangingPassword(false);
+
       setPasswordData({
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
 
-      alert("Password changed successfully!");
+      setPasswordError({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+
     } catch (error) {
       console.error("Error changing password:", error);
-      alert(error.message || "Failed to change password. Please try again.");
+      setPasswordError(error.message || "Failed to change password. Please try again.");
     }
   };
 
@@ -141,13 +252,16 @@ const AccountPage = ({ title, displayData, initialUserData, isEditing, setIsEdit
                     <div className="card-header">
                       <h3>Personal Information</h3>
                       {isEditing ? (
-                        <button className="save-profile-btn" onClick={() => onSave(userData)}>
-                          <Save size={16} />
-                          Save
-                        </button>
+                        <div className="action-buttons">
+                          <button className="save-profile-btn" onClick={() => onSave(userData)}>
+                            Save
+                          </button>
+                          <button className="cancel-profile-btn" onClick={handleCancel}>
+                            Cancel
+                          </button>
+                        </div>
                       ) : (
                         <button className="edit-profile-btn" onClick={handleEdit}>
-                          <Pencil size={16} />
                           Edit Profile
                         </button>
                       )}
@@ -158,15 +272,14 @@ const AccountPage = ({ title, displayData, initialUserData, isEditing, setIsEdit
 
                   <div className="info-card">
                     <div className="card-header">
-                      <h3>Change Password</h3>
-                      <button className="change-btn" onClick={() => setIsChangingPassword(true)}>
+                    <h3>Password</h3>
+                      <button
+                        className={isEditing ? "change-btn disabled" : "change-btn"}
+                        onClick={() => !isEditing && setIsChangingPassword(true)}
+                        disabled={isEditing}
+                      >
                         Change
                       </button>
-                    </div>
-
-                    <div className="password-section">
-                      <label>Password</label>
-                      <input type="password" value="••••••••••••••••••••••" readOnly className="password-input" />
                     </div>
                   </div>
                 </>
@@ -179,15 +292,19 @@ const AccountPage = ({ title, displayData, initialUserData, isEditing, setIsEdit
                   </div>
                   <div className="password-change-section">
                     <div className="password-group">
-                      <label>Current Password</label>
+                    <label>Current Password<span className="required">*</span>
+                        {passwordError.currentPassword && (
+                          <span className="error-message-pet">{passwordError.currentPassword}</span>
+                        )}
+                      </label>
                       <div className="password-input-container">
                         <input
                           type={showPasswords.current ? "text" : "password"}
                           name="currentPassword"
                           value={passwordData.currentPassword}
                           onChange={handlePasswordChange}
-                          className="password-input"
-                        />
+                          className={passwordError.currentPassword ? "input-error-pet" : "password-input"}
+                          />
                         <button
                           type="button"
                           className="toggle-password"
@@ -199,14 +316,18 @@ const AccountPage = ({ title, displayData, initialUserData, isEditing, setIsEdit
                     </div>
 
                     <div className="password-group">
-                      <label>New Password</label>
-                      <div className="password-input-container">
+                    <label>New Password<span className="required">*</span>
+                        {passwordError.newPassword && (
+                          <span className="error-message-pet">{passwordError.newPassword}</span>
+                        )}
+                      </label>
+                    <div className="password-input-container">
                         <input
                           type={showPasswords.new ? "text" : "password"}
                           name="newPassword"
                           value={passwordData.newPassword}
                           onChange={handlePasswordChange}
-                          className="password-input"
+                          className={passwordError.newPassword ? "input-error-pet" : "password-input"}
                         />
                         <button
                           type="button"
@@ -219,14 +340,18 @@ const AccountPage = ({ title, displayData, initialUserData, isEditing, setIsEdit
                     </div>
 
                     <div className="password-group">
-                      <label>Confirm Password</label>
+                    <label>Confirm Password<span className="required">*</span>
+                        {passwordError.confirmPassword && (
+                          <span className="error-message-pet">{passwordError.confirmPassword}</span>
+                        )}
+                      </label>
                       <div className="password-input-container">
                         <input
                           type={showPasswords.confirm ? "text" : "password"}
                           name="confirmPassword"
                           value={passwordData.confirmPassword}
                           onChange={handlePasswordChange}
-                          className="password-input"
+                          className={passwordError.confirmPassword ? "input-error-pet" : "password-input"}
                         />
                         <button
                           type="button"
@@ -240,9 +365,9 @@ const AccountPage = ({ title, displayData, initialUserData, isEditing, setIsEdit
 
                     <div className="password-actions">
                       <button className="save-changes-btn" onClick={handleSavePassword}>
-                        Save Changes
+                        Save
                       </button>
-                      <button className="cancel-btn" onClick={() => setIsChangingPassword(false)}>
+                      <button className="cancel-btn" onClick={handleCancelPasswordChange}>
                         Cancel
                       </button>
                     </div>

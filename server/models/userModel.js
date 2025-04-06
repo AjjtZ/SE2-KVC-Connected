@@ -47,17 +47,19 @@ class UserModel {
     }
 
     static async createEmployee({ fname, lname, contact, email, role, hashedPassword }) {
+        const contactValue = (contact === "" || contact === undefined) ? null : contact;
         const [result] = await db.execute(
             "INSERT INTO users (user_email, user_contact, user_password, user_firstname, user_lastname, user_role) VALUES (?, ?, ?, ?, ?, ?)",
-            [email, contact, hashedPassword, fname, lname, role]
+            [email, contactValue, hashedPassword, fname, lname, role]
         );
         return result.insertId;
     }
 
     static async updateEmployeeProfile(userId, firstname, lastname, email, contact) {
+        const contactValue = (contact === "" || contact === undefined) ? null : contact;
         await db.execute(
             "UPDATE users SET user_firstname = ?, user_lastname = ?, user_email = ?, user_contact = ? WHERE user_id = ?",
-            [firstname, lastname, email, contact, userId]
+            [firstname, lastname, email, contactValue, userId]
         );
 
         return this.getUserById(userId);

@@ -184,7 +184,7 @@ const MedicalRecordForm = ({
              </div>
            </div>
          ) : (
-           <span></span>
+          <span>{!isEditing ? <em>{`No ${label.toLowerCase()} provided`}</em> : ""}</span>
          )}
        </div>
      );
@@ -243,11 +243,15 @@ const MedicalRecordForm = ({
           {isEditing || type === "file" ?
             input :
             <span className="value-text">
-              {type === "radio" ? (value === true ? "Yes" : "No") : value}
+              {type === "radio" ? (value === true ? "Yes" : "No") :
+               !value || value === "" ?
+                 <em>{`No ${label.toLowerCase()} provided`}</em> :
+                 value
+              }
             </span>
           }
         </div>
-        {errors && errors[name] && <span className="error-message">{errors[name]}</span>}
+        {errors && errors[name] && <span className="error-message-record">{errors[name]}</span>}
         {name === "latestDiagnosis" && isDiagnosisLocked && isEditing && !isAddRecord && (
           <button type="button" className="unlock-diagnosis-btn" onClick={onUnlockDiagnosis}>
             Unlock Diagnosis

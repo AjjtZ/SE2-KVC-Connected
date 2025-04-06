@@ -49,7 +49,7 @@ exports.updateEmployeeProfile = [
                 firstname: firstname || currentProfile.user_firstname,
                 lastname: lastname || currentProfile.user_lastname,
                 email: email || currentProfile.user_email,
-                contact: contact || currentProfile.user_contact
+                contact: (contact !== undefined) ? contact : currentProfile.user_contact
             };
 
             const updatedUser = await UserModel.updateEmployeeProfile(userId, updatedProfile.firstname, updatedProfile.lastname, updatedProfile.email, updatedProfile.contact);
@@ -143,6 +143,17 @@ exports.changePassword = [
         if (newPassword !== confirmPassword) {
             return res.status(400).json({ error: "❌ New passwords do not match!" });
         }
+
+            // Password validation regex
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+
+        if (!passwordRegex.test(newPassword)) {
+            return res.status(400).json({
+                error: "❌ Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character."
+            });
+        }
+
 
         try {
             const storedPassword = await UserModel.getPasswordById(userId);

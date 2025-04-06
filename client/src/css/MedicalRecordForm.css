@@ -1,13 +1,15 @@
 .medical-record-form {
   display: flex;
   flex-direction: column;
-
+  overflow-x: hidden;
 }
+
 
 .medical-info,
 .visit-details {
   margin-bottom: 1rem;
 }
+
 
 .medical-info h2,
 .visit-details h2 {
@@ -18,46 +20,65 @@
   font-weight: bold;
 }
 
+
 .form-row {
   display: flex;
   gap: 2rem;
-  margin-bottom: 1rem;
+  margin-bottom: 4rem;
+  flex-wrap: wrap;
 }
+
 
 .form-field {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  position: relative;
 }
+
 
 .form-field.full-width {
   width: 100%;
 }
 
+
 .input-container {
-  display: flex;
+  display: grid;
+  grid-template-columns: 170px 1fr;
   align-items: center;
-  gap: 3rem;
+  gap: 2rem;
 }
 
+
 .form-field label {
-  min-width: 120px;
+  min-width: 170px;
+  width: 170px;
   font-weight: bold !important;
   color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
 
 .form-field input[type="text"],
 .form-field input[type="date"],
 .form-field select,
 .form-field textarea,
-.date-input input {
+.date-input input,
+.file-upload-container,
+.custom-file-input,
+.file-input-ui {
   flex: 1;
   padding: 0.1rem;
-  border: 1px solid black;
   border-radius: 0.5rem;
   font-size: 1rem;
+  min-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
 }
+
 
 .form-field input[type="text"]:focus,
 .form-field input[type="date"]:focus,
@@ -68,6 +89,7 @@
   border-color: var(--orange-color);
 }
 
+
 .date-input {
   position: relative;
   flex: 1;
@@ -76,12 +98,13 @@
   width: 100%;
 }
 
+
 .date-input input {
   width: 100%;
   padding-right: 2.5rem;
 }
 
-/* Hide default calendar icon and use custom styling */
+
 input[type="date"]::-webkit-calendar-picker-indicator {
   position: absolute;
   right: 10px;
@@ -90,18 +113,25 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
 }
 
-.error-message {
+
+.error-message-record {
   color: #ff4444;
   font-size: 0.8rem;
   margin-top: 0.2rem;
-  margin-left: calc(120px + 1rem); /* Align with input, accounting for label width and gap */
+  font-style: italic;
+  margin-bottom: 0.25rem;
+  margin-left: 200px;
+  grid-column: 1 / span 2;
+  text-align: left;
 }
+
 
 .radio-group {
   display: flex;
   gap: 2rem;
   flex: 1;
 }
+
 
 .radio-label {
   display: flex;
@@ -110,14 +140,21 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
 }
 
+
 .file-upload-container {
-  width: 100%;
+  width: 100% !important;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
+
 .custom-file-input {
-  width: 100%;
+  width: 100% !important;
   margin-bottom: 0.5rem;
+  flex: 1;
 }
+
 
 .hidden-file-input {
   position: absolute;
@@ -130,30 +167,40 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   border: 0;
 }
 
+
 .file-input-ui {
   display: flex;
   align-items: center;
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 7px;
   overflow: hidden;
   background-color: #fff;
+  width: 100% !important;
+  box-sizing: border-box;
+  flex: 1;
 }
+
 
 .file-select-button {
   background-color: white;
   color: #6c757d;
-  padding: 8px 16px;
+  padding: 8px 1px;
   border: none;
   border-right: 1px solid #ddd;
   border-radius: 0;
   cursor: pointer;
   white-space: nowrap;
   transition: background-color 0.2s;
+  min-width: 95px;
+  flex-shrink: 0;
+  max-width: 95px;
 }
+
 
 .file-select-button:hover {
   background-color: #f8f9fa;
 }
+
 
 .file-name-display {
   padding: 8px 12px;
@@ -164,7 +211,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   flex: 1;
   font-size: 0.85rem;
   font-style: italic;
+  width: calc(100% - 100px) !important;
 }
+
 
 .file-input {
   flex: 1;
@@ -175,7 +224,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   width: 100%;
 }
 
-/* Custom styling for file input button */
+
 input[type="file"]::-webkit-file-upload-button {
   background-color: white;
   color: #6c757d;
@@ -187,11 +236,12 @@ input[type="file"]::-webkit-file-upload-button {
   transition: background-color 0.2s;
 }
 
+
 input[type="file"]::-webkit-file-upload-button:hover {
   background-color: #f8f9fa;
 }
 
-/* Support for Firefox */
+
 input[type="file"]::file-selector-button {
   background-color: white;
   color: #6c757d;
@@ -203,9 +253,11 @@ input[type="file"]::file-selector-button {
   transition: background-color 0.2s;
 }
 
+
 input[type="file"]::file-selector-button:hover {
   background-color: #f8f9fa;
 }
+
 
 textarea {
   width: 100%;
@@ -213,10 +265,12 @@ textarea {
   min-height: 2rem;
 }
 
+
 .value-text {
   color: #333;
   padding: 0.25rem 0;
 }
+
 
 .view-file-btn {
   display: flex;
@@ -231,6 +285,7 @@ textarea {
   font-size: 0.875rem;
 }
 
+
 .file-name {
   margin-bottom: 8px;
   font-weight: 500;
@@ -242,6 +297,7 @@ textarea {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 
 .unlock-diagnosis-btn {
   margin-top: 0.5rem;
@@ -258,56 +314,91 @@ textarea {
   margin-left: auto;
 }
 
+
 .required {
   color: #ff4444;
   margin-left: 0.25rem;
+  display: inline-block;
 }
 
+
 @media (max-width: 1024px) {
+  .error-message-record {
+      margin-bottom: 0.25rem;
+      margin-left: 190px;
+      grid-column: 1 / span 2;
+  }
+
+
   .form-field input[type="text"],
   .form-field input[type="date"],
   .form-field select,
   .form-field textarea,
   .date-input,
-  .file-input {
-    width: 100%;
+  .file-input,
+  .custom-file-input,
+  .file-upload-container,
+  .file-input-ui {
+    width: 100% !important;
+    min-width: 100% !important;
+    box-sizing: border-box;
+    max-width: 100% !important;
   }
+ 
+  .form-field {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    max-width: 100%;
+    display: flex;
+  }
+ 
+  .file-name-display {
+    max-width: calc(100% - 100px);
+    width: calc(100% - 100px) !important;
+    box-sizing: border-box;
+    font-size: 0.8rem;
+  }
+ 
+  .file-select-button {
+    width: auto;
+    padding: 8px 10px;
+    min-width: 90px;
+    max-width: 90px;
+  }
+
 
   .form-row {
     flex-direction: column;
     gap: 1rem;
+    width: 100%;
   }
 
-  .form-field {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 
   .input-container {
     width: 100%;
     display: grid;
-    grid-template-columns: 120px 1fr;
+    grid-template-columns: 170px 1fr;
     align-items: center;
     gap: 1rem;
+    max-width: 100%;
   }
  
   .form-field label {
-    min-width: 120px;
-    width: 120px;
+    min-width: 170px;
+    width: 170px;
   }
  
   .value-text {
     width: 100%;
   }
 
+
   .radio-group {
     margin-top: 0.5rem;
   }
- 
-  .error-message {
-    margin-left: 120px;
-  }
 }
+
 
 @media (max-width: 768px) {
   .medical-info h2,
@@ -319,6 +410,7 @@ textarea {
   .input-container {
     grid-template-columns: 1fr;
     gap: 0.5rem;
+    width: 100%;
   }
  
   .form-field label {
@@ -327,12 +419,37 @@ textarea {
     margin-bottom: 0.25rem;
   }
  
-  .error-message {
+  .error-message-record {
     margin-left: 0;
+    grid-column: 1;
   }
  
   .radio-group {
     gap: 1rem;
+  }
+ 
+  .file-input-ui {
+    display: flex;
+    width: 100% !important;
+  }
+ 
+  .file-select-button {
+    width: auto;
+    padding: 6px 10px;
+    min-width: 80px;
+    max-width: 80px;
+    font-size: 0.85rem;
+  }
+ 
+  .file-name-display {
+    padding: 6px 8px;
+    font-size: 0.75rem;
+    width: calc(100% - 85px) !important;
+  }
+ 
+  .form-field select {
+    max-width: 100% !important;
+    width: 100% !important;
   }
 }
 
@@ -347,6 +464,7 @@ textarea {
   position: relative;
 }
 
+
 .file-preview img {
   border-radius: 6px;
   display: block;
@@ -357,6 +475,7 @@ textarea {
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
 }
 
+
 .file-actions {
   display: flex;
   gap: 15px;
@@ -365,15 +484,18 @@ textarea {
   padding-right: 18px;
 }
 
+
 .view-file-icon {
   color: var(--blue-color);
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
+
 .view-file-icon:hover {
   color: #0056b3;
 }
+
 
 .remove-file-icon {
   background: none;
@@ -384,9 +506,11 @@ textarea {
   transition: color 0.2s ease;
 }
 
+
 .remove-file-icon:hover {
   color: #c82333;
 }
+
 
 .file-actions a {
   display: inline-flex;
@@ -395,17 +519,13 @@ textarea {
   text-decoration: none;
 }
 
+
 .remove-file-btn {
   display: none;
 }
+
 
 textarea[name="latestDiagnosis"] {
   min-height: 50px;
   height: 50px;
 }
-
-
-
-
-
-
